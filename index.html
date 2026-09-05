@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام إدارة سكن العمال - كيو</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial,Tahoma,sans-serif;
+    background:#f3f6f9;
+    color:#222;
+}
+header{
+    background:#17324d;
+    color:white;
+    padding:18px;
+    text-align:center;
+}
+nav{
+    background:white;
+    padding:10px;
+    display:flex;
+    gap:8px;
+    overflow:auto;
+}
+nav button{
+    border:0;
+    padding:12px 16px;
+    border-radius:8px;
+    background:#e8edf2;
+    cursor:pointer;
+    white-space:nowrap;
+}
+nav button.active{
+    background:#17324d;
+    color:white;
+}
+main{
+    padding:20px;
+    max-width:1200px;
+    margin:auto;
+}
+.section{
+    display:none;
+}
+.section.active{
+    display:block;
+}
+.cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:15px;
+}
+.card{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 2px 8px #0001;
+}
+.number{
+    font-size:30px;
+    font-weight:bold;
+    margin-top:10px;
+}
+button.primary{
+    background:#17324d;
+    color:white;
+    border:0;
+    padding:11px 18px;
+    border-radius:8px;
+    cursor:pointer;
+}
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+    margin-top:15px;
+}
+th,td{
+    padding:12px;
+    border-bottom:1px solid #ddd;
+    text-align:right;
+}
+th{
+    background:#edf2f6;
+}
+input,select,textarea{
+    width:100%;
+    padding:10px;
+    margin:6px 0 12px;
+    border:1px solid #ccc;
+    border-radius:7px;
+    box-sizing:border-box;
+}
+.form{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    margin-top:15px;
+}
+@media(max-width:600px){
+    main{padding:10px}
+    th,td{font-size:13px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>🏠 نظام إدارة سكن العمال</h1>
+    <p>شركة كيو</p>
+</header>
+
+<nav>
+    <button class="active" onclick="showSection('home',this)">🏠 الرئيسية</button>
+    <button onclick="showSection('workers',this)">👷 الموظفون</button>
+    <button onclick="showSection('rooms',this)">🛏️ الغرف</button>
+    <button onclick="showSection('violations',this)">⚠️ المخالفات</button>
+    <button onclick="showSection('maintenance',this)">🔧 الصيانة</button>
+    <button onclick="showSection('inspection',this)">🔍 التفتيش</button>
+    <button onclick="showSection('reports',this)">📊 التقارير</button>
+</nav>
+
+<main>
+
+<section id="home" class="section active">
+<h2>لوحة التحكم</h2>
+
+<div class="cards">
+
+<div class="card">
+👷 إجمالي الموظفين
+<div class="number" id="workerCount">0</div>
+</div>
+
+<div class="card">
+🏢 عدد الغرف
+<div class="number" id="roomCount">0</div>
+</div>
+
+<div class="card">
+⚠️ المخالفات
+<div class="number" id="violationCount">0</div>
+</div>
+
+<div class="card">
+🔧 طلبات الصيانة
+<div class="number" id="maintenanceCount">0</div>
+</div>
+
+</div>
+</section>
+
+<section id="workers" class="section">
+<h2>👷 إدارة الموظفين</h2>
+
+<div class="form">
+
+<label>اسم الموظف</label>
+<input id="workerName">
+
+<label>رقم الموظف</label>
+<input id="workerNumber">
+
+<label>الوظيفة</label>
+<input id="workerJob">
+
+<label>رقم الغرفة</label>
+<input id="workerRoom">
+
+<button class="primary" onclick="addWorker()">إضافة الموظف</button>
+
+</div>
+
+<table>
+<thead>
+<tr>
+<th>الاسم</th>
+<th>الرقم</th>
+<th>الوظيفة</th>
+<th>الغرفة</th>
+</tr>
+</thead>
+<tbody id="workersTable"></tbody>
+</table>
+
+</section>
+
+<section id="rooms" class="section">
+
+<h2>🛏️ إدارة الغرف</h2>
+
+<div class="form">
+
+<label>رقم المبنى</label>
+<input id="building">
+
+<label>رقم الدور</label>
+<input id="floor">
+
+<label>رقم الغرفة</label>
+<input id="roomNumber">
+
+<label>عدد الأسرة</label>
+<input id="beds" type="number">
+
+<button class="primary" onclick="addRoom()">إضافة الغرفة</button>
+
+</div>
+
+<table>
+<thead>
+<tr>
+<th>المبنى</th>
+<th>الدور</th>
+<th>الغرفة</th>
+<th>الأسرة</th>
+</tr>
+</thead>
+<tbody id="roomsTable"></tbody>
+</table>
+
+</section>
+
+<section id="violations" class="section">
+
+<h2>⚠️ المخالفات</h2>
+
+<div class="form">
+
+<label>اسم الموظف</label>
+<input id="violationWorker">
+
+<label>نوع المخالفة</label>
+<select id="violationType">
+<option>عدم النظافة</option>
+<option>التدخين</option>
+<option>تخريب الممتلكات</option>
+<option>إزعاج السكان</option>
+<option>تمديد كهربائي خطر</option>
+<option>مخالفة تعليمات السكن</option>
+<option>أخرى</option>
+</select>
+
+<label>الإجراء</label>
+<select id="violationAction">
+<option>تنبيه شفهي</option>
+<option>إنذار أول</option>
+<option>إنذار ثاني</option>
+<option>إنذار نهائي</option>
+<option>رفع للإدارة</option>
+</select>
+
+<button class="primary" onclick="addViolation()">تسجيل المخالفة</button>
+
+</div>
+
+<table>
+<thead>
+<tr>
+<th>الموظف</th>
+<th>المخالفة</th>
+<th>الإجراء</th>
+</tr>
+</thead>
+<tbody id="violationsTable"></tbody>
+</table>
+
+</section>
+
+<section id="maintenance" class="section">
+
+<h2>🔧 طلبات الصيانة</h2>
+
+<div class="form">
+
+<label>الموقع</label>
+<input id="maintenanceLocation">
+
+<label>نوع الصيانة</label>
+<select id="maintenanceType">
+<option>كهرباء</option>
+<option>سباكة</option>
+<option>تكييف</option>
+<option>أثاث</option>
+<option>أخرى</option>
+</select>
+
+<label>وصف المشكلة</label>
+<textarea id="maintenanceDescription"></textarea>
+
+<button class="primary" onclick="addMaintenance()">تسجيل الطلب</button>
+
+</div>
+
+<table>
+<thead>
+<tr>
+<th>الموقع</th>
+<th>النوع</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody id="maintenanceTable"></tbody>
+</table>
+
+</section>
+
+<section id="inspection" class="section">
+
+<h2>🔍 التفتيش</h2>
+
+<div class="form">
+
+<label>رقم الغرفة</label>
+<input id="inspectionRoom">
+
+<label>النظافة</label>
+<select id="clean">
+<option>ممتاز</option>
+<option>جيد</option>
+<option>يحتاج متابعة</option>
+</select>
+
+<label>الترتيب</label>
+<select id="order">
+<option>ممتاز</option>
+<option>جيد</option>
+<option>يحتاج متابعة</option>
+</select>
+
+<label>الكهرباء</label>
+<select id="electric">
+<option>سليم</option>
+<option>ملاحظة</option>
+<option>خطر</option>
+</select>
+
+<button class="primary" onclick="addInspection()">حفظ التفتيش</button>
+
+</div>
+
+<table>
+<thead>
+<tr>
+<th>الغرفة</th>
+<th>النظافة</th>
+<th>الترتيب</th>
+<th>الكهرباء</th>
+</tr>
+</thead>
+<tbody id="inspectionTable"></tbody>
+</table>
+
+</section>
+
+<section id="reports" class="section">
+
+<h2>📊 التقارير</h2>
+
+<div class="cards">
+
+<div class="card">
+<h3>تقرير الموظفين</h3>
+<button class="primary" onclick="window.print()">طباعة التقرير</button>
+</div>
+
+<div class="card">
+<h3>تقرير السكن</h3>
+<button class="primary" onclick="window.print()">طباعة التقرير</button>
+</div>
+
+</div>
+
+</section>
+
+</main>
+
+<script>
+
+let workers =
+JSON.parse(localStorage.getItem("workers") || "[]");
+
+let rooms =
+JSON.parse(localStorage.getItem("rooms") || "[]");
+
+let violations =
+JSON.parse(localStorage.getItem("violations") || "[]");
+
+let maintenance =
+JSON.parse(localStorage.getItem("maintenance") || "[]");
+
+let inspections =
+JSON.parse(localStorage.getItem("inspections") || "[]");
+
+
+function showSection(id,button){
+
+document.querySelectorAll(".section")
+.forEach(x=>x.classList.remove("active"));
+
+document.getElementById(id)
+.classList.add("active");
+
+document.querySelectorAll("nav button")
+.forEach(x=>x.classList.remove("active"));
+
+button.classList.add("active");
+
+}
+
+
+function addWorker(){
+
+workers.push({
+name:workerName.value,
+number:workerNumber.value,
+job:workerJob.value,
+room:workerRoom.value
+});
+
+localStorage.setItem("workers",JSON.stringify(workers));
+
+workerName.value="";
+workerNumber.value="";
+workerJob.value="";
+workerRoom.value="";
+
+render();
+
+}
+
+
+function addRoom(){
+
+rooms.push({
+building:building.value,
+floor:floor.value,
+room:roomNumber.value,
+beds:beds.value
+});
+
+localStorage.setItem("rooms",JSON.stringify(rooms));
+
+building.value="";
+floor.value="";
+roomNumber.value="";
+beds.value="";
+
+render();
+
+}
+
+
+function addViolation(){
+
+violations.push({
+worker:violationWorker.value,
+type:violationType.value,
+action:violationAction.value
+});
+
+localStorage.setItem("violations",JSON.stringify(violations));
+
+violationWorker.value="";
+
+render();
+
+}
+
+
+function addMaintenance(){
+
+maintenance.push({
+location:maintenanceLocation.value,
+type:maintenanceType.value,
+description:maintenanceDescription.value
+});
+
+localStorage.setItem("maintenance",
+JSON.stringify(maintenance));
+
+maintenanceLocation.value="";
+maintenanceDescription.value="";
+
+render();
+
+}
+
+
+function addInspection(){
+
+inspections.push({
+room:inspectionRoom.value,
+clean:clean.value,
+order:order.value,
+electric:electric.value
+});
+
+localStorage.setItem("inspections",
+JSON.stringify(inspections));
+
+inspectionRoom.value="";
+
+render();
+
+}
+
+
+function render(){
+
+workerCount.textContent=workers.length;
+
+roomCount.textContent=rooms.length;
+
+violationCount.textContent=violations.length;
+
+maintenanceCount.textContent=maintenance.length;
+
+
+workersTable.innerHTML=workers.map(w=>`
+<tr>
+<td>${w.name}</td>
+<td>${w.number}</td>
+<td>${w.job}</td>
+<td>${w.room}</td>
+</tr>
+`).join("");
+
+
+roomsTable.innerHTML=rooms.map(r=>`
+<tr>
+<td>${r.building}</td>
+<td>${r.floor}</td>
+<td>${r.room}</td>
+<td>${r.beds}</td>
+</tr>
+`).join("");
+
+
+violationsTable.innerHTML=violations.map(v=>`
+<tr>
+<td>${v.worker}</td>
+<td>${v.type}</td>
+<td>${v.action}</td>
+</tr>
+`).join("");
+
+
+maintenanceTable.innerHTML=maintenance.map(m=>`
+<tr>
+<td>${m.location}</td>
+<td>${m.type}</td>
+<td>${m.description}</td>
+</tr>
+`).join("");
+
+
+inspectionTable.innerHTML=inspections.map(i=>`
+<tr>
+<td>${i.room}</td>
+<td>${i.clean}</td>
+<td>${i.order}</td>
+<td>${i.electric}</td>
+</tr>
+`).join("");
+
+}
+
+render();
+
+</script>
+
+</body>
+</html>
