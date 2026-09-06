@@ -1,97 +1,107 @@
-<!DOCTYPE html>
-<html dir="rtl" lang="ar">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إدارة سكن الموظفين</title>
-    <style>
-        body { font-family: 'Tahoma', Arial, sans-serif; background: #f0f2f5; padding: 20px; }
-        .container { max-width: 1200px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
-        h1 { color: #1a73e8; text-align: center; }
-        .form-section { background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 25px; }
-        input, button { padding: 10px; margin: 5px; border-radius: 6px; border: 1px solid #ddd; }
-        button { background: #1a73e8; color: white; border: none; cursor: pointer; font-weight: bold; }
-        button:hover { background: #1557b0; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; text-align: center; border-bottom: 1px solid #ddd; }
-        th { background: #1a73e8; color: white; }
-        .status { padding: 5px 12px; border-radius: 20px; }
-        .status-resident { background: #d4edda; color: #155724; }
-        .status-left { background: #f8d7da; color: #721c24; }
-        .actions a { margin: 0 5px; text-decoration: none; padding: 5px 12px; border-radius: 5px; }
-        .checkout { background: #ffc107; color: black; }
-        .delete { background: #dc3545; color: white; }
-        .room-status { font-size: 0.9em; color: #555; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🏢 إدارة سكن الموظفين</h1>
+from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
-        <!-- نموذج إضافة موظف -->
-        <div class="form-section">
-            <h3>➕ إضافة موظف جديد</h3>
-            <form action="/add_employee" method="POST">
-                <input type="text" name="name" placeholder="الاسم الكامل" required>
-                <input type="text" name="national_id" placeholder="رقم الهوية" required>
-                <input type="text" name="room_number" placeholder="رقم الغرفة (مثال: 101)" required>
-                <input type="text" name="phone" placeholder="رقم الجوال">
-                <button type="submit">إضافة</button>
-            </form>
-        </div>
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///employees.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
-        <!-- حالة الغرف -->
-        <div style="margin-bottom: 20px; padding: 15px; background: #e8f0fe; border-radius: 10px;">
-            <h3>📊 حالة الغرف</h3>
-            <div style="display: flex; flex-wrap: wrap; gap: 15px;">
-                {% for room in rooms %}
-                <div style="background: white; padding: 10px 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                    <strong>{{ room.room_number }}</strong> 
-                    <span style="color: {% if room.current_occupants >= room.capacity %}#dc3545{% else %}#28a745{% endif %};">
-                        {{ room.current_occupants }}/{{ room.capacity }}
-                    </span>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
+# نموذج الموظف
+class Employee(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    national_id = db.Column(db.String(20), unique=True, nullable=False)
+    room_number = db.Column(db.String(10), nullable=False)
+    phone = db.Column(db.String(15))
+    check_in = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.String(20), default='مقيم')  # مقيم، مغادر
 
-        <!-- قائمة الموظفين -->
-        <h3>📋 قائمة الموظفين</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>الاسم</th>
-                    <th>رقم الهوية</th>
-                    <th>الغرفة</th>
-                    <th>الجوال</th>
-                    <th>الحالة</th>
-                    <th>الإجراءات</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for emp in employees %}
-                <tr>
-                    <td>{{ loop.index }}</td>
-                    <td>{{ emp.name }}</td>
-                    <td>{{ emp.national_id }}</td>
-                    <td>{{ emp.room_number }}</td>
-                    <td>{{ emp.phone or '-' }}</td>
-                    <td>
-                        <span class="status {% if emp.status == 'مقيم' %}status-resident{% else %}status-left{% endif %}">
-                            {{ emp.status }}
-                        </span>
-                    </td>
-                    <td class="actions">
-                        {% if emp.status == 'مقيم' %}
-                        <a href="/checkout/{{ emp.id }}" class="checkout">تسجيل خروج</a>
-                        {% endif %}
-                        <a href="/delete/{{ emp.id }}" class="delete" onclick="return confirm('هل أنت متأكد؟')">حذف</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</body>
-</html>
+    def __repr__(self):
+        return f'<Employee {self.name}>'
+
+# نموذج الغرفة
+class Room(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    room_number = db.Column(db.String(10), unique=True, nullable=False)
+    capacity = db.Column(db.Integer, default=2)
+    current_occupants = db.Column(db.Integer, default=0)
+
+# الصفحة الرئيسية
+@app.route('/')
+def index():
+    employees = Employee.query.all()
+    rooms = Room.query.all()
+    return render_template('index.html', employees=employees, rooms=rooms)
+
+# إضافة موظف
+@app.route('/add_employee', methods=['POST'])
+def add_employee():
+    name = request.form['name']
+    national_id = request.form['national_id']
+    room_number = request.form['room_number']
+    phone = request.form.get('phone', '')
+    
+    # التحقق من وجود الغرفة
+    room = Room.query.filter_by(room_number=room_number).first()
+    if not room:
+        # إنشاء الغرفة إذا لم توجد
+        room = Room(room_number=room_number, capacity=2, current_occupants=0)
+        db.session.add(room)
+    
+    # التحقق من السعة
+    if room.current_occupants >= room.capacity:
+        return "الغرفة ممتلئة!", 400
+    
+    employee = Employee(
+        name=name, 
+        national_id=national_id, 
+        room_number=room_number,
+        phone=phone
+    )
+    room.current_occupants += 1
+    db.session.add(employee)
+    db.session.commit()
+    return redirect(url_for('index'))
+
+# تسجيل خروج موظف
+@app.route('/checkout/<int:id>')
+def checkout(id):
+    employee = Employee.query.get_or_404(id)
+    room = Room.query.filter_by(room_number=employee.room_number).first()
+    if room:
+        room.current_occupants -= 1
+    employee.status = 'مغادر'
+    db.session.commit()
+    return redirect(url_for('index'))
+
+# حذف موظف
+@app.route('/delete/<int:id>')
+def delete(id):
+    employee = Employee.query.get_or_404(id)
+    db.session.delete(employee)
+    db.session.commit()
+    return redirect(url_for('index'))
+
+# API - جلب بيانات موظف (للواجهة)
+@app.route('/api/employees')
+def api_employees():
+    employees = Employee.query.all()
+    return jsonify([{
+        'id': e.id,
+        'name': e.name,
+        'national_id': e.national_id,
+        'room': e.room_number,
+        'phone': e.phone,
+        'status': e.status
+    } for e in employees])
+
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+        # إضافة غرف افتراضية إذا لم توجد
+        if Room.query.count() == 0:
+            for i in range(1, 11):
+                db.session.add(Room(room_number=f'غرفة {i}', capacity=2))
+            db.session.commit()
+    app.run(debug=True, host='0.0.0.0', port=5000)
