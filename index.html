@@ -3,998 +3,2485 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>سكن كيو - الإصدار 3.0</title>
+<title>سكن كيو - إدارة السكن</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,Tahoma,sans-serif;background:#f4f6f9;color:#222}
+body{
+  margin:0;
+  font-family:Tahoma,Arial,sans-serif;
+  background:#f4f6f9;
+  color:#172033;
+}
 button,input,select,textarea{font-family:inherit}
 button{cursor:pointer}
-.login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#123c69,#1976a8)}
-.login-box{background:#fff;width:100%;max-width:400px;padding:30px;border-radius:20px;text-align:center;box-shadow:0 10px 40px #0004}
-.logo{width:75px;height:75px;border-radius:20px;background:#123c69;color:#fff;margin:auto;display:flex;align-items:center;justify-content:center;font-size:35px;font-weight:bold}
-.login-box h1{margin:15px 0 5px}
-.login-box p{color:#777}
-.login-box input{width:100%;padding:13px;margin:7px 0;border:1px solid #ddd;border-radius:10px}
-.btn{border:0;border-radius:9px;padding:11px 16px;background:#123c69;color:#fff;font-weight:bold}
+.login{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:linear-gradient(135deg,#102a43,#1677b7);
+}
+.login-box{
+  width:100%;
+  max-width:430px;
+  background:white;
+  border-radius:20px;
+  padding:30px;
+  box-shadow:0 20px 60px #0004;
+}
+.logo{
+  text-align:center;
+  font-size:30px;
+  font-weight:bold;
+  color:#126da5;
+  margin-bottom:8px;
+}
+.subtitle{text-align:center;color:#777;margin-bottom:25px}
+label{display:block;margin:12px 0 6px;font-weight:bold}
+input,select,textarea{
+  width:100%;
+  padding:12px;
+  border:1px solid #d5dbe3;
+  border-radius:9px;
+  background:white;
+  font-size:15px;
+}
+textarea{min-height:90px;resize:vertical}
+.btn{
+  border:0;
+  border-radius:9px;
+  padding:11px 16px;
+  font-weight:bold;
+  color:white;
+  background:#1477b8;
+}
 .btn:hover{opacity:.9}
-.full{width:100%;margin-top:10px}
-.error{color:#c62828;margin-top:10px}
+.btn-danger{background:#d64545}
+.btn-success{background:#198754}
+.btn-warning{background:#d99b00}
+.btn-secondary{background:#667085}
+.full{width:100%;margin-top:18px}
 
 .app{display:none;min-height:100vh}
-.sidebar{position:fixed;right:0;top:0;bottom:0;width:245px;background:#123c69;color:white;padding:18px;overflow:auto}
-.sidebar h2{text-align:center;margin:5px 0}
-.company{text-align:center;color:#bdd7eb;margin-bottom:20px}
-.nav{width:100%;border:0;background:transparent;color:#fff;text-align:right;padding:12px;margin:2px 0;border-radius:9px;font-size:15px}
-.nav:hover,.nav.active{background:#ffffff22}
-.logout{background:#b71c1c!important;text-align:center;margin-top:20px}
+.topbar{
+  height:65px;
+  background:#102a43;
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px;
+  position:sticky;
+  top:0;
+  z-index:20;
+}
+.brand{font-size:21px;font-weight:bold}
+.user-info{display:flex;align-items:center;gap:12px}
+.role{
+  background:#ffffff22;
+  padding:7px 12px;
+  border-radius:20px;
+}
+.logout{
+  background:#d64545;
+  border:0;
+  color:white;
+  padding:8px 13px;
+  border-radius:8px;
+}
 
-.main{margin-right:245px;padding:20px}
-.topbar{background:#fff;padding:17px 20px;border-radius:14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;box-shadow:0 2px 8px #0000000b}
-.topbar h1{margin:0;font-size:23px}
-.page{display:none}.page.active{display:block}
+.layout{display:flex}
+.sidebar{
+  width:235px;
+  background:#fff;
+  min-height:calc(100vh - 65px);
+  border-left:1px solid #e5e7eb;
+  padding:15px;
+  position:sticky;
+  top:65px;
+  height:calc(100vh - 65px);
+}
+.nav{
+  width:100%;
+  border:0;
+  background:white;
+  padding:12px;
+  text-align:right;
+  border-radius:9px;
+  margin-bottom:5px;
+  font-size:15px;
+}
+.nav:hover,.nav.active{background:#e8f3fa;color:#09679f;font-weight:bold}
+.content{flex:1;padding:25px;min-width:0}
+.page{display:none}
+.page.active{display:block}
+.page-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+  margin-bottom:20px;
+}
+.page-title h2{margin:0}
 
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:15px}
-.card{background:#fff;padding:18px;border-radius:14px;box-shadow:0 2px 8px #0000000b}
-.card .label{color:#777}.num{font-size:30px;font-weight:bold;margin-top:7px}
+.cards{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:15px;
+  margin-bottom:20px;
+}
+.card{
+  background:white;
+  padding:20px;
+  border-radius:13px;
+  box-shadow:0 2px 12px #0000000a;
+}
+.card .number{font-size:30px;font-weight:bold;margin-top:8px}
+.card .label{color:#777}
 
-.panel{background:#fff;padding:20px;margin-top:18px;border-radius:14px;box-shadow:0 2px 8px #0000000b}
-.panel h3{margin-top:0}
-.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
-.form-grid input,.form-grid select,.form-grid textarea{width:100%;padding:11px;border:1px solid #ddd;border-radius:9px}
-textarea{min-height:85px;resize:vertical}
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.btn-danger{background:#c62828}.btn-secondary{background:#607d8b}.btn-success{background:#2e7d32}
-.search{width:100%;padding:12px;border:1px solid #ddd;border-radius:9px;margin-bottom:12px}
-
+.panel{
+  background:white;
+  border-radius:13px;
+  padding:20px;
+  margin-bottom:20px;
+  box-shadow:0 2px 12px #0000000a;
+}
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:15px;
+}
+.form-full{grid-column:1/-1}
+.actions{display:flex;gap:7px;flex-wrap:wrap}
 .table-wrap{overflow:auto}
-table{width:100%;border-collapse:collapse;margin-top:10px}
-th,td{padding:10px;border-bottom:1px solid #eee;text-align:right;white-space:nowrap}
-th{background:#f7f8fa}
-.badge{padding:5px 9px;border-radius:20px;font-size:12px;background:#eee}
-.success{background:#e8f5e9;color:#2e7d32}
-.warning{background:#fff8e1;color:#8d6e00}
-.danger{background:#ffebee;color:#c62828}
-.empty{text-align:center;padding:25px;color:#888}
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:700px;
+}
+th,td{
+  padding:11px;
+  border-bottom:1px solid #eee;
+  text-align:right;
+}
+th{background:#f7f9fb}
+.badge{
+  display:inline-block;
+  padding:5px 9px;
+  border-radius:15px;
+  font-size:12px;
+  font-weight:bold;
+}
+.free{background:#dff6e8;color:#16743b}
+.occupied{background:#ffe3e3;color:#a52323}
+.open{background:#fff0cc;color:#8a6200}
+.completed{background:#dff6e8;color:#16743b}
 
-.modal{display:none;position:fixed;inset:0;background:#0008;z-index:10;align-items:center;justify-content:center;padding:15px}
-.modal-box{background:#fff;width:100%;max-width:650px;max-height:90vh;overflow:auto;border-radius:15px;padding:20px}
-.modal-head{display:flex;justify-content:space-between;align-items:center}
-.close{border:0;background:#eee;border-radius:8px;padding:8px 12px}
-.small{font-size:12px;color:#777}
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:#0007;
+  z-index:100;
+  align-items:center;
+  justify-content:center;
+  padding:15px;
+}
+.modal.show{display:flex}
+.modal-box{
+  background:white;
+  width:100%;
+  max-width:700px;
+  max-height:90vh;
+  overflow:auto;
+  border-radius:15px;
+  padding:22px;
+}
+.modal-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:15px;
+}
+.close{
+  border:0;
+  background:#eee;
+  border-radius:50%;
+  width:35px;height:35px;
+  font-size:20px;
+}
 
-@media(max-width:800px){
-.sidebar{position:relative;width:100%;height:auto}
-.main{margin-right:0;padding:12px}
-.nav{width:auto;display:inline-block}
-.logout{width:100%}
-.topbar{padding:14px}
-.topbar h1{font-size:19px}
+.toast{
+  position:fixed;
+  bottom:20px;
+  left:20px;
+  z-index:200;
+  background:#172033;
+  color:white;
+  padding:13px 18px;
+  border-radius:10px;
+  display:none;
+}
+.toast.show{display:block}
+
+.mobile-menu{display:none}
+
+@media(max-width:900px){
+  .cards{grid-template-columns:repeat(2,1fr)}
+  .sidebar{width:200px}
+}
+@media(max-width:700px){
+  .topbar{height:58px;padding:0 12px}
+  .mobile-menu{
+    display:block;
+    border:0;
+    background:#ffffff22;
+    color:white;
+    padding:8px 11px;
+    border-radius:7px;
+  }
+  .layout{display:block}
+  .sidebar{
+    display:none;
+    position:fixed;
+    right:0;
+    top:58px;
+    width:250px;
+    z-index:50;
+    box-shadow:0 10px 30px #0003;
+  }
+  .sidebar.show{display:block}
+  .content{padding:15px}
+  .cards{grid-template-columns:1fr 1fr;gap:10px}
+  .card{padding:14px}
+  .card .number{font-size:24px}
+  .form-grid{grid-template-columns:1fr}
+  .form-full{grid-column:auto}
+  .user-info .email{display:none}
 }
 </style>
 </head>
 
 <body>
 
-<div class="login" id="loginScreen">
-<div class="login-box">
-<div class="logo">ك</div>
-<h1>سكن كيو</h1>
-<p>نظام إدارة سكن العمال - الإصدار 3.0</p>
-<input id="username" placeholder="اسم المستخدم">
-<input id="password" type="password" placeholder="كلمة المرور">
-<button class="btn full" onclick="login()">تسجيل الدخول</button>
-<div class="error" id="loginError"></div>
-</div>
-</div>
+<!-- LOGIN -->
+<section id="loginScreen" class="login">
+  <div class="login-box">
+    <div class="logo">سكن كيو</div>
+    <div class="subtitle">نظام إدارة سكن الموظفين</div>
 
-<div class="app" id="app">
+    <label>البريد الإلكتروني</label>
+    <input id="loginEmail" type="email" placeholder="أدخل البريد الإلكتروني">
 
-<aside class="sidebar">
-<h2>سكن كيو</h2>
-<div class="company">إدارة سكن العمال</div>
+    <label>كلمة المرور</label>
+    <input id="loginPassword" type="password" placeholder="أدخل كلمة المرور">
 
-<button class="nav active" onclick="showPage('dashboard',this)">🏠 الرئيسية</button>
-<button class="nav" onclick="showPage('employees',this)">👷 الموظفون</button>
-<button class="nav" onclick="showPage('rooms',this)">🏢 الغرف والأسرة</button>
-<button class="nav" onclick="showPage('violations',this)">⚠️ المخالفات</button>
-<button class="nav" onclick="showPage('maintenance',this)">🔧 الصيانة</button>
-<button class="nav" onclick="showPage('inspections',this)">📋 التفتيش</button>
-<button class="nav" onclick="showPage('reports',this)">📊 التقارير</button>
-<button class="nav" onclick="showPage('backup',this)">💾 النسخ الاحتياطي</button>
-<button class="nav logout" onclick="logout()">🚪 تسجيل الخروج</button>
-</aside>
+    <button class="btn full" onclick="login()">تسجيل الدخول</button>
 
-<main class="main">
-
-<div class="topbar">
-<h1 id="pageTitle">لوحة التحكم</h1>
-<div>👤 المدير</div>
-</div>
-
-<section class="page active" id="dashboard">
-<div class="cards">
-<div class="card"><div class="label">👷 الموظفون</div><div class="num" id="countEmployees">0</div></div>
-<div class="card"><div class="label">🏢 الغرف</div><div class="num" id="countRooms">0</div></div>
-<div class="card"><div class="label">🛏️ الأسرة</div><div class="num" id="countBeds">0</div></div>
-<div class="card"><div class="label">🟢 الأسرة الشاغرة</div><div class="num" id="countFreeBeds">0</div></div>
-<div class="card"><div class="label">⚠️ المخالفات</div><div class="num" id="countViolations">0</div></div>
-<div class="card"><div class="label">🔧 الصيانة</div><div class="num" id="countMaintenance">0</div></div>
-</div>
-
-<div class="panel">
-<h3>مرحباً بك في سكن كيو 3.0</h3>
-<p>نظام متكامل لإدارة الموظفين والغرف والأسرة والمخالفات والصيانة والتفتيش والتقارير.</p>
-</div>
+    <p id="loginError" style="color:#c33;text-align:center;margin-top:15px"></p>
+  </div>
 </section>
 
-<section class="page" id="employees">
-<div class="panel">
-<h3>إضافة موظف</h3>
-<div class="form-grid">
-<input id="empNo" placeholder="رقم الموظف">
-<input id="empName" placeholder="اسم الموظف">
-<input id="empDept" placeholder="القسم">
-<input id="empJob" placeholder="المسمى الوظيفي">
-<input id="empPhone" placeholder="رقم الجوال">
-<input id="empRoom" placeholder="رقم الغرفة">
-<input id="empBed" placeholder="رقم السرير">
-</div>
-<div class="actions">
-<button class="btn btn-success" onclick="addEmployee()">➕ إضافة الموظف</button>
-</div>
-</div>
+<!-- APP -->
+<section id="app" class="app">
 
-<div class="panel">
-<h3>سجل الموظفين</h3>
-<input class="search" id="employeeSearch" oninput="renderEmployees()" placeholder="🔎 ابحث باسم الموظف أو الرقم أو الغرفة">
-<div class="table-wrap">
-<table>
-<thead><tr>
-<th>الرقم</th><th>الاسم</th><th>القسم</th><th>الوظيفة</th><th>الجوال</th><th>الغرفة</th><th>السرير</th><th>إجراءات</th>
-</tr></thead>
-<tbody id="employeesTable"></tbody>
-</table>
-</div>
-</div>
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="mobile-menu" onclick="toggleSidebar()">☰</button>
+      <div class="brand">🏠 سكن كيو</div>
+    </div>
+
+    <div class="user-info">
+      <span class="email" id="userEmail"></span>
+      <span class="role" id="userRole"></span>
+      <button class="logout" onclick="logout()">خروج</button>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <aside id="sidebar" class="sidebar">
+
+      <button class="nav active" onclick="showPage('dashboard',this)">
+        📊 الرئيسية
+      </button>
+
+      <button class="nav" onclick="showPage('buildings',this)">
+        🏢 المباني
+      </button>
+
+      <button class="nav" onclick="showPage('rooms',this)">
+        🚪 الغرف والأسرة
+      </button>
+
+      <button class="nav" onclick="showPage('employees',this)">
+        👷 الموظفون
+      </button>
+
+      <button class="nav" onclick="showPage('violations',this)">
+        ⚠️ المخالفات
+      </button>
+
+      <button class="nav" onclick="showPage('maintenance',this)">
+        🔧 الصيانة
+      </button>
+
+      <button class="nav" onclick="showPage('inspections',this)">
+        🔍 التفتيش
+      </button>
+
+      <button class="nav" onclick="showPage('reports',this)">
+        📑 التقارير
+      </button>
+
+    </aside>
+
+    <main class="content">
+
+      <!-- DASHBOARD -->
+      <section id="dashboard" class="page active">
+        <div class="page-title">
+          <h2>لوحة التحكم</h2>
+          <button class="btn" onclick="loadAll()">🔄 تحديث</button>
+        </div>
+
+        <div class="cards">
+          <div class="card">
+            <div class="label">المباني</div>
+            <div id="statBuildings" class="number">0</div>
+          </div>
+
+          <div class="card">
+            <div class="label">الغرف</div>
+            <div id="statRooms" class="number">0</div>
+          </div>
+
+          <div class="card">
+            <div class="label">الموظفون</div>
+            <div id="statEmployees" class="number">0</div>
+          </div>
+
+          <div class="card">
+            <div class="label">المخالفات</div>
+            <div id="statViolations" class="number">0</div>
+          </div>
+        </div>
+
+        <div class="cards">
+          <div class="card">
+            <div class="label">إجمالي الأسرة</div>
+            <div id="statBeds" class="number">0</div>
+          </div>
+
+          <div class="card">
+            <div class="label">الأسرة المشغولة</div>
+            <div id="statOccupied" class="number">0</div>
+          </div>
+
+          <div class="card">
+            <div class="label">الأسرة الشاغرة</div>
+            <div id="statFree" class="number">0</div>
+          </div>
+
+          <div class="card">
+            <div class="label">طلبات الصيانة</div>
+            <div id="statMaintenance" class="number">0</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>مرحبًا بك في نظام سكن كيو</h3>
+          <p>
+            النظام المركزي لإدارة المباني والغرف والأسرة والموظفين
+            والمخالفات والصيانة والتفتيش.
+          </p>
+        </div>
+      </section>
+
+      <!-- BUILDINGS -->
+      <section id="buildings" class="page">
+        <div class="page-title">
+          <h2>إدارة المباني</h2>
+          <button id="addBuildingBtn" class="btn" onclick="openBuildingModal()">
+            + إضافة مبنى
+          </button>
+        </div>
+
+        <div class="panel">
+          <input id="buildingSearch" placeholder="🔎 البحث عن مبنى..." oninput="renderBuildings()">
+        </div>
+
+        <div class="panel">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>اسم المبنى</th>
+                  <th>الكود</th>
+                  <th>العنوان</th>
+                  <th>الأدوار</th>
+                  <th>الحالة</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="buildingsTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ROOMS -->
+      <section id="rooms" class="page">
+        <div class="page-title">
+          <h2>الغرف والأسرة</h2>
+          <button id="addRoomBtn" class="btn" onclick="openRoomModal()">
+            + إضافة غرفة
+          </button>
+        </div>
+
+        <div class="panel">
+          <input id="roomSearch" placeholder="🔎 البحث عن غرفة..." oninput="renderRooms()">
+        </div>
+
+        <div class="panel">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>المبنى</th>
+                  <th>الدور</th>
+                  <th>الغرفة</th>
+                  <th>عدد الأسرة</th>
+                  <th>مشغولة</th>
+                  <th>شاغرة</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="roomsTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- EMPLOYEES -->
+      <section id="employees" class="page">
+        <div class="page-title">
+          <h2>الموظفون</h2>
+          <button id="addEmployeeBtn" class="btn" onclick="openEmployeeModal()">
+            + إضافة موظف
+          </button>
+        </div>
+
+        <div class="panel">
+          <input id="employeeSearch" placeholder="🔎 البحث بالاسم أو الرقم..." oninput="renderEmployees()">
+        </div>
+
+        <div class="panel">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>الرقم</th>
+                  <th>الاسم</th>
+                  <th>القسم</th>
+                  <th>الوظيفة</th>
+                  <th>المبنى</th>
+                  <th>الغرفة</th>
+                  <th>الحالة</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="employeesTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIOLATIONS -->
+      <section id="violations" class="page">
+        <div class="page-title">
+          <h2>المخالفات</h2>
+          <button class="btn" onclick="openViolationModal()">+ تسجيل مخالفة</button>
+        </div>
+
+        <div class="panel">
+          <input id="violationSearch" placeholder="🔎 البحث..." oninput="renderViolations()">
+        </div>
+
+        <div class="panel">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>التاريخ</th>
+                  <th>الموظف</th>
+                  <th>المبنى</th>
+                  <th>نوع المخالفة</th>
+                  <th>الإجراء</th>
+                  <th>التفاصيل</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="violationsTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- MAINTENANCE -->
+      <section id="maintenance" class="page">
+        <div class="page-title">
+          <h2>الصيانة</h2>
+          <button class="btn" onclick="openMaintenanceModal()">+ طلب صيانة</button>
+        </div>
+
+        <div class="panel">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>التاريخ</th>
+                  <th>المبنى</th>
+                  <th>الموقع</th>
+                  <th>العطل</th>
+                  <th>الأولوية</th>
+                  <th>الحالة</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="maintenanceTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- INSPECTIONS -->
+      <section id="inspections" class="page">
+        <div class="page-title">
+          <h2>التفتيش</h2>
+          <button class="btn" onclick="openInspectionModal()">+ تسجيل تفتيش</button>
+        </div>
+
+        <div class="panel">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>التاريخ</th>
+                  <th>المبنى</th>
+                  <th>الموقع</th>
+                  <th>النظافة</th>
+                  <th>الترتيب</th>
+                  <th>الكهرباء</th>
+                  <th>ملاحظات</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="inspectionsTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- REPORTS -->
+      <section id="reports" class="page">
+        <div class="page-title">
+          <h2>التقارير</h2>
+        </div>
+
+        <div class="cards">
+          <div class="card">
+            <div class="label">المباني</div>
+            <div id="reportBuildings" class="number">0</div>
+          </div>
+          <div class="card">
+            <div class="label">الموظفون</div>
+            <div id="reportEmployees" class="number">0</div>
+          </div>
+          <div class="card">
+            <div class="label">الأسرة</div>
+            <div id="reportBeds" class="number">0</div>
+          </div>
+          <div class="card">
+            <div class="label">المخالفات</div>
+            <div id="reportViolations" class="number">0</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>ملخص السكن</h3>
+          <p id="reportText"></p>
+        </div>
+      </section>
+
+    </main>
+  </div>
 </section>
 
-<section class="page" id="rooms">
-<div class="panel">
-<h3>إضافة غرفة</h3>
-<div class="form-grid">
-<input id="building" placeholder="المبنى">
-<input id="floor" placeholder="الدور">
-<input id="roomNo" placeholder="رقم الغرفة">
-<input id="beds" type="number" min="1" placeholder="عدد الأسرة">
-</div>
-<div class="actions">
-<button class="btn btn-success" onclick="addRoom()">➕ إضافة الغرفة</button>
-</div>
-</div>
+<!-- BUILDING MODAL -->
+<div id="buildingModal" class="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="buildingModalTitle">إضافة مبنى</h3>
+      <button class="close" onclick="closeModal('buildingModal')">×</button>
+    </div>
 
-<div class="panel">
-<h3>الغرف والأسرة</h3>
-<input class="search" id="roomSearch" oninput="renderRooms()" placeholder="🔎 ابحث عن مبنى أو غرفة">
-<div class="table-wrap">
-<table>
-<thead><tr>
-<th>المبنى</th><th>الدور</th><th>الغرفة</th><th>الأسرة</th><th>المشغولة</th><th>الشاغرة</th><th>إجراءات</th>
-</tr></thead>
-<tbody id="roomsTable"></tbody>
-</table>
-</div>
-</div>
-</section>
+    <input type="hidden" id="buildingId">
 
-<section class="page" id="violations">
-<div class="panel">
-<h3>تسجيل مخالفة</h3>
-<div class="form-grid">
-<input id="vEmployee" placeholder="اسم الموظف">
-<input id="vType" placeholder="نوع المخالفة">
-<select id="vAction">
-<option value="">الإجراء</option>
-<option>تنبيه</option>
-<option>إنذار أول</option>
-<option>إنذار نهائي</option>
-<option>خصم</option>
-<option>إخلاء السكن</option>
-</select>
-<input id="vDate" type="date">
-<textarea id="vDetails" placeholder="تفاصيل المخالفة"></textarea>
-</div>
-<div class="actions"><button class="btn btn-success" onclick="addViolation()">➕ حفظ المخالفة</button></div>
+    <div class="form-grid">
+      <div>
+        <label>اسم المبنى *</label>
+        <input id="buildingName" placeholder="مثال: مبنى العمال 1">
+      </div>
+
+      <div>
+        <label>كود المبنى</label>
+        <input id="buildingCode" placeholder="مثال: B01">
+      </div>
+
+      <div>
+        <label>العنوان</label>
+        <input id="buildingAddress">
+      </div>
+
+      <div>
+        <label>عدد الأدوار</label>
+        <input id="buildingFloors" type="number" min="1" value="1">
+      </div>
+    </div>
+
+    <div class="actions" style="margin-top:20px">
+      <button class="btn" onclick="saveBuilding()">حفظ</button>
+      <button class="btn btn-secondary" onclick="closeModal('buildingModal')">إلغاء</button>
+    </div>
+  </div>
 </div>
 
-<div class="panel">
-<h3>سجل المخالفات</h3>
-<input class="search" id="violationSearch" oninput="renderViolations()" placeholder="🔎 ابحث في المخالفات">
-<div class="table-wrap">
-<table>
-<thead><tr><th>الموظف</th><th>المخالفة</th><th>الإجراء</th><th>التاريخ</th><th>التفاصيل</th><th>إجراءات</th></tr></thead>
-<tbody id="violationsTable"></tbody>
-</table>
-</div>
-</div>
-</section>
+<!-- ROOM MODAL -->
+<div id="roomModal" class="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>إضافة غرفة</h3>
+      <button class="close" onclick="closeModal('roomModal')">×</button>
+    </div>
 
-<section class="page" id="maintenance">
-<div class="panel">
-<h3>طلب صيانة</h3>
-<div class="form-grid">
-<input id="mLocation" placeholder="الموقع / الغرفة">
-<input id="mFault" placeholder="العطل">
-<select id="mPriority">
-<option>عادي</option><option>متوسط</option><option>عاجل</option>
-</select>
-<select id="mStatus">
-<option>جديد</option><option>تحت التنفيذ</option><option>مكتمل</option>
-</select>
-<input id="mDate" type="date">
-<textarea id="mDescription" placeholder="وصف العطل"></textarea>
-</div>
-<div class="actions"><button class="btn btn-success" onclick="addMaintenance()">➕ حفظ الطلب</button></div>
-</div>
+    <div class="form-grid">
+      <div>
+        <label>المبنى *</label>
+        <select id="roomBuilding"></select>
+      </div>
 
-<div class="panel">
-<h3>طلبات الصيانة</h3>
-<input class="search" id="maintenanceSearch" oninput="renderMaintenance()" placeholder="🔎 ابحث في طلبات الصيانة">
-<div class="table-wrap">
-<table>
-<thead><tr><th>الموقع</th><th>العطل</th><th>الأولوية</th><th>الحالة</th><th>التاريخ</th><th>الوصف</th><th>إجراءات</th></tr></thead>
-<tbody id="maintenanceTable"></tbody>
-</table>
-</div>
-</div>
-</section>
+      <div>
+        <label>الدور</label>
+        <input id="roomFloor" placeholder="مثال: الأول">
+      </div>
 
-<section class="page" id="inspections">
-<div class="panel">
-<h3>تسجيل تفتيش</h3>
-<div class="form-grid">
-<input id="iLocation" placeholder="المبنى / الغرفة">
-<select id="iClean"><option>نظيف</option><option>متوسط</option><option>غير نظيف</option></select>
-<select id="iOrder"><option>مرتب</option><option>متوسط</option><option>غير مرتب</option></select>
-<select id="iElectric"><option>آمن</option><option>يحتاج متابعة</option><option>خطر</option></select>
-<input id="iDate" type="date">
-<textarea id="iNotes" placeholder="ملاحظات التفتيش"></textarea>
-</div>
-<div class="actions"><button class="btn btn-success" onclick="addInspection()">➕ حفظ التفتيش</button></div>
+      <div>
+        <label>رقم الغرفة *</label>
+        <input id="roomNumber" placeholder="مثال: 101">
+      </div>
+
+      <div>
+        <label>عدد الأسرة *</label>
+        <input id="roomBeds" type="number" min="1" value="4">
+      </div>
+    </div>
+
+    <div class="actions" style="margin-top:20px">
+      <button class="btn" onclick="saveRoom()">حفظ</button>
+      <button class="btn btn-secondary" onclick="closeModal('roomModal')">إلغاء</button>
+    </div>
+  </div>
 </div>
 
-<div class="panel">
-<h3>سجل التفتيش</h3>
-<div class="table-wrap">
-<table>
-<thead><tr><th>الموقع</th><th>النظافة</th><th>الترتيب</th><th>الكهرباء</th><th>التاريخ</th><th>الملاحظات</th><th>إجراءات</th></tr></thead>
-<tbody id="inspectionsTable"></tbody>
-</table>
+<!-- EMPLOYEE MODAL -->
+<div id="employeeModal" class="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>إضافة موظف</h3>
+      <button class="close" onclick="closeModal('employeeModal')">×</button>
+    </div>
+
+    <input type="hidden" id="employeeId">
+
+    <div class="form-grid">
+
+      <div>
+        <label>رقم الموظف *</label>
+        <input id="employeeNo">
+      </div>
+
+      <div>
+        <label>اسم الموظف *</label>
+        <input id="employeeName">
+      </div>
+
+      <div>
+        <label>القسم</label>
+        <input id="employeeDepartment">
+      </div>
+
+      <div>
+        <label>الوظيفة</label>
+        <input id="employeeJob">
+      </div>
+
+      <div>
+        <label>رقم الجوال</label>
+        <input id="employeePhone">
+      </div>
+
+      <div>
+        <label>المبنى</label>
+        <select id="employeeBuilding" onchange="loadEmployeeRooms()"></select>
+      </div>
+
+      <div>
+        <label>الغرفة</label>
+        <select id="employeeRoom" onchange="loadEmployeeBeds()"></select>
+      </div>
+
+      <div>
+        <label>السرير</label>
+        <select id="employeeBed"></select>
+      </div>
+
+      <div>
+        <label>الحالة</label>
+        <select id="employeeStatus">
+          <option value="active">على رأس العمل</option>
+          <option value="transferred">منقول</option>
+          <option value="left">ترك العمل</option>
+        </select>
+      </div>
+
+    </div>
+
+    <div class="actions" style="margin-top:20px">
+      <button class="btn" onclick="saveEmployee()">حفظ</button>
+      <button class="btn btn-secondary" onclick="closeModal('employeeModal')">إلغاء</button>
+    </div>
+  </div>
 </div>
+
+<!-- VIOLATION MODAL -->
+<div id="violationModal" class="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>تسجيل مخالفة</h3>
+      <button class="close" onclick="closeModal('violationModal')">×</button>
+    </div>
+
+    <div class="form-grid">
+
+      <div>
+        <label>المبنى</label>
+        <select id="violationBuilding"></select>
+      </div>
+
+      <div>
+        <label>الموظف</label>
+        <select id="violationEmployee"></select>
+      </div>
+
+      <div>
+        <label>نوع المخالفة</label>
+        <input id="violationType" placeholder="مثال: مخالفة نظافة">
+      </div>
+
+      <div>
+        <label>الإجراء</label>
+        <input id="violationAction" placeholder="مثال: إنذار">
+      </div>
+
+      <div>
+        <label>التاريخ</label>
+        <input id="violationDate" type="date">
+      </div>
+
+      <div class="form-full">
+        <label>التفاصيل</label>
+        <textarea id="violationDetails"></textarea>
+      </div>
+
+    </div>
+
+    <div class="actions" style="margin-top:20px">
+      <button class="btn" onclick="saveViolation()">حفظ</button>
+      <button class="btn btn-secondary" onclick="closeModal('violationModal')">إلغاء</button>
+    </div>
+  </div>
 </div>
-</section>
 
-<section class="page" id="reports">
-<div class="panel">
-<h3>📊 التقارير</h3>
-<div id="reportContent"></div>
-<div class="actions"><button class="btn" onclick="window.print()">🖨️ طباعة التقرير</button></div>
+<!-- MAINTENANCE MODAL -->
+<div id="maintenanceModal" class="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>طلب صيانة</h3>
+      <button class="close" onclick="closeModal('maintenanceModal')">×</button>
+    </div>
+
+    <div class="form-grid">
+
+      <div>
+        <label>المبنى</label>
+        <select id="maintenanceBuilding"></select>
+      </div>
+
+      <div>
+        <label>الغرفة</label>
+        <select id="maintenanceRoom"></select>
+      </div>
+
+      <div>
+        <label>الموقع</label>
+        <input id="maintenanceLocation">
+      </div>
+
+      <div>
+        <label>العطل</label>
+        <input id="maintenanceFault">
+      </div>
+
+      <div>
+        <label>الأولوية</label>
+        <select id="maintenancePriority">
+          <option value="low">منخفضة</option>
+          <option value="medium">متوسطة</option>
+          <option value="high">عالية</option>
+          <option value="urgent">عاجلة</option>
+        </select>
+      </div>
+
+      <div>
+        <label>الحالة</label>
+        <select id="maintenanceStatus">
+          <option value="open">مفتوحة</option>
+          <option value="in_progress">قيد التنفيذ</option>
+          <option value="completed">مكتملة</option>
+          <option value="cancelled">ملغاة</option>
+        </select>
+      </div>
+
+      <div>
+        <label>التاريخ</label>
+        <input id="maintenanceDate" type="date">
+      </div>
+
+      <div class="form-full">
+        <label>الوصف</label>
+        <textarea id="maintenanceDescription"></textarea>
+      </div>
+
+    </div>
+
+    <div class="actions" style="margin-top:20px">
+      <button class="btn" onclick="saveMaintenance()">حفظ</button>
+      <button class="btn btn-secondary" onclick="closeModal('maintenanceModal')">إلغاء</button>
+    </div>
+  </div>
 </div>
-</section>
 
-<section class="page" id="backup">
-<div class="panel">
-<h3>💾 النسخ الاحتياطي</h3>
-<p>يمكنك تنزيل نسخة من بيانات السكن وحفظها، ثم استعادتها لاحقاً.</p>
-<div class="actions">
-<button class="btn" onclick="exportData()">📥 تنزيل نسخة احتياطية</button>
-<label class="btn btn-secondary">
-📤 استعادة نسخة
-<input type="file" id="importFile" accept=".json" onchange="importData(event)" hidden>
-</label>
-<button class="btn btn-danger" onclick="clearAllData()">🗑️ حذف جميع البيانات</button>
+<!-- INSPECTION MODAL -->
+<div id="inspectionModal" class="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>تسجيل تفتيش</h3>
+      <button class="close" onclick="closeModal('inspectionModal')">×</button>
+    </div>
+
+    <div class="form-grid">
+
+      <div>
+        <label>المبنى</label>
+        <select id="inspectionBuilding"></select>
+      </div>
+
+      <div>
+        <label>الموقع</label>
+        <input id="inspectionLocation">
+      </div>
+
+      <div>
+        <label>النظافة</label>
+        <select id="inspectionCleanliness">
+          <option value="ممتاز">ممتاز</option>
+          <option value="جيد">جيد</option>
+          <option value="متوسط">متوسط</option>
+          <option value="ضعيف">ضعيف</option>
+        </select>
+      </div>
+
+      <div>
+        <label>الترتيب</label>
+        <select id="inspectionOrganization">
+          <option value="ممتاز">ممتاز</option>
+          <option value="جيد">جيد</option>
+          <option value="متوسط">متوسط</option>
+          <option value="ضعيف">ضعيف</option>
+        </select>
+      </div>
+
+      <div>
+        <label>الكهرباء</label>
+        <select id="inspectionElectricity">
+          <option value="سليم">سليم</option>
+          <option value="ملاحظة">توجد ملاحظة</option>
+          <option value="خطر">خطر</option>
+        </select>
+      </div>
+
+      <div>
+        <label>التاريخ</label>
+        <input id="inspectionDate" type="date">
+      </div>
+
+      <div class="form-full">
+        <label>الملاحظات</label>
+        <textarea id="inspectionNotes"></textarea>
+      </div>
+
+    </div>
+
+    <div class="actions" style="margin-top:20px">
+      <button class="btn" onclick="saveInspection()">حفظ</button>
+      <button class="btn btn-secondary" onclick="closeModal('inspectionModal')">إلغاء</button>
+    </div>
+  </div>
 </div>
-</div>
-</section>
 
-</main>
-</div>
+<div id="toast" class="toast"></div>
 
-<div class="modal" id="editModal">
-<div class="modal-box">
-<div class="modal-head">
-<h3 id="modalTitle">تعديل</h3>
-<button class="close" onclick="closeModal()">✕</button>
-</div>
-<div id="modalContent"></div>
-</div>
-</div><script>
-const KEY="q_housing_v3_data";
+<script>
+/* =========================================================
+   SUPABASE
+   ========================================================= */
 
-let data=JSON.parse(localStorage.getItem(KEY)||"null")||{
- employees:[],
- rooms:[],
- violations:[],
- maintenance:[],
- inspections:[]
-};
+const SUPABASE_URL =
+  "https://adpwiieyqlrpwabuedol.supabase.co";
 
-let editType=null;
-let editIndex=null;
+const SUPABASE_KEY =
+  "sb_publishable_8ITVL1sUpJpTtLHS1lKCzA_7OdTfm3I";
 
-function save(){
- localStorage.setItem(KEY,JSON.stringify(data));
- renderAll();
-}
+const supabaseClient =
+  window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-function esc(v){
- return String(v??"")
- .replaceAll("&","&amp;")
- .replaceAll("<","&lt;")
- .replaceAll(">","&gt;")
- .replaceAll('"',"&quot;")
- .replaceAll("'","&#039;");
-}
 
-function login(){
- const u=document.getElementById("username").value.trim();
- const p=document.getElementById("password").value;
+/* =========================================================
+   GLOBAL DATA
+   ========================================================= */
 
- if(u==="admin"&&p==="1234"){
-  localStorage.setItem("q_login","1");
-  document.getElementById("loginScreen").style.display="none";
-  document.getElementById("app").style.display="block";
-  renderAll();
- }else{
-  document.getElementById("loginError").textContent=
-  "اسم المستخدم أو كلمة المرور غير صحيحة";
- }
-}
+let currentUser = null;
+let currentProfile = null;
 
-function logout(){
- localStorage.removeItem("q_login");
- document.getElementById("app").style.display="none";
- document.getElementById("loginScreen").style.display="flex";
-}
+let buildings = [];
+let rooms = [];
+let beds = [];
+let employees = [];
+let violations = [];
+let maintenance = [];
+let inspections = [];
 
-function showPage(id,btn){
- document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
- document.getElementById(id).classList.add("active");
 
- document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));
- if(btn)btn.classList.add("active");
+/* =========================================================
+   LOGIN
+   ========================================================= */
 
- const titles={
-  dashboard:"لوحة التحكم",
-  employees:"الموظفون",
-  rooms:"الغرف والأسرة",
-  violations:"المخالفات",
-  maintenance:"الصيانة",
-  inspections:"التفتيش",
-  reports:"التقارير",
-  backup:"النسخ الاحتياطي"
- };
+async function login(){
 
- document.getElementById("pageTitle").textContent=titles[id]||"النظام";
+  const email =
+    document.getElementById("loginEmail").value.trim();
 
- if(id==="reports")renderReport();
-}
+  const password =
+    document.getElementById("loginPassword").value;
 
-function val(id){
- return document.getElementById(id).value.trim();
-}
+  const error =
+    document.getElementById("loginError");
 
-function clear(ids){
- ids.forEach(id=>{
-  const e=document.getElementById(id);
-  if(e)e.value="";
- });
-}
+  error.textContent = "";
 
-function addEmployee(){
- const e={
-  no:val("empNo"),
-  name:val("empName"),
-  dept:val("empDept"),
-  job:val("empJob"),
-  phone:val("empPhone"),
-  room:val("empRoom"),
-  bed:val("empBed")
- };
-
- if(!e.name){
-  alert("يرجى إدخال اسم الموظف");
-  return;
- }
-
- data.employees.push(e);
- clear(["empNo","empName","empDept","empJob","empPhone","empRoom","empBed"]);
- save();
- alert("تمت إضافة الموظف بنجاح");
-}
-
-function addRoom(){
- const r={
-  building:val("building"),
-  floor:val("floor"),
-  room:val("roomNo"),
-  beds:Number(document.getElementById("beds").value||0)
- };
-
- if(!r.room||r.beds<1){
-  alert("أدخل رقم الغرفة وعدد الأسرة");
-  return;
- }
-
- data.rooms.push(r);
- clear(["building","floor","roomNo","beds"]);
- save();
- alert("تمت إضافة الغرفة بنجاح");
-}
-
-function addViolation(){
- const v={
-  employee:val("vEmployee"),
-  type:val("vType"),
-  action:document.getElementById("vAction").value,
-  date:document.getElementById("vDate").value,
-  details:val("vDetails")
- };
-
- if(!v.employee||!v.type){
-  alert("أدخل اسم الموظف ونوع المخالفة");
-  return;
- }
-
- data.violations.push(v);
- clear(["vEmployee","vType","vAction","vDate","vDetails"]);
- save();
- alert("تم تسجيل المخالفة");
-}
-
-function addMaintenance(){
- const m={
-  location:val("mLocation"),
-  fault:val("mFault"),
-  priority:document.getElementById("mPriority").value,
-  status:document.getElementById("mStatus").value,
-  date:document.getElementById("mDate").value,
-  description:val("mDescription")
- };
-
- if(!m.location||!m.fault){
-  alert("أدخل الموقع والعطل");
-  return;
- }
-
- data.maintenance.push(m);
- clear(["mLocation","mFault","mPriority","mStatus","mDate","mDescription"]);
- save();
- alert("تم تسجيل طلب الصيانة");
-}
-
-function addInspection(){
- const i={
-  location:val("iLocation"),
-  clean:document.getElementById("iClean").value,
-  order:document.getElementById("iOrder").value,
-  electric:document.getElementById("iElectric").value,
-  date:document.getElementById("iDate").value,
-  notes:val("iNotes")
- };
-
- if(!i.location){
-  alert("أدخل موقع التفتيش");
-  return;
- }
-
- data.inspections.push(i);
- clear(["iLocation","iClean","iOrder","iElectric","iDate","iNotes"]);
- save();
- alert("تم حفظ التفتيش");
-}
-
-function occupied(room){
- return data.employees.filter(e=>String(e.room)===String(room)).length;
-}
-
-function renderDashboard(){
- document.getElementById("countEmployees").textContent=data.employees.length;
- document.getElementById("countRooms").textContent=data.rooms.length;
-
- const beds=data.rooms.reduce((a,r)=>a+Number(r.beds||0),0);
- const used=data.employees.filter(e=>e.bed).length;
-
- document.getElementById("countBeds").textContent=beds;
- document.getElementById("countFreeBeds").textContent=Math.max(0,beds-used);
- document.getElementById("countViolations").textContent=data.violations.length;
- document.getElementById("countMaintenance").textContent=data.maintenance.length;
-}
-
-function renderEmployees(){
- const tbody=document.getElementById("employeesTable");
- const q=(document.getElementById("employeeSearch")?.value||"").toLowerCase();
-
- const rows=data.employees
- .map((e,i)=>({e,i}))
- .filter(x=>{
-  const e=x.e;
-  return [e.no,e.name,e.dept,e.job,e.phone,e.room,e.bed]
-  .join(" ").toLowerCase().includes(q);
- });
-
- if(!rows.length){
-  tbody.innerHTML='<tr><td colspan="8" class="empty">لا توجد بيانات</td></tr>';
-  return;
- }
-
- tbody.innerHTML=rows.map(x=>{
-  const e=x.e,i=x.i;
-  return `
-  <tr>
-   <td>${esc(e.no)}</td>
-   <td><b>${esc(e.name)}</b></td>
-   <td>${esc(e.dept)}</td>
-   <td>${esc(e.job)}</td>
-   <td>${esc(e.phone)}</td>
-   <td>${esc(e.room)}</td>
-   <td>${esc(e.bed)}</td>
-   <td>
-    <button class="btn" onclick="editEmployee(${i})">✏️ تعديل</button>
-    <button class="btn btn-danger" onclick="removeItem('employees',${i})">🗑️ حذف</button>
-   </td>
-  </tr>`;
- }).join("");
-}
-
-function renderRooms(){
- const tbody=document.getElementById("roomsTable");
- const q=(document.getElementById("roomSearch")?.value||"").toLowerCase();
-
- const rows=data.rooms
- .map((r,i)=>({r,i}))
- .filter(x=>
-  [x.r.building,x.r.floor,x.r.room]
-  .join(" ").toLowerCase().includes(q)
- );
-
- if(!rows.length){
-  tbody.innerHTML='<tr><td colspan="7" class="empty">لا توجد غرف</td></tr>';
-  return;
- }
-
- tbody.innerHTML=rows.map(x=>{
-  const r=x.r,i=x.i;
-  const used=occupied(r.room);
-  const free=Math.max(0,Number(r.beds)-used);
-
-  return `
-  <tr>
-   <td>${esc(r.building)}</td>
-   <td>${esc(r.floor)}</td>
-   <td><b>${esc(r.room)}</b></td>
-   <td>${r.beds}</td>
-   <td>${used}</td>
-   <td><span class="badge success">${free}</span></td>
-   <td>
-    <button class="btn" onclick="editRoom(${i})">✏️ تعديل</button>
-    <button class="btn btn-danger" onclick="removeItem('rooms',${i})">🗑️ حذف</button>
-   </td>
-  </tr>`;
- }).join("");
-}
-
-function renderViolations(){
- const tbody=document.getElementById("violationsTable");
- const q=(document.getElementById("violationSearch")?.value||"").toLowerCase();
-
- const rows=data.violations
- .map((v,i)=>({v,i}))
- .filter(x=>
-  [x.v.employee,x.v.type,x.v.action,x.v.date,x.v.details]
-  .join(" ").toLowerCase().includes(q)
- );
-
- if(!rows.length){
-  tbody.innerHTML='<tr><td colspan="6" class="empty">لا توجد مخالفات</td></tr>';
-  return;
- }
-
- tbody.innerHTML=rows.map(x=>{
-  const v=x.v,i=x.i;
-  return `
-  <tr>
-   <td>${esc(v.employee)}</td>
-   <td>${esc(v.type)}</td>
-   <td><span class="badge warning">${esc(v.action)}</span></td>
-   <td>${esc(v.date)}</td>
-   <td>${esc(v.details)}</td>
-   <td>
-    <button class="btn" onclick="editViolation(${i})">✏️ تعديل</button>
-    <button class="btn btn-danger" onclick="removeItem('violations',${i})">🗑️ حذف</button>
-   </td>
-  </tr>`;
- }).join("");
-}
-
-function renderMaintenance(){
- const tbody=document.getElementById("maintenanceTable");
- const q=(document.getElementById("maintenanceSearch")?.value||"").toLowerCase();
-
- const rows=data.maintenance
- .map((m,i)=>({m,i}))
- .filter(x=>
-  [x.m.location,x.m.fault,x.m.priority,x.m.status,x.m.date,x.m.description]
-  .join(" ").toLowerCase().includes(q)
- );
-
- if(!rows.length){
-  tbody.innerHTML='<tr><td colspan="7" class="empty">لا توجد طلبات صيانة</td></tr>';
-  return;
- }
-
- tbody.innerHTML=rows.map(x=>{
-  const m=x.m,i=x.i;
-  return `
-  <tr>
-   <td>${esc(m.location)}</td>
-   <td>${esc(m.fault)}</td>
-   <td>${esc(m.priority)}</td>
-   <td><span class="badge ${m.status==="مكتمل"?"success":m.priority==="عاجل"?"danger":"warning"}">${esc(m.status)}</span></td>
-   <td>${esc(m.date)}</td>
-   <td>${esc(m.description)}</td>
-   <td>
-    <button class="btn" onclick="editMaintenance(${i})">✏️ تعديل</button>
-    <button class="btn btn-danger" onclick="removeItem('maintenance',${i})">🗑️ حذف</button>
-   </td>
-  </tr>`;
- }).join("");
-}
-
-function renderInspections(){
- const tbody=document.getElementById("inspectionsTable");
-
- if(!data.inspections.length){
-  tbody.innerHTML='<tr><td colspan="7" class="empty">لا توجد عمليات تفتيش</td></tr>';
-  return;
- }
-
- tbody.innerHTML=data.inspections.map((x,i)=>`
- <tr>
-  <td>${esc(x.location)}</td>
-  <td>${esc(x.clean)}</td>
-  <td>${esc(x.order)}</td>
-  <td>${esc(x.electric)}</td>
-  <td>${esc(x.date)}</td>
-  <td>${esc(x.notes)}</td>
-  <td>
-   <button class="btn" onclick="editInspection(${i})">✏️ تعديل</button>
-   <button class="btn btn-danger" onclick="removeItem('inspections',${i})">🗑️ حذف</button>
-  </td>
- </tr>
- `).join("");
-}
-
-function removeItem(type,index){
- if(!confirm("هل أنت متأكد من حذف هذا السجل؟"))return;
- data[type].splice(index,1);
- save();
-}
-
-function openModal(title,html){
- document.getElementById("modalTitle").textContent=title;
- document.getElementById("modalContent").innerHTML=html;
- document.getElementById("editModal").style.display="flex";
-}
-
-function closeModal(){
- document.getElementById("editModal").style.display="none";
-}
-
-function editEmployee(i){
- const e=data.employees[i];
-
- openModal("✏️ تعديل بيانات الموظف",`
- <div class="form-grid">
-  <input id="xNo" value="${esc(e.no)}" placeholder="رقم الموظف">
-  <input id="xName" value="${esc(e.name)}" placeholder="اسم الموظف">
-  <input id="xDept" value="${esc(e.dept)}" placeholder="القسم">
-  <input id="xJob" value="${esc(e.job)}" placeholder="المسمى الوظيفي">
-  <input id="xPhone" value="${esc(e.phone)}" placeholder="رقم الجوال">
-  <input id="xRoom" value="${esc(e.room)}" placeholder="الغرفة">
-  <input id="xBed" value="${esc(e.bed)}" placeholder="السرير">
- </div>
- <div class="actions">
-  <button class="btn btn-success" onclick="saveEmployee(${i})">💾 حفظ التعديل</button>
-  <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
- </div>
- `);
-}
-
-function saveEmployee(i){
- data.employees[i]={
-  no:val("xNo"),name:val("xName"),dept:val("xDept"),
-  job:val("xJob"),phone:val("xPhone"),room:val("xRoom"),bed:val("xBed")
- };
-
- save();
- closeModal();
- alert("تم تعديل بيانات الموظف");
-}
-
-function editRoom(i){
- const r=data.rooms[i];
-
- openModal("✏️ تعديل الغرفة",`
- <div class="form-grid">
-  <input id="xBuilding" value="${esc(r.building)}" placeholder="المبنى">
-  <input id="xFloor" value="${esc(r.floor)}" placeholder="الدور">
-  <input id="xRoomNo" value="${esc(r.room)}" placeholder="رقم الغرفة">
-  <input id="xBeds" type="number" min="1" value="${r.beds}" placeholder="عدد الأسرة">
- </div>
- <div class="actions">
-  <button class="btn btn-success" onclick="saveRoom(${i})">💾 حفظ التعديل</button>
-  <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
- </div>
- `);
-}
-
-function saveRoom(i){
- data.rooms[i]={
-  building:val("xBuilding"),
-  floor:val("xFloor"),
-  room:val("xRoomNo"),
-  beds:Number(document.getElementById("xBeds").value||0)
- };
-
- save();
- closeModal();
- alert("تم تعديل الغرفة");
-}
-
-function editViolation(i){
- const v=data.violations[i];
-
- openModal("✏️ تعديل المخالفة",`
- <div class="form-grid">
-  <input id="xVE" value="${esc(v.employee)}" placeholder="اسم الموظف">
-  <input id="xVT" value="${esc(v.type)}" placeholder="نوع المخالفة">
-
-  <select id="xVA">
-   <option ${v.action==="تنبيه"?"selected":""}>تنبيه</option>
-   <option ${v.action==="إنذار أول"?"selected":""}>إنذار أول</option>
-   <option ${v.action==="إنذار نهائي"?"selected":""}>إنذار نهائي</option>
-   <option ${v.action==="خصم"?"selected":""}>خصم</option>
-   <option ${v.action==="إخلاء السكن"?"selected":""}>إخلاء السكن</option>
-  </select>
-
-  <input id="xVD" type="date" value="${esc(v.date)}">
-  <textarea id="xVX" placeholder="التفاصيل">${esc(v.details)}</textarea>
- </div>
-
- <div class="actions">
-  <button class="btn btn-success" onclick="saveViolation(${i})">💾 حفظ التعديل</button>
-  <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
- </div>
- `);
-}
-
-function saveViolation(i){
- data.violations[i]={
-  employee:val("xVE"),
-  type:val("xVT"),
-  action:document.getElementById("xVA").value,
-  date:document.getElementById("xVD").value,
-  details:val("xVX")
- };
-
- save();
- closeModal();
- alert("تم تعديل المخالفة");
-}
-
-function editMaintenance(i){
- const m=data.maintenance[i];
-
- openModal("✏️ تعديل طلب الصيانة",`
- <div class="form-grid">
-  <input id="xML" value="${esc(m.location)}" placeholder="الموقع">
-  <input id="xMF" value="${esc(m.fault)}" placeholder="العطل">
-
-  <select id="xMP">
-   <option ${m.priority==="عادي"?"selected":""}>عادي</option>
-   <option ${m.priority==="متوسط"?"selected":""}>متوسط</option>
-   <option ${m.priority==="عاجل"?"selected":""}>عاجل</option>
-  </select>
-
-  <select id="xMS">
-   <option ${m.status==="جديد"?"selected":""}>جديد</option>
-   <option ${m.status==="تحت التنفيذ"?"selected":""}>تحت التنفيذ</option>
-   <option ${m.status==="مكتمل"?"selected":""}>مكتمل</option>
-  </select>
-
-  <input id="xMD" type="date" value="${esc(m.date)}">
-  <textarea id="xMX">${esc(m.description)}</textarea>
- </div>
-
- <div class="actions">
-  <button class="btn btn-success" onclick="saveMaintenance(${i})">💾 حفظ التعديل</button>
-  <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
- </div>
- `);
-}
-
-function saveMaintenance(i){
- data.maintenance[i]={
-  location:val("xML"),
-  fault:val("xMF"),
-  priority:document.getElementById("xMP").value,
-  status:document.getElementById("xMS").value,
-  date:document.getElementById("xMD").value,
-  description:val("xMX")
- };
-
- save();
- closeModal();
- alert("تم تعديل طلب الصيانة");
-}
-
-function editInspection(i){
- const x=data.inspections[i];
-
- openModal("✏️ تعديل التفتيش",`
- <div class="form-grid">
-  <input id="xIL" value="${esc(x.location)}" placeholder="الموقع">
-
-  <select id="xIC">
-   <option ${x.clean==="نظيف"?"selected":""}>نظيف</option>
-   <option ${x.clean==="متوسط"?"selected":""}>متوسط</option>
-   <option ${x.clean==="غير نظيف"?"selected":""}>غير نظيف</option>
-  </select>
-
-  <select id="xIO">
-   <option ${x.order==="مرتب"?"selected":""}>مرتب</option>
-   <option ${x.order==="متوسط"?"selected":""}>متوسط</option>
-   <option ${x.order==="غير مرتب"?"selected":""}>غير مرتب</option>
-  </select>
-
-  <select id="xIE">
-   <option ${x.electric==="آمن"?"selected":""}>آمن</option>
-   <option ${x.electric==="يحتاج متابعة"?"selected":""}>يحتاج متابعة</option>
-   <option ${x.electric==="خطر"?"selected":""}>خطر</option>
-  </select>
-
-  <input id="xID" type="date" value="${esc(x.date)}">
-  <textarea id="xIN">${esc(x.notes)}</textarea>
- </div>
-
- <div class="actions">
-  <button class="btn btn-success" onclick="saveInspection(${i})">💾 حفظ التعديل</button>
-  <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
- </div>
- `);
-}
-
-function saveInspection(i){
- data.inspections[i]={
-  location:val("xIL"),
-  clean:document.getElementById("xIC").value,
-  order:document.getElementById("xIO").value,
-  electric:document.getElementById("xIE").value,
-  date:document.getElementById("xID").value,
-  notes:val("xIN")
- };
-
- save();
- closeModal();
- alert("تم تعديل التفتيش");
-}
-
-function renderReport(){
- const beds=data.rooms.reduce((a,r)=>a+Number(r.beds||0),0);
- const used=data.employees.filter(e=>e.bed).length;
- const free=Math.max(0,beds-used);
-
- document.getElementById("reportContent").innerHTML=`
- <div class="cards">
-  <div class="card"><div class="label">الموظفون</div><div class="num">${data.employees.length}</div></div>
-  <div class="card"><div class="label">الغرف</div><div class="num">${data.rooms.length}</div></div>
-  <div class="card"><div class="label">إجمالي الأسرة</div><div class="num">${beds}</div></div>
-  <div class="card"><div class="label">الأسرة الشاغرة</div><div class="num">${free}</div></div>
-  <div class="card"><div class="label">المخالفات</div><div class="num">${data.violations.length}</div></div>
-  <div class="card"><div class="label">الصيانة</div><div class="num">${data.maintenance.length}</div></div>
-  <div class="card"><div class="label">التفتيش</div><div class="num">${data.inspections.length}</div></div>
- </div>
- `;
-}
-
-function exportData(){
- const backup={
-  version:"3.0",
-  exportedAt:new Date().toISOString(),
-  data:data
- };
-
- const blob=new Blob(
-  [JSON.stringify(backup,null,2)],
-  {type:"application/json"}
- );
-
- const url=URL.createObjectURL(blob);
- const a=document.createElement("a");
-
- a.href=url;
- a.download="q-housing-backup-"+new Date().toISOString().slice(0,10)+".json";
- a.click();
-
- URL.revokeObjectURL(url);
-}
-
-function importData(event){
- const file=event.target.files[0];
- if(!file)return;
-
- const reader=new FileReader();
-
- reader.onload=function(e){
-  try{
-   const obj=JSON.parse(e.target.result);
-
-   if(!obj.data||
-      !Array.isArray(obj.data.employees)||
-      !Array.isArray(obj.data.rooms)){
-    throw new Error();
-   }
-
-   if(!confirm("سيتم استبدال البيانات الحالية بالنسخة الاحتياطية. هل تريد المتابعة؟")){
+  if(!email || !password){
+    error.textContent = "يرجى إدخال البريد الإلكتروني وكلمة المرور";
     return;
-   }
-
-   data=obj.data;
-   save();
-   alert("تمت استعادة البيانات بنجاح");
-
-  }catch(err){
-   alert("ملف النسخة الاحتياطية غير صحيح");
   }
 
-  event.target.value="";
- };
+  const {data,error:authError} =
+    await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
 
- reader.readAsText(file);
+  if(authError){
+    error.textContent = authError.message;
+    return;
+  }
+
+  currentUser = data.user;
+
+  await startApplication();
 }
 
-function clearAllData(){
- if(!confirm("تحذير: سيتم حذف جميع بيانات السكن. هل أنت متأكد؟"))return;
- if(!confirm("تأكيد أخير: لا يمكن التراجع عن الحذف إلا من نسخة احتياطية."))return;
 
- data={
-  employees:[],
-  rooms:[],
-  violations:[],
-  maintenance:[],
-  inspections:[]
- };
+async function logout(){
 
- save();
- alert("تم حذف جميع البيانات");
+  await supabaseClient.auth.signOut();
+
+  currentUser = null;
+  currentProfile = null;
+
+  document.getElementById("app").style.display="none";
+  document.getElementById("loginScreen").style.display="flex";
 }
 
-function renderAll(){
- renderDashboard();
- renderEmployees();
- renderRooms();
- renderViolations();
- renderMaintenance();
- renderInspections();
- renderReport();
+
+/* =========================================================
+   START
+   ========================================================= */
+
+async function startApplication(){
+
+  const {data:userData} =
+    await supabaseClient.auth.getUser();
+
+  if(!userData.user){
+    return;
+  }
+
+  currentUser = userData.user;
+
+  const {data:profile,error} =
+    await supabaseClient
+      .from("profiles")
+      .select("*")
+      .eq("id",currentUser.id)
+      .single();
+
+  if(error || !profile){
+
+    alert(
+      "تم تسجيل الدخول، ولكن لم يتم العثور على ملف صلاحيات المستخدم."
+    );
+
+    await supabaseClient.auth.signOut();
+    return;
+  }
+
+  currentProfile = profile;
+
+  document.getElementById("loginScreen").style.display="none";
+  document.getElementById("app").style.display="block";
+
+  document.getElementById("userEmail").textContent =
+    currentUser.email || "";
+
+  document.getElementById("userRole").textContent =
+    profile.role === "manager"
+      ? "مدير السكن"
+      : "مشرف السكن";
+
+  applyPermissions();
+
+  await loadAll();
+
+  subscribeRealtime();
 }
 
-if(localStorage.getItem("q_login")==="1"){
- document.getElementById("loginScreen").style.display="none";
- document.getElementById("app").style.display="block";
+
+/* =========================================================
+   PERMISSIONS
+   ========================================================= */
+
+function isManager(){
+  return currentProfile &&
+         currentProfile.role === "manager";
 }
 
-renderAll();
+function applyPermissions(){
+
+  if(!isManager()){
+
+    const buttons = [
+      "addBuildingBtn",
+      "addRoomBtn",
+      "addEmployeeBtn"
+    ];
+
+    buttons.forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.style.display="none";
+    });
+  }
+}
+
+
+/* =========================================================
+   LOAD DATA
+   ========================================================= */
+
+async function loadAll(){
+
+  await Promise.all([
+    loadBuildings(),
+    loadRooms(),
+    loadBeds(),
+    loadEmployees(),
+    loadViolations(),
+    loadMaintenance(),
+    loadInspections()
+  ]);
+
+  updateDashboard();
+}
+
+
+/* =========================================================
+   BUILDINGS
+   ========================================================= */
+
+async function loadBuildings(){
+
+  let query =
+    supabaseClient
+      .from("buildings")
+      .select("*")
+      .order("name");
+
+  const {data,error} = await query;
+
+  if(error){
+    showToast(error.message);
+    return;
+  }
+
+  buildings = data || [];
+
+  renderBuildings();
+  fillBuildingSelects();
+}
+
+
+function renderBuildings(){
+
+  const search =
+    (document.getElementById("buildingSearch")?.value || "")
+    .toLowerCase();
+
+  const rows =
+    buildings.filter(b =>
+      (b.name || "").toLowerCase().includes(search) ||
+      (b.code || "").toLowerCase().includes(search)
+    );
+
+  const tbody =
+    document.getElementById("buildingsTable");
+
+  tbody.innerHTML="";
+
+  rows.forEach(b=>{
+
+    tbody.innerHTML += `
+      <tr>
+        <td><strong>${esc(b.name)}</strong></td>
+        <td>${esc(b.code || "-")}</td>
+        <td>${esc(b.address || "-")}</td>
+        <td>${b.floors || 0}</td>
+        <td>
+          <span class="badge ${b.active?'free':'occupied'}">
+            ${b.active?'نشط':'غير نشط'}
+          </span>
+        </td>
+        <td>
+          ${isManager() ? `
+          <div class="actions">
+            <button class="btn btn-warning"
+              onclick="editBuilding('${b.id}')">تعديل</button>
+            <button class="btn btn-danger"
+              onclick="deleteBuilding('${b.id}')">حذف</button>
+          </div>` : "عرض فقط"}
+        </td>
+      </tr>
+    `;
+  });
+}
+
+
+function openBuildingModal(id=null){
+
+  document.getElementById("buildingId").value=id||"";
+
+  if(id){
+
+    const b=buildings.find(x=>x.id===id);
+
+    if(!b) return;
+
+    document.getElementById("buildingModalTitle").textContent =
+      "تعديل المبنى";
+
+    document.getElementById("buildingName").value=b.name||"";
+    document.getElementById("buildingCode").value=b.code||"";
+    document.getElementById("buildingAddress").value=b.address||"";
+    document.getElementById("buildingFloors").value=b.floors||1;
+
+  }else{
+
+    document.getElementById("buildingModalTitle").textContent =
+      "إضافة مبنى";
+
+    document.getElementById("buildingName").value="";
+    document.getElementById("buildingCode").value="";
+    document.getElementById("buildingAddress").value="";
+    document.getElementById("buildingFloors").value=1;
+  }
+
+  document.getElementById("buildingModal").classList.add("show");
+}
+
+
+function editBuilding(id){
+  if(!isManager()) return;
+  openBuildingModal(id);
+}
+
+
+async function saveBuilding(){
+
+  if(!isManager()) return;
+
+  const id =
+    document.getElementById("buildingId").value;
+
+  const payload={
+    name:document.getElementById("buildingName").value.trim(),
+    code:document.getElementById("buildingCode").value.trim() || null,
+    address:document.getElementById("buildingAddress").value.trim() || null,
+    floors:Number(document.getElementById("buildingFloors").value)||1
+  };
+
+  if(!payload.name){
+    alert("اكتب اسم المبنى");
+    return;
+  }
+
+  let result;
+
+  if(id){
+
+    result =
+      await supabaseClient
+        .from("buildings")
+        .update(payload)
+        .eq("id",id);
+
+  }else{
+
+    result =
+      await supabaseClient
+        .from("buildings")
+        .insert(payload);
+  }
+
+  if(result.error){
+    alert(result.error.message);
+    return;
+  }
+
+  closeModal("buildingModal");
+  showToast("تم حفظ المبنى");
+
+  await loadBuildings();
+  updateDashboard();
+}
+
+
+async function deleteBuilding(id){
+
+  if(!isManager()) return;
+
+  if(!confirm("هل أنت متأكد من حذف المبنى؟")) return;
+
+  const {error} =
+    await supabaseClient
+      .from("buildings")
+      .delete()
+      .eq("id",id);
+
+  if(error){
+    alert("تعذر الحذف: "+error.message);
+    return;
+  }
+
+  showToast("تم حذف المبنى");
+  await loadAll();
+}
+
+
+/* =========================================================
+   ROOMS
+   ========================================================= */
+
+async function loadRooms(){
+
+  let query =
+    supabaseClient
+      .from("rooms")
+      .select("*")
+      .order("room_number");
+
+  const {data,error}=await query;
+
+  if(error){
+    showToast(error.message);
+    return;
+  }
+
+  rooms=data||[];
+  renderRooms();
+}
+
+
+async function loadBeds(){
+
+  const {data,error} =
+    await supabaseClient
+      .from("beds")
+      .select("*")
+      .order("bed_number");
+
+  if(error){
+    showToast(error.message);
+    return;
+  }
+
+  beds=data||[];
+}
+
+
+function renderRooms(){
+
+  const search =
+    (document.getElementById("roomSearch")?.value || "")
+    .toLowerCase();
+
+  const rows =
+    rooms.filter(r =>
+      (r.room_number || "").toLowerCase().includes(search) ||
+      (r.floor || "").toLowerCase().includes(search)
+    );
+
+  const tbody=document.getElementById("roomsTable");
+
+  tbody.innerHTML="";
+
+  rows.forEach(r=>{
+
+    const building =
+      buildings.find(b=>b.id===r.building_id);
+
+    const roomBeds =
+      beds.filter(b=>b.room_id===r.id);
+
+    const occupied =
+      roomBeds.filter(b=>b.status==="occupied").length;
+
+    const free =
+      roomBeds.filter(b=>b.status==="free").length;
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${esc(building?.name || "-")}</td>
+        <td>${esc(r.floor || "-")}</td>
+        <td><strong>${esc(r.room_number)}</strong></td>
+        <td>${roomBeds.length}</td>
+        <td>${occupied}</td>
+        <td>${free}</td>
+        <td>
+          ${isManager() ? `
+          <button class="btn btn-danger"
+            onclick="deleteRoom('${r.id}')">حذف</button>
+          `:"عرض فقط"}
+        </td>
+      </tr>
+    `;
+  });
+}
+
+
+function openRoomModal(){
+
+  if(!isManager()) return;
+
+  fillBuildingSelects();
+
+  document.getElementById("roomBuilding").value="";
+  document.getElementById("roomFloor").value="";
+  document.getElementById("roomNumber").value="";
+  document.getElementById("roomBeds").value=4;
+
+  document.getElementById("roomModal").classList.add("show");
+}
+
+
+async function saveRoom(){
+
+  if(!isManager()) return;
+
+  const buildingId =
+    document.getElementById("roomBuilding").value;
+
+  const floor =
+    document.getElementById("roomFloor").value.trim();
+
+  const roomNumber =
+    document.getElementById("roomNumber").value.trim();
+
+  const bedCount =
+    Number(document.getElementById("roomBeds").value);
+
+  if(!buildingId || !roomNumber || bedCount<1){
+    alert("يرجى إدخال بيانات الغرفة كاملة");
+    return;
+  }
+
+  const {data:room,error} =
+    await supabaseClient
+      .from("rooms")
+      .insert({
+        building_id:buildingId,
+        floor:floor || null,
+        room_number:roomNumber,
+        bed_count:bedCount
+      })
+      .select()
+      .single();
+
+  if(error){
+    alert(error.message);
+    return;
+  }
+
+  const bedRows=[];
+
+  for(let i=1;i<=bedCount;i++){
+
+    bedRows.push({
+      room_id:room.id,
+      bed_number:String(i),
+      status:"free"
+    });
+  }
+
+  const {error:bedError} =
+    await supabaseClient
+      .from("beds")
+      .insert(bedRows);
+
+  if(bedError){
+    alert("تم إنشاء الغرفة ولكن حدث خطأ في الأسرة: "+bedError.message);
+  }else{
+    showToast("تم إنشاء الغرفة والأسرة");
+  }
+
+  closeModal("roomModal");
+
+  await loadRooms();
+  await loadBeds();
+
+  updateDashboard();
+}
+
+
+async function deleteRoom(id){
+
+  if(!isManager()) return;
+
+  if(!confirm("حذف الغرفة سيحذف الأسرة التابعة لها. هل أنت متأكد؟"))
+    return;
+
+  const {error} =
+    await supabaseClient
+      .from("rooms")
+      .delete()
+      .eq("id",id);
+
+  if(error){
+    alert(error.message);
+    return;
+  }
+
+  showToast("تم حذف الغرفة");
+
+  await loadRooms();
+  await loadBeds();
+
+  updateDashboard();
+}
+
+
+/* =========================================================
+   EMPLOYEES
+   ========================================================= */
+
+async function loadEmployees(){
+
+  const {data,error} =
+    await supabaseClient
+      .from("employees")
+      .select("*")
+      .order("name");
+
+  if(error){
+    showToast(error.message);
+    return;
+  }
+
+  employees=data||[];
+  renderEmployees();
+}
+
+
+function renderEmployees(){
+
+  const search =
+    (document.getElementById("employeeSearch")?.value || "")
+    .toLowerCase();
+
+  const rows =
+    employees.filter(e =>
+      (e.name||"").toLowerCase().includes(search) ||
+      (e.employee_no||"").toLowerCase().includes(search)
+    );
+
+  const tbody=document.getElementById("employeesTable");
+
+  tbody.innerHTML="";
+
+  rows.forEach(e=>{
+
+    const building =
+      buildings.find(b=>b.id===e.building_id);
+
+    const room =
+      rooms.find(r=>r.id===e.room_id);
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${esc(e.employee_no)}</td>
+        <td><strong>${esc(e.name)}</strong></td>
+        <td>${esc(e.department||"-")}</td>
+        <td>${esc(e.job||"-")}</td>
+        <td>${esc(building?.name||"-")}</td>
+        <td>${esc(room?.room_number||"-")}</td>
+        <td>${employeeStatus(e.status)}</td>
+        <td>
+          ${isManager()?`
+          <button class="btn btn-danger"
+            onclick="deleteEmployee('${e.id}')">حذف</button>
+          `:"عرض فقط"}
+        </td>
+      </tr>
+    `;
+  });
+}
+
+
+function openEmployeeModal(){
+
+  if(!isManager()) return;
+
+  document.getElementById("employeeId").value="";
+  document.getElementById("employeeNo").value="";
+  document.getElementById("employeeName").value="";
+  document.getElementById("employeeDepartment").value="";
+  document.getElementById("employeeJob").value="";
+  document.getElementById("employeePhone").value="";
+  document.getElementById("employeeStatus").value="active";
+
+  fillBuildingSelects();
+
+  document.getElementById("employeeBuilding").value="";
+  document.getElementById("employeeRoom").innerHTML =
+    `<option value="">اختر الغرفة</option>`;
+  document.getElementById("employeeBed").innerHTML =
+    `<option value="">اختر السرير</option>`;
+
+  document.getElementById("employeeModal").classList.add("show");
+}
+
+
+async function loadEmployeeRooms(){
+
+  const buildingId =
+    document.getElementById("employeeBuilding").value;
+
+  const select =
+    document.getElementById("employeeRoom");
+
+  select.innerHTML =
+    `<option value="">اختر الغرفة</option>`;
+
+  document.getElementById("employeeBed").innerHTML =
+    `<option value="">اختر السرير</option>`;
+
+  if(!buildingId) return;
+
+  rooms
+    .filter(r=>r.building_id===buildingId)
+    .forEach(r=>{
+      select.innerHTML +=
+        `<option value="${r.id}">
+          ${esc(r.room_number)}
+        </option>`;
+    });
+}
+
+
+async function loadEmployeeBeds(){
+
+  const roomId =
+    document.getElementById("employeeRoom").value;
+
+  const select =
+    document.getElementById("employeeBed");
+
+  select.innerHTML =
+    `<option value="">بدون سرير</option>`;
+
+  if(!roomId) return;
+
+  beds
+    .filter(b=>b.room_id===roomId && b.status==="free")
+    .forEach(b=>{
+      select.innerHTML +=
+        `<option value="${b.id}">
+          سرير ${esc(b.bed_number)}
+        </option>`;
+    });
+}
+
+
+async function saveEmployee(){
+
+  if(!isManager()) return;
+
+  const employeeNo =
+    document.getElementById("employeeNo").value.trim();
+
+  const name =
+    document.getElementById("employeeName").value.trim();
+
+  if(!employeeNo || !name){
+    alert("رقم الموظف والاسم مطلوبان");
+    return;
+  }
+
+  const buildingId =
+    document.getElementById("employeeBuilding").value || null;
+
+  const roomId =
+    document.getElementById("employeeRoom").value || null;
+
+  const bedId =
+    document.getElementById("employeeBed").value || null;
+
+  const payload={
+    employee_no:employeeNo,
+    name,
+    department:
+      document.getElementById("employeeDepartment").value.trim() || null,
+    job:
+      document.getElementById("employeeJob").value.trim() || null,
+    phone:
+      document.getElementById("employeePhone").value.trim() || null,
+    building_id:buildingId,
+    room_id:roomId,
+    bed_id:bedId,
+    status:
+      document.getElementById("employeeStatus").value
+  };
+
+  const {data,error} =
+    await supabaseClient
+      .from("employees")
+      .insert(payload)
+      .select()
+      .single();
+
+  if(error){
+    alert(error.message);
+    return;
+  }
+
+  if(bedId){
+
+    await supabaseClient
+      .from("beds")
+      .update({status:"occupied"})
+      .eq("id",bedId);
+  }
+
+  closeModal("employeeModal");
+
+  showToast("تم إضافة الموظف");
+
+  await loadEmployees();
+  await loadBeds();
+
+  updateDashboard();
+}
+
+
+async function deleteEmployee(id){
+
+  if(!isManager()) return;
+
+  const employee =
+    employees.find(e=>e.id===id);
+
+  if(!employee) return;
+
+  if(!confirm("هل تريد حذف الموظف؟")) return;
+
+  if(employee.bed_id){
+
+    await supabaseClient
+      .from("beds")
+      .update({status:"free"})
+      .eq("id",employee.bed_id);
+  }
+
+  const {error} =
+    await supabaseClient
+      .from("employees")
+      .delete()
+      .eq("id",id);
+
+  if(error){
+    alert(error.message);
+    return;
+  }
+
+  showToast("تم حذف الموظف");
+
+  await loadEmployees();
+  await loadBeds();
+
+  updateDashboard();
+}
+
+
+/* =========================================================
+   VIOLATIONS
+   ========================================================= */
+
+async function loadViolations(){
+
+  const {data,error} =
+    await supabaseClient
+      .from("violations")
+      .select("*")
+      .order("violation_date",{ascending:false});
+
+  if(error){
+    showToast(error.message);
+    return;
+  }
+
+  violations=data||[];
+  renderViolations();
+}
+
+
+function renderViolations(){
+
+  const search =
+    (document.getElementById("violationSearch")?.value||"")
+    .toLowerCase();
+
+  const rows =
+    violations.filter(v =>
+      (v.type||"").toLowerCase().includes(search) ||
+      (v.details||"").toLowerCase().includes(search)
+    );
+
+  const tbody=document.getElementById("violationsTable");
+
+  tbody.innerHTML="";
+
+  rows.forEach(v=>{
+
+    const employee =
+      employees.find(e=>e.id===v.employee_id);
+
+    const building =
+      buildings.find(b=>b.id===v.building_id);
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${esc(v.violation_date||"-")}</td>
+        <td>${esc(employee?.name||"-")}</td>
+        <td>${esc(building?.name||"-")}</td>
+        <td>${esc(v.type||"-")}</td>
+        <td>${esc(v.action||"-")}</td>
+        <td>${esc(v.details||"-")}</td>
+        <td>
+          <button class="btn btn-danger"
+            onclick="deleteViolation('${v.id}')">حذف</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+
+function openViolationModal(){
+
+  fillBuildingSelects();
+  fillEmployeeSelect();
+
+  document.getElementById("violationDate").value =
+    new Date().toISOString().slice(0,10);
+
+  document.getElementById("violationType").value="";
+  document.getElementById("violationAction").value="";
+  document.getElementById("violationDetails").value="";
+
+  document.getElementById("violationModal").classList.add("show");
+}
+
+
+async function saveViolation(){
+
+  const buildingId =
+    document.getElementById("violationBuilding").value || null;
+
+  const employeeId =
+    document.getElementById("violationEmployee").value || null;
+
+  const payload={
+    building_id:buildingId,
+    employee_id:employeeId,
+    type:
+      document.getElementById("violationType").value.trim(),
+    action:
+      document.getElementById("violationAction").value.trim(),
+    violation_date:
+      document.getElementById("violationDate").value,
+    details:
+      document.getElementById("violationDetails").value.trim(),
+    created_by:currentUser.id
+  };
+
+  if(!payload.type){
+    alert("اكتب نوع المخالفة");
+    return;
+  }
+
+  const {error} =
+    await supabaseClient
+      .from("violations")
+      .insert(payload);
+
+  if(error){
+    alert(error.message);
+    return;
+  }
+
+  closeModal("violationModal");
+  showToast("تم تسجيل المخالفة");
+
+  await loadViolations();
+  updateDashboard();
+}
+
+
+async function deleteViolation(id){
+
+  if(!confirm("هل تريد حذف المخالفة؟")) return;
+
+  const {error} =
+    await supabaseClient
+      .from("violations")
+      .delete()
+      .eq("id",id);
+
+  if(error){
+    alert(error.message);
+    return;
+  }
+
+  showToast("تم حذف المخالفة");
+  await loadViolations();
+  updateDashboard();
+}
+
+
+/* =========================================================
+   MAINTENANCE
+   ========================================================= */
+
+async function loadMaintenance(){
+
+  const {data,error} =
+    await supabaseClient
+      .from("maintenance")
+      .select("*")
+      .order("maintenance_date",{ascending:false});
+
+  if(error){
+    showToast(error.message);
+    return;
+  }
+
+  maintenance=data||[];
+  renderMaintenance();
+}
+
+
+function renderMaintenance(){
+
+  const tbody =
+    document.getElementById("maintenanceTable");
+
+  tbody.innerHTML="";
+
+  maintenance.forEach(m=>{
+
+    const building =
+      buildings.find(b=>b.id===m.building_id);
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${esc(m.maintenance_date||"-")}</td>
+        <td>${esc(building?.name||"-")}</td>
+        <td>${esc(m.location||"-")}</td>
+        <td>${esc(m.fault||"-")}</td>
+        <td>${priorityText(m.priority)}</td>
+        <td>${maintenanceStatus(m.status)}</td>
+        <td>
+          <button class="btn btn-danger"
+            onclick="deleteMaintenance('${m.id}')">حذف</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+
+function openMaintenanceModal(){
+
+  fillBuildingSelects();
+
+  document.getElementById("maintenanceDate").value =
+    new Date().toISOString().slice(0,10);
+
+  document.getElementById("maintenanceLocation").value="";
+  document.getElementById("maintenanceFault").value="";
+  document.getElementById("maintenanceDescription").value="";
+
+  document.getElementById("maintenanceModal").classList.add("show");
+}
+
+
+async function saveMaintenance(){
+
+  const payload={
+    building_id:
+      document.getElementById("maintenanceBuilding").value || null,
+
+    room_id:
+      document.getElementById("maintenanceRoom").value || null,
+
+    location:
+      document.getElementById("maintenanceLocation").value.trim(),
+
+    fault:
+      document.getElementById("maintenanceFault").value.trim(),
+
+    priority:
+      document.getElementById("maintenancePriority").value,
+
+    status:
+      document.getElementById("maintenanceStatus").value,
+
+    maintenance_date:
+      document.getElementById("maintenanceDate").value,
+
+    description:
+      document.getElementById("maintenanceDescription").value.trim(),
+
+    created_by:currentUser.id
+  };
+
+  if(!payload.fault){
+    alert("اكتب العطل");
+    return;
+  }
+
+  const {error} =
+    await supabaseClient
+      .from("maintenance")
+      .insert(payload);
+
+  if(error){
+    alert(error.message);
+    return;
+  }
+
+  closeModal("maintenanceModal");
+  showToast("تم تسجيل طلب الصيانة");
+
+  await loadMaintenance();
+  updateDashboard();
+}
+
+
+/* =========================================================
+   INSPECTIONS
+   ========================================================= */
+
+async function loadInspections(){
+
+  const {data,error} =
+    await supabaseClient
+      .from("inspections")
+      .select("*")
+      .order("inspection_date",{ascending:false});
+
+  if(error){
+    showToast(error.message);
+    return;
+  }
+
+  inspections=data||[];
+  renderInspections();
+}
+
+
+function renderInspections(){
+
+  const tbody =
+    document.getElementById("inspectionsTable");
+
+  tbody.innerHTML="";
+
+  inspections.forEach(i=>{
+
+    const building =
+      buildings.find(b=>b.id===i.building_id);
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${esc(i.inspection_date||"-")}</td>
+        <td>${esc(building?.name||"-")}</td>
+        <td>${esc(i.location||"-")}</td>
+        <td>${esc(i.cleanliness||"-")}</td>
+        <td>${esc(i.organization||"-")}</td>
+        <td>${esc(i.electricity||"-")}</td>
+        <td>${esc(i.notes||"-")}</td>
+        <td>
+          <button class="btn btn-danger"
+            onclick="deleteInspection('${i.id}')">حذف</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+
+function openInspectionModal(){
+
+  fillBuildingSelects();
+
+  document.getElementById("inspectionDate").value =
+    new Date().toISOString().slice(0,10);
+
+  document.getElementById("inspectionLocation").value="";
+  document.getElementById("inspectionNotes").value="";
+
+  document.getElementById("inspectionModal").classList.add("show");
+}
+
+
+async function saveInspection(){
+
+  const payload={
+    building_id:
+      document.getElementById("inspectionBuilding").value || null,
+
+    location:
+      document.getElementById("inspectionLocation").value.trim(),
+
+    cleanliness:
+      document.getElementById("inspectionCleanliness").value,
+
+    organization:
+      document.getElementById("inspectionOrganization").value,
+
+    electricity:
+      document.getElementById("inspectionElectricity").value,
+
+    inspection_date:
+      document.getElementById("inspectionDate").value,
+
+    notes:
+      document.getElementById("inspectionNotes").value.trim(),
+
+    created_by:currentUser.id
+  };
+
+  const {error} =
+    await supabaseClient
+      .from("inspections")
+      .insert(payload);
+
+  if(error){
+    alert(error.message);
+    return;
+  }
+
+  closeModal("inspectionModal");
+  showToast("تم تسجيل التفتيش");
+
+  await loadInspections();
+}
+
+
+async function deleteInspection(id){
+
+  if(!confirm("هل تريد حذف سجل التفتيش؟")) return;
+
+  const {error} =
+    await supabaseClient
+      .from("inspections")
+      .delete()
+      .eq("id",id);
+
+  if(error){
+    alert(error.message);
+    return;
+  }
+
+  showToast("تم حذف سجل التفتيش");
+  await loadInspections();
+}
+
+
+/* =========================================================
+   SELECTS
+   ========================================================= */
+
+function fillBuildingSelects(){
+
+  const ids=[
+    "roomBuilding",
+    "employeeBuilding",
+    "violationBuilding",
+    "maintenanceBuilding",
+    "inspectionBuilding"
+  ];
+
+  ids.forEach(id=>{
+
+    const select=document.getElementById(id);
+
+    if(!select) return;
+
+    const old=select.value;
+
+    select.innerHTML =
+      `<option value="">اختر المبنى</option>`;
+
+    buildings.forEach(b=>{
+      select.innerHTML +=
+        `<option value="${b.id}">
+          ${esc(b.name)}
+        </option>`;
+    });
+
+    if(old) select.value=old;
+  });
+}
+
+
+function fillEmployeeSelect(){
+
+  const select=
+    document.getElementById("violationEmployee");
+
+  select.innerHTML=
+    `<option value="">اختر الموظف</option>`;
+
+  employees.forEach(e=>{
+    select.innerHTML +=
+      `<option value="${e.id}">
+        ${esc(e.employee_no)} - ${esc(e.name)}
+      </option>`;
+  });
+}
+
+
+document.addEventListener("change",function(e){
+
+  if(e.target.id==="maintenanceBuilding"){
+
+    const buildingId=e.target.value;
+
+    const select=
+      document.getElementById("maintenanceRoom");
+
+    select.innerHTML=
+      `<option value="">اختر الغرفة</option>`;
+
+    rooms
+      .filter(r=>r.building_id===buildingId)
+      .forEach(r=>{
+        select.innerHTML +=
+          `<option value="${r.id}">
+            ${esc(r.room_number)}
+          </option>`;
+      });
+  }
+});
+
+
+/* =========================================================
+   DASHBOARD
+   ========================================================= */
+
+function updateDashboard(){
+
+  const totalBeds=beds.length;
+
+  const occupied=
+    beds.filter(b=>b.status==="occupied").length;
+
+  const free=
+    beds.filter(b=>b.status==="free").length;
+
+  document.getElementById("statBuildings").textContent=
+    buildings.length;
+
+  document.getElementById("statRooms").textContent=
+    rooms.length;
+
+  document.getElementById("statEmployees").textContent=
+    employees.length;
+
+  document.getElementById("statViolations").textContent=
+    violations.length;
+
+  document.getElementById("statBeds").textContent=
+    totalBeds;
+
+  document.getElementById("statOccupied").textContent=
+    occupied;
+
+  document.getElementById("statFree").textContent=
+    free;
+
+  document.getElementById("statMaintenance").textContent=
+    maintenance.filter(m=>m.status!=="completed").length;
+
+  document.getElementById("reportBuildings").textContent=
+    buildings.length;
+
+  document.getElementById("reportEmployees").textContent=
+    employees.length;
+
+  document.getElementById("reportBeds").textContent=
+    totalBeds;
+
+  document.getElementById("reportViolations").textContent=
+    violations.length;
+
+  document.getElementById("reportText").textContent=
+    `يوجد حاليًا ${buildings.length} مبنى،
+    و${rooms.length} غرفة،
+    و${totalBeds} سرير،
+    و${employees.length} موظف،
+    منها ${occupied} أسرة مشغولة و${free} أسرة شاغرة.`;
+}
+
+
+/* =========================================================
+   REALTIME
+   ========================================================= */
+
+function subscribeRealtime(){
+
+  supabaseClient
+    .channel("q-housing-live")
+    .on(
+      "postgres_changes",
+      {
+        event:"*",
+        schema:"public"
+      },
+      async ()=>{
+        await loadAll();
+      }
+    )
+    .subscribe();
+}
+
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+function showPage(page,button){
+
+  document.querySelectorAll(".page")
+    .forEach(p=>p.classList.remove("active"));
+
+  const target=document.getElementById(page);
+
+  if(target) target.classList.add("active");
+
+  document.querySelectorAll(".nav")
+    .forEach(n=>n.classList.remove("active"));
+
+  if(button) button.classList.add("active");
+
+  document.getElementById("sidebar")
+    .classList.remove("show");
+}
+
+
+function toggleSidebar(){
+
+  document.getElementById("sidebar")
+    .classList.toggle("show");
+}
+
+
+/* =========================================================
+   MODALS
+   ========================================================= */
+
+function closeModal(id){
+  document.getElementById(id).classList.remove("show");
+}
+
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+
+function esc(value){
+
+  if(value===null || value===undefined)
+    return "";
+
+  return String(value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+
+function employeeStatus(status){
+
+  if(status==="active")
+    return `<span class="badge free">على رأس العمل</span>`;
+
+  if(status==="transferred")
+    return `<span class="badge open">منقول</span>`;
+
+  return `<span class="badge occupied">ترك العمل</span>`;
+}
+
+
+function priorityText(p){
+
+  const map={
+    low:"منخفضة",
+    medium:"متوسطة",
+    high:"عالية",
+    urgent:"عاجلة"
+  };
+
+  return map[p]||p||"-";
+}
+
+
+function maintenanceStatus(s){
+
+  const map={
+    open:"مفتوحة",
+    in_progress:"قيد التنفيذ",
+    completed:"مكتملة",
+    cancelled:"ملغاة"
+  };
+
+  const cls=
+    s==="completed"
+      ?"completed"
+      :"open";
+
+  return `<span class="badge ${cls}">
+    ${map[s]||s||"-"}
+  </span>`;
+}
+
+
+function showToast(message){
+
+  const toast=
+    document.getElementById("toast");
+
+  toast.textContent=message;
+  toast.classList.add("show");
+
+  setTimeout(()=>{
+    toast.classList.remove("show");
+  },2500);
+}
+
+
+/* =========================================================
+   INITIAL SESSION
+   ========================================================= */
+
+(async function(){
+
+  const {data} =
+    await supabaseClient.auth.getSession();
+
+  if(data.session){
+
+    currentUser=data.session.user;
+
+    await startApplication();
+  }
+
+})();
+
+
+/* =========================================================
+   AUTH STATE
+   ========================================================= */
+
+supabaseClient.auth.onAuthStateChange(
+  async (event,session)=>{
+
+    if(event==="SIGNED_OUT"){
+
+      document.getElementById("app").style.display="none";
+      document.getElementById("loginScreen").style.display="flex";
+
+    }
+
+  }
+);
+
 </script>
 
 </body>
