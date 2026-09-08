@@ -350,71 +350,95 @@ th{background:#f7f9fb}
           <h2>لوحة التحكم</h2>
           <button class="btn" onclick="loadAll()">🔄 تحديث</button>
         </div>
+<!-- DASHBOARD -->
+<section id="dashboard" class="page active">
 
-        <div class="card dashboard-card" onclick="showDashboardDetails('buildings')">
-  <div class="label">🏢 المباني</div>
-  <div id="statBuildings" class="number">0</div>
-  <div class="card-hint">اضغط لعرض التفاصيل</div>
-</div>
+  <div class="page-title">
+    <h2>لوحة التحكم</h2>
+    <button class="btn" onclick="loadAll()">🔄 تحديث</button>
+  </div>
 
-        <!-- DASHBOARD DETAILS -->
+  <!-- الإحصائيات الأولى -->
+  <div class="cards">
+
+    <div class="card dashboard-card"
+         onclick="showDashboardDetails('buildings')">
+      <div class="label">🏢 المباني</div>
+      <div id="statBuildings" class="number">0</div>
+      <div class="card-hint">اضغط لعرض التفاصيل</div>
+    </div>
+
+    <div class="card">
+      <div class="label">الغرف</div>
+      <div id="statRooms" class="number">0</div>
+    </div>
+
+    <div class="card">
+      <div class="label">الموظفون</div>
+      <div id="statEmployees" class="number">0</div>
+    </div>
+
+    <div class="card">
+      <div class="label">المخالفات</div>
+      <div id="statViolations" class="number">0</div>
+    </div>
+
+  </div>
+
+  <!-- إحصائيات الأسرة والصيانة -->
+  <div class="cards">
+
+    <div class="card">
+      <div class="label">إجمالي الأسرة</div>
+      <div id="statBeds" class="number">0</div>
+    </div>
+
+    <div class="card">
+      <div class="label">الأسرة المشغولة</div>
+      <div id="statOccupied" class="number">0</div>
+    </div>
+
+    <div class="card">
+      <div class="label">الأسرة الشاغرة</div>
+      <div id="statFree" class="number">0</div>
+    </div>
+
+    <div class="card">
+      <div class="label">طلبات الصيانة</div>
+      <div id="statMaintenance" class="number">0</div>
+    </div>
+
+  </div>
+
+  <div class="panel">
+    <h3>مرحبًا بك في نظام سكن كيو</h3>
+    <p>
+      النظام المركزي لإدارة المباني والغرف والأسرة والموظفين
+      والمخالفات والصيانة والتفتيش.
+    </p>
+  </div>
+
+</section>
+
+<!-- DASHBOARD DETAILS -->
 <section id="dashboardDetailsPage" class="page">
 
   <div class="card">
-    <h2 id="dashboardDetailsTitle">تفاصيل النظام</h2>
+
+    <h2 id="dashboardDetailsTitle">
+      تفاصيل النظام
+    </h2>
 
     <div id="dashboardDetailsContent">
       <!-- سيتم عرض التفاصيل هنا -->
     </div>
+
   </div>
 
 </section>
-          <div class="card">
-            <div class="label">الغرف</div>
-            <div id="statRooms" class="number">0</div>
-          </div>
 
-          <div class="card">
-            <div class="label">الموظفون</div>
-            <div id="statEmployees" class="number">0</div>
-          </div>
-
-          <div class="card">
-            <div class="label">المخالفات</div>
-            <div id="statViolations" class="number">0</div>
-          </div>
-        </div>
-
-        <div class="cards">
-          <div class="card">
-            <div class="label">إجمالي الأسرة</div>
-            <div id="statBeds" class="number">0</div>
-          </div>
-
-          <div class="card">
-            <div class="label">الأسرة المشغولة</div>
-            <div id="statOccupied" class="number">0</div>
-          </div>
-
-          <div class="card">
-            <div class="label">الأسرة الشاغرة</div>
-            <div id="statFree" class="number">0</div>
-          </div>
-
-          <div class="card">
-            <div class="label">طلبات الصيانة</div>
-            <div id="statMaintenance" class="number">0</div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <h3>مرحبًا بك في نظام سكن كيو</h3>
-          <p>
-            النظام المركزي لإدارة المباني والغرف والأسرة والموظفين
-            والمخالفات والصيانة والتفتيش.
-          </p>
-        </div>
-      </section>
+<!-- BUILDINGS -->
+   
 
       <!-- BUILDINGS -->
       <!-- USERS & PERMISSIONS -->
