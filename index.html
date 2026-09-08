@@ -1134,50 +1134,84 @@ async function logout(){
 
 async function startApplication(){
 
-  const {data:userData} =
-    await supabaseClient.auth.getUser();
+  try {
 
-  if(!userData.user){
-    return;
+    const { data: userData, error: userError } =
+      await supabaseClient.auth.getUser();
+
+    if(userError){
+      throw userError;
+    }
+
+    if(!userData || !userData.user){
+      throw new Error("لم يتم العثور على المستخدم بعد تسجيل الدخول");
+    }
+
+    currentUser = userData.user;
+
+    const { data: profile, error: profileError } =
+      await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq("id", currentUser.id)
+        .single();
+
+    if(profileError){
+      throw new Error(
+        "خطأ في تحميل صلاحيات المستخدم: " +
+        profileError.message
+      );
+    }
+
+    if(!profile){
+      throw new Error(
+        "تم تسجيل الدخول، ولكن لم يتم العثور على ملف صلاحيات المستخدم."
+      );
+    }
+
+    currentProfile = profile;
+
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("app").style.display = "block";
+
+    document.getElementById("userEmail").textContent =
+      currentUser.email || "";
+
+    document.getElementById("userRole").textContent =
+      profile.role === "manager"
+        ? "مدير السكن"
+        : "مشرف السكن";
+
+    applyPermissions();
+
+    await loadAll();
+
+    subscribeRealtime();
+
+  } catch(err) {
+
+    console.error("START APPLICATION ERROR:", err);
+
+    const errorBox =
+      document.getElementById("loginError");
+
+    if(errorBox){
+
+      errorBox.textContent =
+        "حدث خطأ بعد تسجيل الدخول: " +
+        (err.message || err);
+
+    }else{
+
+      alert(
+        "حدث خطأ بعد تسجيل الدخول:\n" +
+        (err.message || err)
+      );
+
+    }
+
   }
 
-  currentUser = userData.user;
-
-  const {data:profile,error} =
-    await supabaseClient
-      .from("profiles")
-      .select("*")
-      .eq("id",currentUser.id)
-      .single();
-
-  if(error || !profile){
-
-    alert(
-      "تم تسجيل الدخول، ولكن لم يتم العثور على ملف صلاحيات المستخدم."
-    );
-
-    await supabaseClient.auth.signOut();
-    return;
-  }
-
-  currentProfile = profile;
-
-  document.getElementById("loginScreen").style.display="none";
-  document.getElementById("app").style.display="block";
-
-  document.getElementById("userEmail").textContent =
-    currentUser.email || "";
-
-  document.getElementById("userRole").textContent =
-    profile.role === "manager"
-      ? "مدير السكن"
-      : "مشرف السكن";
-
-  applyPermissions();
-
-  await loadAll();
-
-  subscribeRealtime();
 }
 
 
