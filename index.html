@@ -1081,37 +1081,30 @@ let inspections = [];
    LOGIN
    ========================================================= */
 
-async function login(){
+async function login() {
+    const email = document.getElementById("loginEmail")?.value.trim();
+    const password = document.getElementById("loginPassword")?.value;
+    const error = document.getElementById("loginError");
 
-  const email =
-    document.getElementById("loginEmail").value.trim();
+    if (error) error.textContent = "";
 
-  const password =
-    document.getElementById("loginPassword").value;
+    if (!email || !password) {
+        if (error) error.textContent = "يرجى إدخال البريد الإلكتروني وكلمة المرور";
+        return;
+    }
 
-  const error =
-    document.getElementById("loginError");
-
-  error.textContent = "";
-
-  if(!email || !password){
-    error.textContent = "يرجى إدخال البريد الإلكتروني وكلمة المرور";
-    return;
-  }
-
-  const {data,error:authError} =
-    await supabaseClient.auth.signInWithPassword({
-      email,
-      password
+    const { data, error: authError } = await supabaseClient.auth.signInWithPassword({
+        email,
+        password
     });
 
-  if(authError){
-    error.textContent = authError.message;
-    return;
-  }
+    if (authError) {
+        if (error) error.textContent = authError.message;
+        return;
+    }
 
-  currentUser = data.user;
-
+    currentUser = data.user;
+}
   await startApplication();
 }
 
