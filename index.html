@@ -280,7 +280,12 @@ th{background:#f7f9fb}
     <label>كلمة المرور</label>
     <input id="loginPassword" type="password" placeholder="أدخل كلمة المرور">
 
-   <button class="btn full" onclick="login()">تسجيل الدخول</button>
+ async function login(){
+
+  alert("تم تشغيل تسجيل الدخول");
+
+  const email =
+    document.getElementById("loginEmail").value.trim();
 
     <p id="loginError" style="color:#c33;text-align:center;margin-top:15px"></p>
   </div>
