@@ -351,12 +351,24 @@ th{background:#f7f9fb}
           <button class="btn" onclick="loadAll()">🔄 تحديث</button>
         </div>
 
-        <div class="cards">
-          <div class="card">
-            <div class="label">المباني</div>
-            <div id="statBuildings" class="number">0</div>
-          </div>
+        <div class="card dashboard-card" onclick="showDashboardDetails('buildings')">
+  <div class="label">🏢 المباني</div>
+  <div id="statBuildings" class="number">0</div>
+  <div class="card-hint">اضغط لعرض التفاصيل</div>
+</div>
 
+        <!-- DASHBOARD DETAILS -->
+<section id="dashboardDetailsPage" class="page">
+
+  <div class="card">
+    <h2 id="dashboardDetailsTitle">تفاصيل النظام</h2>
+
+    <div id="dashboardDetailsContent">
+      <!-- سيتم عرض التفاصيل هنا -->
+    </div>
+  </div>
+
+</section>
           <div class="card">
             <div class="label">الغرف</div>
             <div id="statRooms" class="number">0</div>
@@ -2374,8 +2386,128 @@ function updateDashboard(){
     و${employees.length} موظف،
     منها ${occupied} أسرة مشغولة و${free} أسرة شاغرة.`;
 }
+function showDashboardDetails(type){
 
+  const page = document.getElementById("dashboardDetailsPage");
+  const title = document.getElementById("dashboardDetailsTitle");
+  const content = document.getElementById("dashboardDetailsContent");
 
+  if(!page || !title || !content) return;
+
+  page.classList.add("active");
+
+  title.textContent = "🏢 تفاصيل المباني";
+
+  if(type !== "buildings") return;
+
+  if(buildings.length === 0){
+
+    content.innerHTML = `
+      <div class="card">
+        <h3>لا توجد مبانٍ</h3>
+        <p>لم يتم تسجيل أي مبنى حتى الآن.</p>
+      </div>
+    `;
+
+    return;
+  }
+
+  content.innerHTML = buildings.map(building => {
+
+    const buildingRooms =
+      rooms.filter(r => r.building_id === building.id);
+
+    const roomIds =
+      buildingRooms.map(r => r.id);
+
+    const buildingBeds =
+      beds.filter(b => roomIds.includes(b.room_id));
+
+    const buildingEmployees =
+      employees.filter(e => e.building_id === building.id);
+
+    const buildingViolations =
+      violations.filter(v => v.building_id === building.id);
+
+    const buildingMaintenance =
+      maintenance.filter(m => m.building_id === building.id);
+
+    const occupied =
+      buildingBeds.filter(b => b.status === "occupied").length;
+
+    const free =
+      buildingBeds.filter(b => b.status === "free").length;
+
+    return `
+      <div class="card building-dashboard-card"
+           onclick="openBuildingDashboard('${building.id}')">
+
+        <h2>🏢 ${building.name}</h2>
+
+        <div class="cards">
+
+          <div class="card">
+            <div class="label">الغرف</div>
+            <div class="number">${buildingRooms.length}</div>
+          </div>
+
+          <div class="card">
+            <div class="label">إجمالي الأسرة</div>
+            <div class="number">${buildingBeds.length}</div>
+          </div>
+
+          <div class="card">
+            <div class="label">المشغولة</div>
+            <div class="number">${occupied}</div>
+          </div>
+
+          <div class="card">
+            <div class="label">الشاغرة</div>
+            <div class="number">${free}</div>
+          </div>
+
+          <div class="card">
+            <div class="label">الموظفون</div>
+            <div class="number">${buildingEmployees.length}</div>
+          </div>
+
+          <div class="card">
+            <div class="label">المخالفات</div>
+            <div class="number">${buildingViolations.length}</div>
+          </div>
+
+          <div class="card">
+            <div class="label">الصيانة</div>
+            <div class="number">${buildingMaintenance.length}</div>
+          </div>
+
+        </div>
+
+        <div style="margin-top:15px;">
+          <button class="btn btn-primary"
+                  onclick="event.stopPropagation(); openBuildingDashboard('${building.id}')">
+            🔍 فتح لوحة تحكم المبنى
+          </button>
+        </div>
+
+      </div>
+    `;
+
+  }).join("");
+}
+function openBuildingDashboard(buildingId){
+
+  const building =
+    buildings.find(b => b.id === buildingId);
+
+  if(!building) return;
+
+  alert(
+    "سيتم فتح لوحة تحكم مبنى: " +
+    building.name
+  );
+}
+  
 /* =========================================================
    REALTIME
    ========================================================= */
