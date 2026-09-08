@@ -403,6 +403,63 @@ th{background:#f7f9fb}
       </section>
 
       <!-- BUILDINGS -->
+      <!-- USERS & PERMISSIONS -->
+<section id="usersPage" class="page" style="display:none;">
+  <div class="card">
+    <h2>👥 المستخدمون والصلاحيات</h2>
+    <p>إدارة المشرفين وربط كل مشرف بالمبنى المسؤول عنه.</p>
+
+    <div class="form-grid">
+      <div>
+        <label>اسم المشرف</label>
+        <input id="newSupervisorName" type="text" placeholder="مثال: مشرف مبنى الصفاء">
+      </div>
+
+      <div>
+        <label>البريد الإلكتروني</label>
+        <input id="newSupervisorEmail" type="email" placeholder="example@email.com">
+      </div>
+
+      <div>
+        <label>كلمة المرور</label>
+        <input id="newSupervisorPassword" type="password" placeholder="كلمة مرور المشرف">
+      </div>
+
+      <div>
+        <label>المبنى</label>
+        <select id="newSupervisorBuilding">
+          <option value="">اختر المبنى</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="createSupervisor()">
+      ➕ إنشاء مشرف جديد
+    </button>
+
+    <hr>
+
+    <h3>🔐 تغيير كلمة مرور مشرف</h3>
+
+    <div class="form-grid">
+      <div>
+        <label>المشرف</label>
+        <select id="passwordSupervisor">
+          <option value="">اختر المشرف</option>
+        </select>
+      </div>
+
+      <div>
+        <label>كلمة المرور الجديدة</label>
+        <input id="newSupervisorPassword2" type="password" placeholder="كلمة المرور الجديدة">
+      </div>
+    </div>
+
+    <button class="btn btn-warning" onclick="changeSupervisorPassword()">
+      🔑 تغيير كلمة المرور
+    </button>
+  </div>
+</section>
       <section id="buildings" class="page">
         <div class="page-title">
           <h2>إدارة المباني</h2>
@@ -592,7 +649,9 @@ th{background:#f7f9fb}
         <div class="page-title">
           <h2>التقارير</h2>
         </div>
-
+        <button id="usersNavBtn" class="nav" onclick="showPage('users',this)" style="display:none;">
+  👥 المستخدمون والصلاحيات
+</button>
         <div class="cards">
           <div class="card">
             <div class="label">المباني</div>
@@ -1101,6 +1160,19 @@ function isManager(){
 }
 
 function applyPermissions(){
+
+  const usersNavBtn =
+    document.getElementById("usersNavBtn");
+
+  if(usersNavBtn){
+
+    if(isManager()){
+      usersNavBtn.style.display = "block";
+    }else{
+      usersNavBtn.style.display = "none";
+    }
+
+  }
 
   if(!isManager()){
 
@@ -2343,6 +2415,10 @@ function showPage(page,button){
 
   if(target) target.classList.add("active");
 
+if(page === "users"){
+  loadUsersPage();
+}
+
   document.querySelectorAll(".nav")
     .forEach(n=>n.classList.remove("active"));
 
@@ -2481,7 +2557,151 @@ supabaseClient.auth.onAuthStateChange(
 
   }
 );
+// ===== إدارة المستخدمين والصلاحيات =====
 
+async function loadUsersPage() {
+  if (!currentProfile || currentProfile.role !== "manager") {
+    alert("هذه الصفحة متاحة للمدير فقط");
+    return;
+  }
+
+  const buildingSelect = document.getElementById("newSupervisorBuilding");
+  const passwordSelect = document.getElementById("passwordSupervisor");
+
+  if (!buildingSelect || !passwordSelect) return;
+
+  buildingSelect.innerHTML = '<option value="">اختر المبنى</option>';
+  passwordSelect.innerHTML = '<option value="">اختر المشرف</option>';
+
+  buildings.forEach(building => {
+    buildingSelect.innerHTML += `
+      <option value="${building.id}">
+        ${building.name}
+      </option>
+    `;
+  });
+
+  const { data, error } = await supabaseClient
+    .from("profiles")
+    .select("id, full_name, role, building_id")
+    .eq("role", "supervisor")
+    .order("full_name");
+
+  if (error) {
+    alert("تعذر تحميل المشرفين: " + error.message);
+    return;
+  }
+
+  (data || []).forEach(user => {
+    const building = buildings.find(b => b.id === user.building_id);
+
+    passwordSelect.innerHTML += `
+      <option value="${user.id}">
+        ${user.full_name || "مشرف"} - ${building ? building.name : "بدون مبنى"}
+      </option>
+    `;
+  });
+}
+
+async function createSupervisor() {
+  if (!currentProfile || currentProfile.role !== "manager") {
+    alert("هذه العملية متاحة للمدير فقط");
+    return;
+  }
+
+  const full_name = document.getElementById("newSupervisorName").value.trim();
+  const email = document.getElementById("newSupervisorEmail").value.trim();
+  const password = document.getElementById("newSupervisorPassword").value;
+  const building_id = document.getElementById("newSupervisorBuilding").value;
+
+  if (!full_name || !email || !password || !building_id) {
+    alert("يرجى تعبئة جميع البيانات");
+    return;
+  }
+
+  if (password.length < 6) {
+    alert("كلمة المرور يجب أن تكون 6 أحرف أو أكثر");
+    return;
+  }
+
+  const { data, error } = await supabaseClient.functions.invoke(
+    "bright-processor",
+    {
+      body: {
+        action: "create_user",
+        email,
+        password,
+        full_name,
+        building_id
+      }
+    }
+  );
+
+  if (error) {
+    alert("تعذر إنشاء المشرف: " + error.message);
+    return;
+  }
+
+  if (data?.error) {
+    alert("تعذر إنشاء المشرف: " + data.error);
+    return;
+  }
+
+  alert("تم إنشاء المشرف وربطه بالمبنى بنجاح");
+
+  document.getElementById("newSupervisorName").value = "";
+  document.getElementById("newSupervisorEmail").value = "";
+  document.getElementById("newSupervisorPassword").value = "";
+  document.getElementById("newSupervisorBuilding").value = "";
+
+  await loadUsersPage();
+}
+
+async function changeSupervisorPassword() {
+  if (!currentProfile || currentProfile.role !== "manager") {
+    alert("هذه العملية متاحة للمدير فقط");
+    return;
+  }
+
+  const user_id = document.getElementById("passwordSupervisor").value;
+  const password = document.getElementById("newSupervisorPassword2").value;
+
+  if (!user_id || !password) {
+    alert("اختر المشرف واكتب كلمة المرور الجديدة");
+    return;
+  }
+
+  if (password.length < 6) {
+    alert("كلمة المرور يجب أن تكون 6 أحرف أو أكثر");
+    return;
+  }
+
+  const { data, error } = await supabaseClient.functions.invoke(
+    "bright-processor",
+    {
+      body: {
+        action: "update_password",
+        user_id,
+        password
+      }
+    }
+  );
+
+  if (error) {
+    alert("تعذر تغيير كلمة المرور: " + error.message);
+    return;
+  }
+
+  if (data?.error) {
+    alert("تعذر تغيير كلمة المرور: " + data.error);
+    return;
+  }
+
+  alert("تم تغيير كلمة المرور بنجاح");
+
+  document.getElementById("newSupervisorPassword2").value = "";
+  await loadUsersPage();
+}
 </script>
 
 </body>
