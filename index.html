@@ -1764,9 +1764,7 @@ async function loadEmployeeBeds(){
     });
 }
 
-
 async function saveEmployee(){
-
 
   const employeeNo =
     document.getElementById("employeeNo").value.trim();
@@ -1779,7 +1777,7 @@ async function saveEmployee(){
     return;
   }
 
-  const buildingId =
+  let buildingId =
     document.getElementById("employeeBuilding").value || null;
 
   const roomId =
@@ -1788,23 +1786,60 @@ async function saveEmployee(){
   const bedId =
     document.getElementById("employeeBed").value || null;
 
-  const payload={
-    employee_no:employeeNo,
-    name,
+  /* =========================================
+     المشرف: استخدام المبنى المخصص له فقط
+     ========================================= */
+
+  if(!isManager()){
+
+    if(!currentProfile || !currentProfile.building_id){
+      alert("لا يوجد مبنى مخصص لهذا المشرف");
+      return;
+    }
+
+    buildingId = currentProfile.building_id;
+  }
+
+  if(!buildingId){
+    alert("يرجى اختيار المبنى");
+    return;
+  }
+
+  /* =========================================
+     تجهيز بيانات الموظف
+     ========================================= */
+
+  const payload = {
+
+    employee_no: employeeNo,
+
+    name: name,
+
     department:
       document.getElementById("employeeDepartment").value.trim() || null,
+
     job:
       document.getElementById("employeeJob").value.trim() || null,
+
     phone:
       document.getElementById("employeePhone").value.trim() || null,
-    building_id:buildingId,
-    room_id:roomId,
-    bed_id:bedId,
+
+    building_id: buildingId,
+
+    room_id: roomId,
+
+    bed_id: bedId,
+
     status:
       document.getElementById("employeeStatus").value
+
   };
 
-  const {data,error} =
+  /* =========================================
+     إضافة الموظف
+     ========================================= */
+
+  const { data, error } =
     await supabaseClient
       .from("employees")
       .insert(payload)
@@ -1812,30 +1847,53 @@ async function saveEmployee(){
       .single();
 
   if(error){
-    alert(error.message);
+
+    console.error("Employee insert error:", error);
+
+    alert("تعذر إضافة الموظف:\n" + error.message);
+
     return;
   }
 
+  /* =========================================
+     تحديث حالة السرير
+     ========================================= */
+
   if(bedId){
 
-    await supabaseClient
-      .from("beds")
-      .update({status:"occupied"})
-      .eq("id",bedId);
+    const { error: bedError } =
+      await supabaseClient
+        .from("beds")
+        .update({
+          status: "occupied"
+        })
+        .eq("id", bedId);
+
+    if(bedError){
+
+      console.error("Bed update error:", bedError);
+
+      alert(
+        "تم إضافة الموظف، ولكن تعذر تحديث حالة السرير."
+      );
+    }
   }
+
+  /* =========================================
+     تحديث الشاشة
+     ========================================= */
 
   closeModal("employeeModal");
 
-  showToast("تم إضافة الموظف");
+  showToast("تم إضافة الموظف بنجاح");
 
   await loadEmployees();
+
   await loadBeds();
 
   updateDashboard();
+
 }
-
-
-async function deleteEmployee(id){
 
 
   const employee =
