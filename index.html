@@ -1102,13 +1102,13 @@ async function login() {
         if (error) error.textContent = authError.message;
         return;
     }
-
-    currentUser = data.user;
+currentUser = data.user;
+    
+    if (typeof startApplication === "function") {
+        await startApplication();
+    }
 }
-  await startApplication();
-}
-
-
+ 
 async function logout(){
 
   await supabaseClient.auth.signOut();
