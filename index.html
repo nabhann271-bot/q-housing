@@ -3245,30 +3245,27 @@ async function changeSupervisorPassword() {
   const { data, error } = await supabaseClient.functions.invoke(
     "bright-processor",
     {
-      body: {
-        action: "update_password",
-        user_id,
-        password
-      }
+   body: {
+            action: "update_password",
+            user_id,
+            password
+        }
+    });
+
+    if (error) {
+        alert("تعذر تغيير كلمة المرور: " + error.message);
+        return;
     }
-  );
 
-  if (error) {
-    alert("تعذر تغيير كلمة المرور: " + error.message);
-    return;
-  }
+    if (data?.error) {
+        alert("تعذر تغيير كلمة المرور: " + data.error);
+        return;
+    }
 
-  if (data?.error) {
-    alert("تعذر تغيير كلمة المرور: " + data.error);
-    return;
-  }
-
-  alert("تم تغيير كلمة المرور بنجاح");
-
-  document.getElementById("newSupervisorPassword2").value = "";
-  await loadUsersPage();
+    alert("تم تغيير كلمة المرور بنجاح");
+    document.getElementById("newSupervisorPassword2").value = "";
+    await loadUsersPage();
 }
 </script>
-
 </body>
 </html>
