@@ -1485,8 +1485,7 @@ function renderRooms(){
 
 function openRoomModal(){
 
-  if(!isManager()) return;
-
+ 
   fillBuildingSelects();
 
   document.getElementById("roomBuilding").value="";
@@ -1500,7 +1499,6 @@ function openRoomModal(){
 
 async function saveRoom(){
 
-  if(!isManager()) return;
 
   const buildingId =
     document.getElementById("roomBuilding").value;
