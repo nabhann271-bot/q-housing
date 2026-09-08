@@ -1736,7 +1736,6 @@ async function loadEmployeeBeds(){
 
 async function saveEmployee(){
 
-  if(!isManager()) return;
 
   const employeeNo =
     document.getElementById("employeeNo").value.trim();
@@ -1807,7 +1806,6 @@ async function saveEmployee(){
 
 async function deleteEmployee(id){
 
-  if(!isManager()) return;
 
   const employee =
     employees.find(e=>e.id===id);
