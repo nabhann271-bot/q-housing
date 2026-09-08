@@ -1159,35 +1159,6 @@ function isManager(){
          currentProfile.role === "manager";
 }
 
-function applyPermissions(){
-
-  const usersNavBtn =
-    document.getElementById("usersNavBtn");
-
-  if(usersNavBtn){
-
-    if(isManager()){
-      usersNavBtn.style.display = "block";
-    }else{
-      usersNavBtn.style.display = "none";
-    }
-
-  }
-
-  if(!isManager()){
-
-    const buttons = [
-      "addBuildingBtn",
-      "addRoomBtn",
-      "addEmployeeBtn"
-    ];
-
-    buttons.forEach(id=>{
-      const el=document.getElementById(id);
-      if(el) el.style.display="none";
-    });
-  }
-}
 
 
 /* =========================================================
@@ -1207,8 +1178,37 @@ async function loadAll(){
   ]);
 
   updateDashboard();
-}
+}function applyPermissions(){
 
+  const usersNavBtn =
+    document.getElementById("usersNavBtn");
+
+  if(usersNavBtn){
+
+    if(isManager()){
+      usersNavBtn.style.display = "block";
+    }else{
+      usersNavBtn.style.display = "none";
+    }
+
+  }
+
+  if(!isManager()){
+
+    // المشرف يستطيع إضافة الغرف والموظفين
+    // ويستطيع استخدام الصيانة والمخالفات والتفتيش
+
+    const managerOnlyButtons = [
+      "addBuildingBtn"
+    ];
+
+    managerOnlyButtons.forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.style.display="none";
+    });
+
+  }
+}
 
 /* =========================================================
    BUILDINGS
