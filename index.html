@@ -344,12 +344,7 @@ th{background:#f7f9fb}
 
     <main class="content">
 
-      <!-- DASHBOARD -->
-      <section id="dashboard" class="page active">
-        <div class="page-title">
-          <h2>لوحة التحكم</h2>
-          <button class="btn" onclick="loadAll()">🔄 تحديث</button>
-        </div>
+    
 <!-- DASHBOARD -->
 <section id="dashboard" class="page active">
 
@@ -2885,29 +2880,35 @@ function subscribeRealtime(){
 /* =========================================================
    NAVIGATION
    ========================================================= */
-
 function showPage(page,button){
 
   document.querySelectorAll(".page")
-    .forEach(p=>p.classList.remove("active"));
+    .forEach(p => p.classList.remove("active"));
 
-  const target=document.getElementById(page);
+  const target = document.getElementById(page);
 
-  if(target) target.classList.add("active");
+  if(target){
+    target.classList.add("active");
+  }
 
   if(page === "usersPage"){
-  loadUsersPage();
-}
+    loadUsersPage();
+  }
 
   document.querySelectorAll(".nav")
-    .forEach(n=>n.classList.remove("active"));
+    .forEach(n => n.classList.remove("active"));
 
-  if(button) button.classList.add("active");
+  if(button){
+    button.classList.add("active");
+  }
 
-  document.getElementById("sidebar")
-    .classList.remove("show");
+  const sidebar = document.getElementById("sidebar");
+
+  if(sidebar){
+    sidebar.classList.remove("show");
+  }
+
 }
-
 
 function toggleSidebar(){
 
