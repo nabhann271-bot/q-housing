@@ -2521,15 +2521,343 @@ function showDashboardDetails(type){
 }
 function openBuildingDashboard(buildingId){
 
-  const building =
-    buildings.find(b => b.id === buildingId);
+  const building = buildings.find(b => b.id === buildingId);
 
   if(!building) return;
 
-  alert(
-    "سيتم فتح لوحة تحكم مبنى: " +
-    building.name
-  );
+  const buildingRooms =
+    rooms.filter(r => r.building_id === buildingId);
+
+  const roomIds =
+    buildingRooms.map(r => r.id);
+
+  const buildingBeds =
+    beds.filter(b => roomIds.includes(b.room_id));
+
+  const buildingEmployees =
+    employees.filter(e => e.building_id === buildingId);
+
+  const buildingViolations =
+    violations.filter(v => v.building_id === buildingId);
+
+  const buildingMaintenance =
+    maintenance.filter(m => m.building_id === buildingId);
+
+  const buildingInspections =
+    inspections.filter(i => i.building_id === buildingId);
+
+  const occupied =
+    buildingBeds.filter(b => b.status === "occupied");
+
+  const free =
+    buildingBeds.filter(b => b.status === "free");
+
+  const maintenanceBeds =
+    buildingBeds.filter(b => b.status === "maintenance");
+
+  const page =
+    document.getElementById("dashboardDetailsPage");
+
+  const title =
+    document.getElementById("dashboardDetailsTitle");
+
+  const content =
+    document.getElementById("dashboardDetailsContent");
+
+  if(!page || !title || !content) return;
+
+  title.textContent =
+    "🏢 لوحة تحكم " + building.name;
+
+  let html = `
+
+    <div class="cards">
+
+      <div class="card">
+        <div class="label">🚪 الغرف</div>
+        <div class="number">${buildingRooms.length}</div>
+      </div>
+
+      <div class="card">
+        <div class="label">🛏️ إجمالي الأسرة</div>
+        <div class="number">${buildingBeds.length}</div>
+      </div>
+
+      <div class="card">
+        <div class="label">🟢 الأسرة الشاغرة</div>
+        <div class="number">${free.length}</div>
+      </div>
+
+      <div class="card">
+        <div class="label">🔴 الأسرة المشغولة</div>
+        <div class="number">${occupied.length}</div>
+      </div>
+
+      <div class="card">
+        <div class="label">👷 الموظفون</div>
+        <div class="number">${buildingEmployees.length}</div>
+      </div>
+
+      <div class="card">
+        <div class="label">⚠️ المخالفات</div>
+        <div class="number">${buildingViolations.length}</div>
+      </div>
+
+      <div class="card">
+        <div class="label">🔧 الصيانة</div>
+        <div class="number">${buildingMaintenance.length}</div>
+      </div>
+
+      <div class="card">
+        <div class="label">🔍 التفتيش</div>
+        <div class="number">${buildingInspections.length}</div>
+      </div>
+
+    </div>
+
+    <div class="panel">
+
+      <h3>🛏️ تفاصيل الغرف والأسرة</h3>
+
+  `;
+
+  if(buildingRooms.length === 0){
+
+    html += `
+      <p>لا توجد غرف مسجلة لهذا المبنى.</p>
+    `;
+
+  }else{
+
+    buildingRooms.forEach(room => {
+
+      const roomBeds =
+        buildingBeds.filter(b => b.room_id === room.id);
+
+      html += `
+
+        <div class="card" style="margin-bottom:15px;">
+
+          <h3>
+            🚪 الغرفة رقم ${room.room_number}
+          </h3>
+
+          <p>
+            إجمالي الأسرة:
+            <strong>${roomBeds.length}</strong>
+          </p>
+
+          <div class="cards">
+      `;
+
+      roomBeds.forEach(bed => {
+
+        const employee =
+          buildingEmployees.find(e => e.bed_id === bed.id);
+
+        let statusText = "شاغر";
+        let statusIcon = "🟢";
+
+        if(bed.status === "occupied"){
+          statusText = "مشغول";
+          statusIcon = "🔴";
+        }
+
+        if(bed.status === "maintenance"){
+          statusText = "صيانة";
+          statusIcon = "🔧";
+        }
+
+        html += `
+
+          <div class="card">
+
+            <div class="label">
+              🛏️ السرير ${bed.bed_number}
+            </div>
+
+            <div style="font-size:18px;margin:8px 0;">
+              ${statusIcon} ${statusText}
+            </div>
+
+            <div>
+              ${
+                employee
+                ? "👷 " + employee.name
+                : "— لا يوجد موظف —"
+              }
+            </div>
+
+            ${
+              employee
+              ? `
+                <div style="font-size:13px;margin-top:5px;">
+                  رقم الموظف: ${employee.employee_no || "—"}
+                </div>
+              `
+              : ""
+            }
+
+          </div>
+
+        `;
+
+      });
+
+      html += `
+
+          </div>
+
+        </div>
+
+      `;
+
+    });
+
+  }
+
+  html += `
+
+    </div>
+
+    <div class="panel">
+
+      <h3>👷 موظفو المبنى</h3>
+
+  `;
+
+  if(buildingEmployees.length === 0){
+
+    html += `
+      <p>لا يوجد موظفون مسجلون في هذا المبنى.</p>
+    `;
+
+  }else{
+
+    html += `<div class="cards">`;
+
+    buildingEmployees.forEach(employee => {
+
+      const room =
+        buildingRooms.find(r => r.id === employee.room_id);
+
+      const bed =
+        buildingBeds.find(b => b.id === employee.bed_id);
+
+      html += `
+
+        <div class="card">
+
+          <h3>👷 ${employee.name}</h3>
+
+          <p>
+            رقم الموظف:
+            ${employee.employee_no || "—"}
+          </p>
+
+          <p>
+            الوظيفة:
+            ${employee.job || "—"}
+          </p>
+
+          <p>
+            القسم:
+            ${employee.department || "—"}
+          </p>
+
+          <p>
+            الغرفة:
+            ${room ? room.room_number : "—"}
+          </p>
+
+          <p>
+            السرير:
+            ${bed ? bed.bed_number : "—"}
+          </p>
+
+        </div>
+
+      `;
+
+    });
+
+    html += `</div>`;
+
+  }
+
+  html += `
+
+    </div>
+
+    <div class="panel">
+
+      <h3>⚠️ مخالفات المبنى</h3>
+
+  `;
+
+  if(buildingViolations.length === 0){
+
+    html += `
+      <p>لا توجد مخالفات مسجلة لهذا المبنى.</p>
+    `;
+
+  }else{
+
+    buildingViolations.forEach(v => {
+
+      const employee =
+        buildingEmployees.find(e => e.id === v.employee_id);
+
+      html += `
+
+        <div class="card" style="margin-bottom:10px;">
+
+          <strong>
+            ⚠️ ${v.type || "مخالفة"}
+          </strong>
+
+          <p>
+            الموظف:
+            ${employee ? employee.name : "—"}
+          </p>
+
+          <p>
+            التاريخ:
+            ${v.violation_date || "—"}
+          </p>
+
+          <p>
+            الإجراء:
+            ${v.action || "—"}
+          </p>
+
+          <p>
+            التفاصيل:
+            ${v.details || "—"}
+          </p>
+
+        </div>
+
+      `;
+
+    });
+
+  }
+
+  html += `
+
+    </div>
+
+    <button class="btn" onclick="showPage('dashboard')">
+      ↩️ العودة إلى لوحة التحكم
+    </button>
+
+  `;
+
+  content.innerHTML = html;
+
+  showPage("dashboardDetailsPage");
+
 }
   
 /* =========================================================
