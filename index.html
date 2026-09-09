@@ -1608,12 +1608,15 @@ function renderRooms(){
         <td>${roomBeds.length}</td>
         <td>${occupied}</td>
         <td>${free}</td>
-        <td>
-          ${isManager() ? `
-          <button class="btn btn-danger"
-            onclick="deleteRoom('${r.id}')">حذف</button>
-          `:"عرض فقط"}
-        </td>
+       <td>
+  ${isManager() ? `
+  <button class="btn"
+    onclick="editRoom('${r.id}')">✏️ تعديل</button>
+
+  <button class="btn btn-danger"
+    onclick="deleteRoom('${r.id}')">حذف</button>
+  `:"عرض فقط"}
+</td>
       </tr>
     `;
   });
