@@ -1749,7 +1749,175 @@ async function loadEmployees(){
   employees=data||[];
   renderEmployees();
 }
+function generateEmployeeReport(){
 
+  const buildingId =
+    document.getElementById("employeeReportBuilding").value;
+
+  const table =
+    document.getElementById("employeeReportTable");
+
+  const buildingName =
+    document.getElementById("employeeReportBuildingName");
+
+  const reportDate =
+    document.getElementById("employeeReportDate");
+
+  if(!buildingId){
+
+    table.innerHTML = `
+      <tr>
+        <td colspan="9" style="text-align:center">
+          يرجى اختيار المبنى أولاً
+        </td>
+      </tr>
+    `;
+
+    buildingName.textContent =
+      "لم يتم اختيار مبنى";
+
+    return;
+  }
+
+  const building =
+    buildings.find(b => b.id === buildingId);
+
+  const buildingEmployees =
+    employees.filter(e => e.building_id === buildingId);
+
+  buildingName.textContent =
+    "المبنى: " + (building ? building.name : "");
+
+  reportDate.textContent =
+    "تاريخ التقرير: " +
+    new Date().toLocaleDateString("ar-SA");
+
+  if(buildingEmployees.length === 0){
+
+    table.innerHTML = `
+      <tr>
+        <td colspan="9" style="text-align:center">
+          لا يوجد موظفون مسجلون في هذا المبنى
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  table.innerHTML =
+    buildingEmployees.map((e,index)=>{
+
+      const room =
+        rooms.find(r => r.id === e.room_id);
+
+      const bed =
+        beds.find(b => b.id === e.bed_id);
+
+      return `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${esc(e.employee_no || "")}</td>
+          <td>${esc(e.name || "")}</td>
+          <td>${esc(e.department || "")}</td>
+          <td>${esc(e.job || "")}</td>
+          <td>${esc(e.phone || "")}</td>
+          <td>${esc(room ? room.room_no : "")}</td>
+          <td>${esc(bed ? bed.bed_no : "")}</td>
+          <td>${esc(e.status || "")}</td>
+        </tr>
+      `;
+
+    }).join("");
+
+}
+ function printEmployeeReport(){
+
+  const report =
+    document.getElementById("employeeReport");
+
+  if(!report) return;
+
+  const printWindow =
+    window.open("", "_blank");
+
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html lang="ar" dir="rtl">
+    <head>
+      <meta charset="UTF-8">
+      <title>تقرير موظفي السكن</title>
+
+      <style>
+
+        body{
+          font-family:Arial,sans-serif;
+          direction:rtl;
+          padding:20px;
+        }
+
+        h2,h3,p{
+          text-align:center;
+        }
+
+        table{
+          width:100%;
+          border-collapse:collapse;
+          margin-top:20px;
+        }
+
+        th,td{
+          border:1px solid #000;
+          padding:8px;
+          text-align:center;
+        }
+
+        th{
+          font-weight:bold;
+        }
+
+        @media print{
+
+          body{
+            padding:0;
+          }
+
+          table{
+            page-break-inside:auto;
+          }
+
+          tr{
+            page-break-inside:avoid;
+          }
+
+          thead{
+            display:table-header-group;
+          }
+
+        }
+
+      </style>
+
+    </head>
+
+    <body>
+
+      ${report.innerHTML}
+
+    </body>
+
+    </html>
+  `);
+
+  printWindow.document.close();
+
+  printWindow.focus();
+
+  setTimeout(()=>{
+    printWindow.print();
+  },500);
+
+} 
 
 function renderEmployees(){
 
