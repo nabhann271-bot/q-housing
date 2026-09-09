@@ -1920,24 +1920,43 @@ function generateEmployeeReport(){
 } 
 function downloadEmployeeReportPDF(){
 
-  const report = document.getElementById("employeeReport");
+  const original =
+    document.getElementById("employeeReport");
 
-  if(!report){
+  if(!original){
     alert("لم يتم العثور على التقرير");
     return;
   }
 
+  const clone = original.cloneNode(true);
+
+  clone.style.display = "block";
+  clone.style.visibility = "visible";
+  clone.style.position = "absolute";
+  clone.style.left = "-9999px";
+  clone.style.top = "0";
+  clone.style.width = "1200px";
+  clone.style.background = "#ffffff";
+  clone.style.color = "#000000";
+  clone.style.padding = "20px";
+
+  document.body.appendChild(clone);
+
   const options = {
     margin: 10,
     filename: "تقرير_موظفي_السكن.pdf",
+
     image: {
       type: "jpeg",
       quality: 0.98
     },
+
     html2canvas: {
       scale: 2,
-      backgroundColor: "#ffffff"
+      backgroundColor: "#ffffff",
+      useCORS: true
     },
+
     jsPDF: {
       unit: "mm",
       format: "a4",
@@ -1947,8 +1966,16 @@ function downloadEmployeeReportPDF(){
 
   html2pdf()
     .set(options)
-    .from(report)
-    .save();
+    .from(clone)
+    .save()
+    .then(() => {
+      document.body.removeChild(clone);
+    })
+    .catch((error) => {
+      document.body.removeChild(clone);
+      console.error(error);
+      alert("حدث خطأ أثناء إنشاء ملف PDF");
+    });
 
 }
 function renderEmployees(){
