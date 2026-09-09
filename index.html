@@ -886,7 +886,7 @@ th{background:#f7f9fb}
     </div>
 
     <div class="actions" style="margin-top:20px">
-      <button class="btn" onclick="saveRoom()">حفظ</button>
+    <button id="roomSaveButton" class="btn" onclick="saveRoom()">حفظ</button>
       <button class="btn btn-secondary" onclick="closeModal('roomModal')">إلغاء</button>
     </div>
   </div>
@@ -1866,6 +1866,8 @@ async function editRoom(id){
 
   document.getElementById("roomModalTitle").textContent =
     "تعديل الغرفة";
+  document.getElementById("roomSaveButton").textContent =
+    "تعديل";
 
   document.getElementById("roomBuilding").value =
     room.building_id || "";
