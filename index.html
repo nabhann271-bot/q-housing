@@ -1718,35 +1718,67 @@ async function saveRoom(){
       }
     }
 
-    /* حذف الأسرة الزائدة فقط إذا كانت شاغرة */
+  /* منع تقليل عدد الأسرة إذا كان هناك موظفون مرتبطون بها */
 
-    if(bedCount < currentCount){
+if(bedCount < currentCount){
 
-      const bedsToRemove =
-        currentBeds
-          .filter(b => b.status === "free")
-          .slice(bedCount);
+  const occupiedBeds =
+    currentBeds.filter(b => b.status === "occupied");
 
-      if(bedsToRemove.length){
+  if(bedCount < occupiedBeds.length){
 
-        const ids =
-          bedsToRemove.map(b => b.id);
+    alert(
+      "لا يمكن تقليل عدد الأسرة إلى " +
+      bedCount +
+      " لأن هناك " +
+      occupiedBeds.length +
+      " سريرًا مشغولًا بموظفين."
+    );
 
-        const {error: deleteBedsError} =
-          await supabaseClient
-            .from("beds")
-            .delete()
-            .in("id", ids);
+    return;
+  }
 
-        if(deleteBedsError){
-          alert(
-            "تم تعديل الغرفة ولكن تعذر حذف الأسرة الزائدة:\n" +
-            deleteBedsError.message
-          );
-          return;
-        }
-      }
-    }
+  const removeCount =
+    currentCount - bedCount;
+
+  const freeBeds =
+    currentBeds
+      .filter(b => b.status === "free")
+      .sort((a,b) =>
+        Number(b.bed_number) - Number(a.bed_number)
+      );
+
+  if(freeBeds.length < removeCount){
+
+    alert(
+      "لا يمكن تقليل عدد الأسرة لأن عدد الأسرة الشاغرة غير كافٍ."
+    );
+
+    return;
+  }
+
+  const bedsToRemove =
+    freeBeds.slice(0, removeCount);
+
+  const ids =
+    bedsToRemove.map(b => b.id);
+
+  const {error: deleteBedsError} =
+    await supabaseClient
+      .from("beds")
+      .delete()
+      .in("id", ids);
+
+  if(deleteBedsError){
+
+    alert(
+      "تعذر حذف الأسرة الزائدة:\n" +
+      deleteBedsError.message
+    );
+
+    return;
+  }
+}
 
     showToast("تم تعديل الغرفة والأسرة بنجاح");
 
