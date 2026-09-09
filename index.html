@@ -1717,7 +1717,7 @@ async function deleteRoom(id){
     await supabaseClient
       .from("rooms")
       .delete()
-      .eq("id",id);
+      .eq("id", id);
 
   if(error){
     alert(error.message);
@@ -1728,6 +1728,11 @@ async function deleteRoom(id){
 
   await loadRooms();
   await loadBeds();
+
+  updateDashboard();
+}
+
+
 async function editRoom(id){
 
   if(!isManager()){
@@ -1787,8 +1792,11 @@ async function editRoom(id){
 
   updateDashboard();
 }
-  updateDashboard();
-}
+
+
+/* =========================================================
+   EMPLOYEES
+   ========================================================= */
 
 /* =========================================================
    EMPLOYEES
