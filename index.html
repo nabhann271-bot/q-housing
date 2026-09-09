@@ -1732,33 +1732,32 @@ if(bedCount < currentCount){
       bedCount +
       " لأن هناك " +
       occupiedBeds.length +
-      " سريرًا مشغولًا بموظفين."
+      " سريرًا مشغولًا."
     );
 
     return;
   }
 
-  const removeCount =
-    currentCount - bedCount;
+  const removeCount = currentCount - bedCount;
 
   const freeBeds =
     currentBeds
       .filter(b => b.status === "free")
-      .sort((a,b) =>
+      .sort((a, b) =>
         Number(b.bed_number) - Number(a.bed_number)
       );
 
-  if(freeBeds.length < removeCount){
+  const bedsToRemove =
+    freeBeds.slice(0, removeCount);
+
+  if(bedsToRemove.length !== removeCount){
 
     alert(
-      "لا يمكن تقليل عدد الأسرة لأن عدد الأسرة الشاغرة غير كافٍ."
+      "لا يمكن تقليل عدد الأسرة لأن بعض الأسرة المطلوبة للحذف مشغولة."
     );
 
     return;
   }
-
-  const bedsToRemove =
-    freeBeds.slice(0, removeCount);
 
   const ids =
     bedsToRemove.map(b => b.id);
