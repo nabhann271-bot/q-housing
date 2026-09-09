@@ -1641,7 +1641,6 @@ function openRoomModal(){
 
 async function saveRoom(){
 
-
   const buildingId =
     document.getElementById("roomBuilding").value;
 
@@ -1654,49 +1653,163 @@ async function saveRoom(){
   const bedCount =
     Number(document.getElementById("roomBeds").value);
 
-  if(!buildingId || !roomNumber || bedCount<1){
+  const editRoomId =
+    document.getElementById("editRoomId").value;
+
+  if(!buildingId || !roomNumber || bedCount < 1){
     alert("يرجى إدخال بيانات الغرفة كاملة");
     return;
   }
 
-  const {data:room,error} =
-    await supabaseClient
-      .from("rooms")
-      .insert({
-        building_id:buildingId,
-        floor:floor || null,
-        room_number:roomNumber,
-        bed_count:bedCount
-      })
-      .select()
-      .single();
+  /* =========================
+     تعديل غرفة موجودة
+     ========================= */
 
-  if(error){
-    alert(error.message);
-    return;
-  }
+  if(editRoomId){
 
-  const bedRows=[];
+    const {error} =
+      await supabaseClient
+        .from("rooms")
+        .update({
+          building_id: buildingId,
+          floor: floor || null,
+          room_number: roomNumber,
+          bed_count: bedCount
+        })
+        .eq("id", editRoomId);
 
-  for(let i=1;i<=bedCount;i++){
+    if(error){
+      alert("حدث خطأ أثناء تعديل الغرفة:\n" + error.message);
+      return;
+    }
 
-    bedRows.push({
-      room_id:room.id,
-      bed_number:String(i),
-      status:"free"
-    });
-  }
+    const currentBeds =
+      beds.filter(b => b.room_id === editRoomId);
 
-  const {error:bedError} =
-    await supabaseClient
-      .from("beds")
-      .insert(bedRows);
+    const currentCount = currentBeds.length;
 
-  if(bedError){
-    alert("تم إنشاء الغرفة ولكن حدث خطأ في الأسرة: "+bedError.message);
+    /* إضافة أسرة إذا زاد العدد */
+
+    if(bedCount > currentCount){
+
+      const newBeds = [];
+
+      for(let i = currentCount + 1; i <= bedCount; i++){
+
+        newBeds.push({
+          room_id: editRoomId,
+          bed_number: String(i),
+          status: "free"
+        });
+
+      }
+
+      const {error: bedError} =
+        await supabaseClient
+          .from("beds")
+          .insert(newBeds);
+
+      if(bedError){
+        alert(
+          "تم تعديل الغرفة ولكن حدث خطأ أثناء إضافة الأسرة:\n" +
+          bedError.message
+        );
+        return;
+      }
+    }
+
+    /* حذف الأسرة الزائدة فقط إذا كانت شاغرة */
+
+    if(bedCount < currentCount){
+
+      const bedsToRemove =
+        currentBeds
+          .filter(b => b.status === "free")
+          .slice(bedCount);
+
+      if(bedsToRemove.length){
+
+        const ids =
+          bedsToRemove.map(b => b.id);
+
+        const {error: deleteBedsError} =
+          await supabaseClient
+            .from("beds")
+            .delete()
+            .in("id", ids);
+
+        if(deleteBedsError){
+          alert(
+            "تم تعديل الغرفة ولكن تعذر حذف الأسرة الزائدة:\n" +
+            deleteBedsError.message
+          );
+          return;
+        }
+      }
+    }
+
+    showToast("تم تعديل الغرفة والأسرة بنجاح");
+
   }else{
+
+    /* =========================
+       إضافة غرفة جديدة
+       ========================= */
+
+    const {data:room,error} =
+      await supabaseClient
+        .from("rooms")
+        .insert({
+          building_id: buildingId,
+          floor: floor || null,
+          room_number: roomNumber,
+          bed_count: bedCount
+        })
+        .select()
+        .single();
+
+    if(error){
+      alert(error.message);
+      return;
+    }
+
+    const bedRows = [];
+
+    for(let i = 1; i <= bedCount; i++){
+
+      bedRows.push({
+        room_id: room.id,
+        bed_number: String(i),
+        status: "free"
+      });
+
+    }
+
+    const {error:bedError} =
+      await supabaseClient
+        .from("beds")
+        .insert(bedRows);
+
+    if(bedError){
+      alert(
+        "تم إنشاء الغرفة ولكن حدث خطأ في الأسرة:\n" +
+        bedError.message
+      );
+      return;
+    }
+
     showToast("تم إنشاء الغرفة والأسرة");
+
   }
+
+  /* =========================
+     تحديث البيانات
+     ========================= */
+
+  document.getElementById("editRoomId").value = "";
+
+  document.getElementById("roomModalTitle").textContent =
+    "إضافة غرفة";
 
   closeModal("roomModal");
 
@@ -1705,7 +1818,6 @@ async function saveRoom(){
 
   updateDashboard();
 }
-
 
 async function deleteRoom(id){
 
