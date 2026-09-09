@@ -1918,7 +1918,50 @@ function generateEmployeeReport(){
   },500);
 
 } 
+function downloadEmployeeReportPDF(){
 
+  const report =
+    document.getElementById("employeeReport");
+
+  if(!report) return;
+
+  if(typeof html2pdf === "undefined"){
+
+    alert("تعذر تحميل أداة PDF. يرجى تحديث الصفحة والمحاولة مرة أخرى.");
+
+    return;
+  }
+
+  const options = {
+
+    margin: 10,
+
+    filename: "تقرير_موظفي_السكن.pdf",
+
+    image: {
+      type: "jpeg",
+      quality: 0.98
+    },
+
+    html2canvas: {
+      scale: 2,
+      useCORS: true
+    },
+
+    jsPDF: {
+      unit: "mm",
+      format: "a4",
+      orientation: "landscape"
+    }
+
+  };
+
+  html2pdf()
+    .set(options)
+    .from(report)
+    .save();
+
+}
 function renderEmployees(){
 
   const search =
