@@ -1919,41 +1919,30 @@ function generateEmployeeReport(){
 
 } 
 function downloadEmployeeReportPDF(){
-alert(typeof html2pdf);
-  const report =
-    document.getElementById("employeeReport");
 
-  if(!report) return;
+  const report = document.getElementById("employeeReport");
 
-  if(typeof html2pdf === "undefined"){
-
-    alert("تعذر تحميل أداة PDF. يرجى تحديث الصفحة والمحاولة مرة أخرى.");
-
+  if(!report){
+    alert("لم يتم العثور على التقرير");
     return;
   }
 
   const options = {
-
     margin: 10,
-
     filename: "تقرير_موظفي_السكن.pdf",
-
     image: {
       type: "jpeg",
       quality: 0.98
     },
-
     html2canvas: {
       scale: 2,
-      useCORS: true
+      backgroundColor: "#ffffff"
     },
-
     jsPDF: {
       unit: "mm",
       format: "a4",
       orientation: "landscape"
     }
-
   };
 
   html2pdf()
