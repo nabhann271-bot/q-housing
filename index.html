@@ -677,41 +677,144 @@ th{background:#f7f9fb}
         </div>
       </section>
 
-      <!-- REPORTS -->
-      <section id="reports" class="page">
-        <div class="page-title">
-          <h2>التقارير</h2>
-        </div>
-        
-        <div class="cards">
-          <div class="card">
-            <div class="label">المباني</div>
-            <div id="reportBuildings" class="number">0</div>
-          </div>
-          <div class="card">
-            <div class="label">الموظفون</div>
-            <div id="reportEmployees" class="number">0</div>
-          </div>
-          <div class="card">
-            <div class="label">الأسرة</div>
-            <div id="reportBeds" class="number">0</div>
-          </div>
-          <div class="card">
-            <div class="label">المخالفات</div>
-            <div id="reportViolations" class="number">0</div>
-          </div>
-        </div>
+    <!-- REPORTS -->
+<section id="reports" class="page">
 
-        <div class="panel">
-          <h3>ملخص السكن</h3>
-          <p id="reportText"></p>
-        </div>
-      </section>
-
-    </main>
+  <div class="page-title">
+    <h2>التقارير</h2>
   </div>
-</section>
 
+  <!-- تقرير الموظفين -->
+  <div class="panel">
+
+    <h3>تقرير الموظفين حسب المبنى</h3>
+
+    <div class="form-grid">
+
+      <div>
+        <label>اختر المبنى</label>
+
+        <select id="employeeReportBuilding">
+          <option value="">اختر المبنى</option>
+        </select>
+      </div>
+
+    </div>
+
+    <div class="actions" style="margin-top:20px">
+
+      <button class="btn"
+              onclick="generateEmployeeReport()">
+        عرض التقرير
+      </button>
+
+      <button class="btn btn-secondary"
+              onclick="printEmployeeReport()">
+        🖨️ طباعة
+      </button>
+
+      <button class="btn btn-secondary"
+              onclick="downloadEmployeeReportPDF()">
+        📄 PDF
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- التقرير -->
+  <div class="panel" id="employeeReportPanel">
+
+    <div id="employeeReport">
+
+      <div style="text-align:center;margin-bottom:20px">
+
+        <h2>شركة كيو</h2>
+
+        <h3>تقرير موظفي السكن</h3>
+
+        <p id="employeeReportBuildingName">
+          لم يتم اختيار مبنى
+        </p>
+
+        <p id="employeeReportDate"></p>
+
+      </div>
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+
+            <tr>
+              <th>م</th>
+              <th>رقم الموظف</th>
+              <th>اسم الموظف</th>
+              <th>القسم</th>
+              <th>الوظيفة</th>
+              <th>الجوال</th>
+              <th>الغرفة</th>
+              <th>السرير</th>
+              <th>الحالة</th>
+            </tr>
+
+          </thead>
+
+          <tbody id="employeeReportTable">
+
+            <tr>
+              <td colspan="9"
+                  style="text-align:center">
+                اختر المبنى ثم اضغط عرض التقرير
+              </td>
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- الإحصائيات الحالية -->
+
+  <div class="cards">
+
+    <div class="card">
+      <div class="label">المباني</div>
+      <div id="reportBuildings" class="number">0</div>
+    </div>
+
+    <div class="card">
+      <div class="label">الموظفون</div>
+      <div id="reportEmployees" class="number">0</div>
+    </div>
+
+    <div class="card">
+      <div class="label">الأسرة</div>
+      <div id="reportBeds" class="number">0</div>
+    </div>
+
+    <div class="card">
+      <div class="label">المخالفات</div>
+      <div id="reportViolations" class="number">0</div>
+    </div>
+
+  </div>
+
+  <div class="panel">
+
+    <h3>ملخص السكن</h3>
+
+    <p id="reportText"></p>
+
+  </div>
+
+</section>
 <!-- BUILDING MODAL -->
 <div id="buildingModal" class="modal">
   <div class="modal-box">
@@ -2285,6 +2388,7 @@ function fillBuildingSelects(){
     "violationBuilding",
     "maintenanceBuilding",
     "inspectionBuilding"
+    "employeeReportBuilding"
   ];
 
   ids.forEach(id=>{
