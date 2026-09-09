@@ -1535,23 +1535,24 @@ async function deleteBuilding(id){
 
 async function loadRooms(){
 
-  let query =
-    supabaseClient
+  const {data,error} =
+    await supabaseClient
       .from("rooms")
       .select("*")
       .order("room_number");
-
-  const {data,error}=await query;
 
   if(error){
     showToast(error.message);
     return;
   }
 
-  rooms=data||[];
+  rooms = data || [];
+
+  // تحميل الأسرة أولاً قبل عرض الغرف
+  await loadBeds();
+
   renderRooms();
 }
-
 
 async function loadBeds(){
 
