@@ -1189,7 +1189,10 @@ function isManager(){
   return currentProfile &&
          currentProfile.role === "manager";
 }
-
+function isSupervisor(){
+  return currentProfile &&
+         currentProfile.role === "supervisor";
+}
 
 
 /* =========================================================
@@ -1692,7 +1695,7 @@ function renderEmployees(){
 
 function openEmployeeModal(){
 
-  if(!isManager()) return;
+ if(!isManager() && !isSupervisor()) return;
 
   document.getElementById("employeeId").value="";
   document.getElementById("employeeNo").value="";
