@@ -856,9 +856,10 @@ th{background:#f7f9fb}
 
 <!-- ROOM MODAL -->
 <div id="roomModal" class="modal">
+  <input type="hidden" id="editRoomId">
   <div class="modal-box">
     <div class="modal-head">
-      <h3>إضافة غرفة</h3>
+     <h3 id="roomModalTitle">إضافة غرفة</h3>
       <button class="close" onclick="closeModal('roomModal')">×</button>
     </div>
 
@@ -1747,52 +1748,29 @@ async function editRoom(id){
     return;
   }
 
-  const buildingId = prompt(
-    "رقم المبنى الحالي:\n" +
-    room.building_id +
-    "\n\nأدخل رقم المبنى الجديد:"
-  );
+  fillBuildingSelects();
 
-  if(buildingId === null) return;
+  document.getElementById("editRoomId").value = room.id;
 
-  const floor = prompt(
-    "الدور الحالي: " +
-    (room.floor || "") +
-    "\n\nأدخل الدور الجديد:"
-  );
+  document.getElementById("roomModalTitle").textContent =
+    "تعديل الغرفة";
 
-  if(floor === null) return;
+  document.getElementById("roomBuilding").value =
+    room.building_id || "";
 
-  const roomNumber = prompt(
-    "رقم الغرفة الحالي: " +
-    (room.room_number || "") +
-    "\n\nأدخل رقم الغرفة الجديد:"
-  );
+  document.getElementById("roomFloor").value =
+    room.floor || "";
 
-  if(roomNumber === null) return;
+  document.getElementById("roomNumber").value =
+    room.room_number || "";
 
-  const {error} =
-    await supabaseClient
-      .from("rooms")
-      .update({
-        building_id: buildingId || room.building_id,
-        floor: floor,
-        room_number: roomNumber
-      })
-      .eq("id", id);
+  document.getElementById("roomBeds").value =
+    room.bed_count ||
+    beds.filter(b => b.room_id === room.id).length ||
+    1;
 
-  if(error){
-    alert("حدث خطأ أثناء التعديل:\n" + error.message);
-    return;
-  }
-
-  showToast("تم تعديل الغرفة بنجاح");
-
-  await loadRooms();
-
-  updateDashboard();
+  document.getElementById("roomModal").classList.add("show");
 }
-
 
 /* =========================================================
    EMPLOYEES
