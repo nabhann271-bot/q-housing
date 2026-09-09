@@ -1728,9 +1728,12 @@ async function deleteRoom(id){
 
   await loadRooms();
   await loadBeds();
-  async function editRoom(id){
+async function editRoom(id){
 
-  if(!isManager()) return;
+  if(!isManager()){
+    showToast("غير مصرح لك بتعديل الغرف");
+    return;
+  }
 
   const room = rooms.find(r => r.id === id);
 
@@ -1740,21 +1743,24 @@ async function deleteRoom(id){
   }
 
   const buildingId = prompt(
-    "رقم المبنى الحالي:\n" + room.building_id +
-    "\n\nأدخل رقم المبنى الجديد أو اتركه كما هو:"
+    "رقم المبنى الحالي:\n" +
+    room.building_id +
+    "\n\nأدخل رقم المبنى الجديد:"
   );
 
   if(buildingId === null) return;
 
   const floor = prompt(
-    "الدور الحالي: " + (room.floor || "") +
+    "الدور الحالي: " +
+    (room.floor || "") +
     "\n\nأدخل الدور الجديد:"
   );
 
   if(floor === null) return;
 
   const roomNumber = prompt(
-    "رقم الغرفة الحالي: " + (room.room_number || "") +
+    "رقم الغرفة الحالي: " +
+    (room.room_number || "") +
     "\n\nأدخل رقم الغرفة الجديد:"
   );
 
@@ -1771,16 +1777,13 @@ async function deleteRoom(id){
       .eq("id", id);
 
   if(error){
-    alert(error.message);
+    alert("حدث خطأ أثناء التعديل:\n" + error.message);
     return;
   }
 
-  showToast("تم تعديل الغرفة");
+  showToast("تم تعديل الغرفة بنجاح");
 
   await loadRooms();
-
-  updateDashboard();
-}
 
   updateDashboard();
 }
