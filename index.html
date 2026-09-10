@@ -2293,9 +2293,10 @@ function renderEmployees(){
         <td>${esc(e.job||"-")}</td>
         <td>${esc(building?.name||"-")}</td>
         <td>${esc(room?.room_number||"-")}</td>
-   <td>${employeeStatus(e.status)}</td>
+        <td>${employeeStatus(e.status)}</td>
+
         <td>
-          ${isManager() || isSupervisor() ? `
+          ${isManager() || isSupervisor() || isHR() ? `
           
           <button class="btn"
             onclick="editEmployee('${e.id}')">
@@ -2316,8 +2317,6 @@ function renderEmployees(){
     `;
   });
 }
-
-
 function openEmployeeModal(){
 
  if(!isManager() && !isSupervisor()) return;
