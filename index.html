@@ -491,6 +491,87 @@ th{background:#f7f9fb}
     <button class="btn btn-warning" onclick="changeSupervisorPassword()">
       🔑 تغيير كلمة المرور
     </button>
+  <hr>
+
+<h3>👔 إدارة الموارد البشرية</h3>
+
+<p>
+  إنشاء حساب مستقل للموارد البشرية والتحكم في كلمة المرور وحالة الدخول.
+</p>
+
+<input
+  id="hrUserId"
+  type="hidden"
+>
+
+<div class="form-grid">
+
+  <div>
+    <label>اسم الموارد البشرية</label>
+    <input
+      id="hrName"
+      type="text"
+      placeholder="مثال: مسؤول الموارد البشرية"
+    >
+  </div>
+
+  <div>
+    <label>البريد الإلكتروني</label>
+    <input
+      id="hrEmail"
+      type="email"
+      placeholder="hr@example.com"
+    >
+  </div>
+
+  <div>
+    <label>كلمة المرور</label>
+    <input
+      id="hrPassword"
+      type="password"
+      placeholder="كلمة مرور الموارد البشرية"
+    >
+  </div>
+
+  <div>
+    <label>حالة الحساب</label>
+    <select id="hrStatus">
+      <option value="active">
+        فعال
+      </option>
+
+      <option value="disabled">
+        معطل
+      </option>
+    </select>
+  </div>
+
+</div>
+
+<div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:15px;">
+
+  <button
+    class="btn btn-primary"
+    onclick="createHRUser()"
+  >
+    👔 إنشاء حساب الموارد البشرية
+  </button>
+
+  <button
+    class="btn btn-warning"
+    onclick="changeHRPassword()"
+  >
+    🔑 تغيير كلمة مرور HR
+  </button>
+
+  <button
+    class="btn"
+    onclick="toggleHRAccount()"
+  >
+    🔒 تفعيل / تعطيل حساب HR
+  </button>
+
+</div>
   </div>
 </section>
       <section id="buildings" class="page">
@@ -3715,44 +3796,155 @@ async function loadUsersPage() {
     return;
   }
 
-  const buildingSelect = document.getElementById("newSupervisorBuilding");
-  const passwordSelect = document.getElementById("passwordSupervisor");
+  const buildingSelect =
+    document.getElementById("newSupervisorBuilding");
+
+  const passwordSelect =
+    document.getElementById("passwordSupervisor");
 
   if (!buildingSelect || !passwordSelect) return;
 
-  buildingSelect.innerHTML = '<option value="">اختر المبنى</option>';
-  passwordSelect.innerHTML = '<option value="">اختر المشرف</option>';
+  buildingSelect.innerHTML =
+    '<option value="">اختر المبنى</option>';
+
+  passwordSelect.innerHTML =
+    '<option value="">اختر المشرف</option>';
+
+
+  /* ================================
+     تحميل المباني للمشرفين
+  ================================= */
 
   buildings.forEach(building => {
+
     buildingSelect.innerHTML += `
       <option value="${building.id}">
         ${building.name}
       </option>
     `;
+
   });
 
-  const { data, error } = await supabaseClient
+
+  /* ================================
+     تحميل المشرفين
+     بدون تغيير حساباتهم
+  ================================= */
+
+  const {
+    data: supervisors,
+    error: supervisorError
+  } = await supabaseClient
     .from("profiles")
     .select("id, full_name, role, building_id")
     .eq("role", "supervisor")
     .order("full_name");
 
-  if (error) {
-    alert("تعذر تحميل المشرفين: " + error.message);
+
+  if (supervisorError) {
+
+    alert(
+      "تعذر تحميل المشرفين: " +
+      supervisorError.message
+    );
+
     return;
   }
 
-  (data || []).forEach(user => {
-    const building = buildings.find(b => b.id === user.building_id);
+
+  (supervisors || []).forEach(user => {
+
+    const building =
+      buildings.find(
+        b => b.id === user.building_id
+      );
 
     passwordSelect.innerHTML += `
       <option value="${user.id}">
-        ${user.full_name || "مشرف"} - ${building ? building.name : "بدون مبنى"}
+        ${user.full_name || "مشرف"}
+        -
+        ${building ? building.name : "بدون مبنى"}
       </option>
     `;
-  });
-}
 
+  });
+
+
+  /* ================================
+     تحميل حساب الموارد البشرية
+  ================================= */
+
+  const {
+    data: hrUsers,
+    error: hrError
+  } = await supabaseClient
+    .from("profiles")
+    .select("id, full_name, role")
+    .eq("role", "hr")
+    .limit(1);
+
+
+  if (hrError) {
+
+    console.log(
+      "تعذر تحميل حساب الموارد البشرية:",
+      hrError.message
+    );
+
+    return;
+  }
+
+
+  /* حساب HR إن وجد */
+
+  const hr = hrUsers && hrUsers.length
+    ? hrUsers[0]
+    : null;
+
+
+  /* تعبئة بيانات HR في الواجهة إن كانت العناصر موجودة */
+
+  const hrName =
+    document.getElementById("hrName");
+
+  const hrEmail =
+    document.getElementById("hrEmail");
+
+  const hrUserId =
+    document.getElementById("hrUserId");
+
+
+  if (hr) {
+
+    if (hrName) {
+      hrName.value =
+        hr.full_name || "";
+    }
+
+    if (hrUserId) {
+      hrUserId.value =
+        hr.id;
+    }
+
+    /* البريد الإلكتروني يتم تحميله من Auth لاحقًا
+       عند إضافة شاشة إدارة HR */
+
+  } else {
+
+    if (hrName) {
+      hrName.value = "";
+    }
+
+    if (hrEmail) {
+      hrEmail.value = "";
+    }
+
+    if (hrUserId) {
+      hrUserId.value = "";
+    }
+
+  }
+}
 async function createSupervisor() {
   if (!currentProfile || currentProfile.role !== "manager") {
     alert("هذه العملية متاحة للمدير فقط");
@@ -3852,6 +4044,183 @@ async function changeSupervisorPassword() {
   document.getElementById("newSupervisorPassword2").value = "";
   await loadUsersPage();
 }
+ async function createHRUser() {
+
+  if (!currentProfile || currentProfile.role !== "manager") {
+    alert("هذه العملية متاحة للمدير فقط");
+    return;
+  }
+
+  const full_name =
+    document.getElementById("hrName").value.trim();
+
+  const email =
+    document.getElementById("hrEmail").value.trim();
+
+  const password =
+    document.getElementById("hrPassword").value;
+
+  if (!full_name || !email || !password) {
+    alert("يرجى تعبئة اسم الموارد البشرية والبريد وكلمة المرور");
+    return;
+  }
+
+  if (password.length < 6) {
+    alert("كلمة المرور يجب أن تكون 6 أحرف أو أكثر");
+    return;
+  }
+
+  const { data, error } =
+    await supabaseClient.functions.invoke(
+      "bright-processor",
+      {
+        body: {
+          action: "create_hr",
+          email,
+          password,
+          full_name
+        }
+      }
+    );
+
+  if (error) {
+    alert("تعذر إنشاء حساب الموارد البشرية: " + error.message);
+    return;
+  }
+
+  if (data?.error) {
+    alert("تعذر إنشاء الحساب: " + data.error);
+    return;
+  }
+
+  document.getElementById("hrUserId").value =
+    data.user_id || "";
+
+  document.getElementById("hrPassword").value = "";
+
+  document.getElementById("hrStatus").value =
+    "active";
+
+  alert("تم إنشاء حساب الموارد البشرية بنجاح");
+
+  await loadUsersPage();
+}
+
+
+async function changeHRPassword() {
+
+  if (!currentProfile || currentProfile.role !== "manager") {
+    alert("هذه العملية متاحة للمدير فقط");
+    return;
+  }
+
+  const user_id =
+    document.getElementById("hrUserId").value;
+
+  const password =
+    document.getElementById("hrPassword").value;
+
+  if (!user_id) {
+    alert("لا يوجد حساب موارد بشرية محدد");
+    return;
+  }
+
+  if (!password) {
+    alert("اكتب كلمة المرور الجديدة");
+    return;
+  }
+
+  if (password.length < 6) {
+    alert("كلمة المرور يجب أن تكون 6 أحرف أو أكثر");
+    return;
+  }
+
+  const { data, error } =
+    await supabaseClient.functions.invoke(
+      "bright-processor",
+      {
+        body: {
+          action: "update_hr_password",
+          user_id,
+          password
+        }
+      }
+    );
+
+  if (error) {
+    alert("تعذر تغيير كلمة المرور: " + error.message);
+    return;
+  }
+
+  if (data?.error) {
+    alert("تعذر تغيير كلمة المرور: " + data.error);
+    return;
+  }
+
+  document.getElementById("hrPassword").value = "";
+
+  alert("تم تغيير كلمة مرور الموارد البشرية بنجاح");
+}
+
+
+async function toggleHRAccount() {
+
+  if (!currentProfile || currentProfile.role !== "manager") {
+    alert("هذه العملية متاحة للمدير فقط");
+    return;
+  }
+
+  const user_id =
+    document.getElementById("hrUserId").value;
+
+  const status =
+    document.getElementById("hrStatus").value;
+
+  if (!user_id) {
+    alert("لا يوجد حساب موارد بشرية محدد");
+    return;
+  }
+
+  let action;
+
+  if (status === "disabled") {
+    action = "disable_hr";
+  } else {
+    action = "enable_hr";
+  }
+
+  const { data, error } =
+    await supabaseClient.functions.invoke(
+      "bright-processor",
+      {
+        body: {
+          action,
+          user_id
+        }
+      }
+    );
+
+  if (error) {
+    alert("تعذر تغيير حالة الحساب: " + error.message);
+    return;
+  }
+
+  if (data?.error) {
+    alert("تعذر تغيير حالة الحساب: " + data.error);
+    return;
+  }
+
+  if (status === "disabled") {
+
+    alert("تم تعطيل حساب الموارد البشرية");
+
+  } else {
+
+    alert("تم إعادة تفعيل حساب الموارد البشرية");
+
+  }
+
+} 
 </script>
 
 </body>
