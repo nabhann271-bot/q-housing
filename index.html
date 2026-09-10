@@ -2303,12 +2303,10 @@ function renderEmployees(){
             ✏️ تعديل
           </button>
 
-          ${isManager() ? `
-          <button class="btn btn-danger"
-            onclick="deleteEmployee('${e.id}')">
-            حذف
-          </button>
-          ` : ""}
+        <button class="btn btn-danger"
+  onclick="deleteEmployee('${e.id}')">
+  حذف
+</button>
 
           ` : "عرض فقط"}
         </td>
