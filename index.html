@@ -4088,10 +4088,35 @@ async function changeSupervisorPassword() {
     return;
   }
 
-  if (data?.error) {
-    alert("تعذر إنشاء الحساب: " + data.error);
-    return;
+if (error) {
+
+  let message =
+    error.message || "حدث خطأ غير معروف";
+
+  try {
+
+    if (error.context) {
+
+      const body =
+        await error.context.json();
+
+      if (body?.error) {
+        message = body.error;
+      }
+
+    }
+
+  } catch (e) {
+    console.log("تعذر قراءة تفاصيل الخطأ:", e);
   }
+
+  alert(
+    "تعذر إنشاء حساب الموارد البشرية:\n" +
+    message
+  );
+
+  return;
+}
 
   document.getElementById("hrUserId").value =
     data.user_id || "";
