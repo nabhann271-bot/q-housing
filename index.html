@@ -2205,8 +2205,7 @@ function renderEmployees(){
         <td>${esc(e.job||"-")}</td>
         <td>${esc(building?.name||"-")}</td>
         <td>${esc(room?.room_number||"-")}</td>
-        <td>${employeeStatus(e.status)}</td>
-
+       <td>${e.status}</td>
         <td>
           ${isManager() || isSupervisor() ? `
           
