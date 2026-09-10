@@ -2434,15 +2434,29 @@ async function saveEmployee(){
         .eq("id", oldBedId);
     }
 
-    /* إشغال السرير الجديد */
+   /* تحديث حالة السرير حسب حالة الموظف */
 
-    if(bedId){
+if(bedId){
 
-      await supabaseClient
-        .from("beds")
-        .update({status:"occupied"})
-        .eq("id", bedId);
-    }
+  const employeeStatusValue =
+    document.getElementById("employeeStatus").value;
+
+  if(employeeStatusValue === "left"){
+
+    await supabaseClient
+      .from("beds")
+      .update({status:"free"})
+      .eq("id", bedId);
+
+  }else{
+
+    await supabaseClient
+      .from("beds")
+      .update({status:"occupied"})
+      .eq("id", bedId);
+
+  }
+}
 
     showToast("تم تعديل الموظف بنجاح");
 
