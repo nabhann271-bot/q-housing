@@ -2815,13 +2815,28 @@ function renderMaintenance(){
     const building =
       buildings.find(b=>b.id===m.building_id);
 
+    const priorityMap = {
+
+      normal: "عادي",
+
+      medium: "متوسط",
+
+      urgent: "عاجل"
+
+    };
+
+    const priority =
+      priorityMap[m.priority] ||
+      m.priority ||
+      "-";
+
     tbody.innerHTML += `
       <tr>
         <td>${esc(m.maintenance_date||"-")}</td>
         <td>${esc(building?.name||"-")}</td>
         <td>${esc(m.location||"-")}</td>
         <td>${esc(m.fault||"-")}</td>
-        <td>${priorityText(m.priority)}</td>
+        <td>${esc(priority)}</td>
         <td>${maintenanceStatus(m.status)}</td>
         <td>
           <button class="btn btn-danger"
@@ -2831,7 +2846,6 @@ function renderMaintenance(){
     `;
   });
 }
-
 
 function openMaintenanceModal(){
 
