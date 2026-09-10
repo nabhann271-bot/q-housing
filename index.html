@@ -3612,48 +3612,34 @@ function esc(value){
 
 function employeeStatus(status){
 
-  if(status==="active")
-    return `<span class="badge free">على رأس العمل</span>`;
+  const map = {
 
-  if(status==="transferred")
-    return `<span class="badge open">منقول</span>`;
+    active:
+      `<span class="badge free">على رأس العمل</span>`,
 
-  return `<span class="badge occupied">ترك العمل</span>`;
-}
+    mission:
+      `<span class="badge open">في مهمة</span>`,
 
+    vacation:
+      `<span class="badge open">إجازة</span>`,
 
-function priorityText(p){
+    temporary_absence:
+      `<span class="badge open">غائب مؤقتًا</span>`,
 
-  const map={
-    low:"منخفضة",
-    medium:"متوسطة",
-    high:"عالية",
-    urgent:"عاجلة"
+    temporary_transfer:
+      `<span class="badge open">منقول مؤقتًا</span>`,
+
+    transferred:
+      `<span class="badge open">منقول</span>`,
+
+    left:
+      `<span class="badge occupied">ترك العمل</span>`
+
   };
 
-  return map[p]||p||"-";
+  return map[status] ||
+    `<span class="badge occupied">غير محددة</span>`;
 }
-
-
-function maintenanceStatus(s){
-
-  const map={
-    open:"مفتوحة",
-    in_progress:"قيد التنفيذ",
-    completed:"مكتملة",
-    cancelled:"ملغاة"
-  };
-
-  const cls=
-    s==="completed"
-      ?"completed"
-      :"open";
-
-  return `<span class="badge ${cls}">
-    ${map[s]||s||"-"}
-  </span>`;
-}
-
 
 function showToast(message){
 
