@@ -896,7 +896,7 @@ th{background:#f7f9fb}
 <div id="employeeModal" class="modal">
   <div class="modal-box">
     <div class="modal-head">
-      <h3>إضافة موظف</h3>
+    <h3 id="employeeModalTitle">إضافة موظف</h3>
       <button class="close" onclick="closeModal('employeeModal')">×</button>
     </div>
 
@@ -956,7 +956,7 @@ th{background:#f7f9fb}
     </div>
 
     <div class="actions" style="margin-top:20px">
-      <button class="btn" onclick="saveEmployee()">حفظ</button>
+     <button id="employeeSaveButton" class="btn" onclick="saveEmployee()">حفظ</button>
       <button class="btn btn-secondary" onclick="closeModal('employeeModal')">إلغاء</button>
     </div>
   </div>
@@ -2203,12 +2203,25 @@ function renderEmployees(){
         <td>${esc(building?.name||"-")}</td>
         <td>${esc(room?.room_number||"-")}</td>
         <td>${employeeStatus(e.status)}</td>
+
         <td>
-          ${isManager()?`
+          ${isManager() || isSupervisor() ? `
+          
+          <button class="btn"
+            onclick="editEmployee('${e.id}')">
+            ✏️ تعديل
+          </button>
+
+          ${isManager() ? `
           <button class="btn btn-danger"
-            onclick="deleteEmployee('${e.id}')">حذف</button>
-          `:"عرض فقط"}
+            onclick="deleteEmployee('${e.id}')">
+            حذف
+          </button>
+          ` : ""}
+
+          ` : "عرض فقط"}
         </td>
+
       </tr>
     `;
   });
@@ -2264,7 +2277,62 @@ async function loadEmployeeRooms(){
         </option>`;
     });
 }
+async function editEmployee(id){
 
+  if(!isManager() && !isSupervisor()) return;
+
+  const employee =
+    employees.find(e => e.id === id);
+
+  if(!employee){
+    alert("لم يتم العثور على الموظف");
+    return;
+  }
+
+  document.getElementById("employeeId").value =
+    employee.id;
+
+  document.getElementById("employeeNo").value =
+    employee.employee_no || "";
+
+  document.getElementById("employeeName").value =
+    employee.name || "";
+
+  document.getElementById("employeeDepartment").value =
+    employee.department || "";
+
+  document.getElementById("employeeJob").value =
+    employee.job || "";
+
+  document.getElementById("employeePhone").value =
+    employee.phone || "";
+
+  document.getElementById("employeeStatus").value =
+    employee.status || "active";
+
+  fillBuildingSelects();
+
+  document.getElementById("employeeBuilding").value =
+    employee.building_id || "";
+
+  await loadEmployeeRooms();
+
+  document.getElementById("employeeRoom").value =
+    employee.room_id || "";
+
+  await loadEmployeeBeds();
+
+  document.getElementById("employeeBed").value =
+    employee.bed_id || "";
+
+  document.getElementById("employeeModalTitle").textContent =
+    "تعديل الموظف";
+
+  document.getElementById("employeeSaveButton").textContent =
+    "تعديل";
+
+  document.getElementById("employeeModal").classList.add("show");
+}
 
 async function loadEmployeeBeds(){
 
@@ -2292,6 +2360,8 @@ async function loadEmployeeBeds(){
 
 async function saveEmployee(){
 
+  const employeeId =
+    document.getElementById("employeeId").value;
 
   const employeeNo =
     document.getElementById("employeeNo").value.trim();
@@ -2313,8 +2383,8 @@ async function saveEmployee(){
   const bedId =
     document.getElementById("employeeBed").value || null;
 
-  const payload={
-    employee_no:employeeNo,
+  const payload = {
+    employee_no: employeeNo,
     name,
     department:
       document.getElementById("employeeDepartment").value.trim() || null,
@@ -2322,43 +2392,109 @@ async function saveEmployee(){
       document.getElementById("employeeJob").value.trim() || null,
     phone:
       document.getElementById("employeePhone").value.trim() || null,
-    building_id:buildingId,
-    room_id:roomId,
-    bed_id:bedId,
+    building_id: buildingId,
+    room_id: roomId,
+    bed_id: bedId,
     status:
       document.getElementById("employeeStatus").value
   };
 
-  const {data,error} =
-    await supabaseClient
-      .from("employees")
-      .insert(payload)
-      .select()
-      .single();
+  /* =========================
+     تعديل موظف موجود
+     ========================= */
 
-  if(error){
-    alert(error.message);
-    return;
+  if(employeeId){
+
+    const oldEmployee =
+      employees.find(e => e.id === employeeId);
+
+    const oldBedId =
+      oldEmployee?.bed_id || null;
+
+    const {error} =
+      await supabaseClient
+        .from("employees")
+        .update(payload)
+        .eq("id", employeeId);
+
+    if(error){
+      alert("حدث خطأ أثناء تعديل الموظف:\n" + error.message);
+      return;
+    }
+
+    /* تحرير السرير القديم */
+
+    if(oldBedId && oldBedId !== bedId){
+
+      await supabaseClient
+        .from("beds")
+        .update({status:"free"})
+        .eq("id", oldBedId);
+    }
+
+    /* إشغال السرير الجديد */
+
+    if(bedId){
+
+      await supabaseClient
+        .from("beds")
+        .update({status:"occupied"})
+        .eq("id", bedId);
+    }
+
+    showToast("تم تعديل الموظف بنجاح");
+
+  }else{
+
+    /* =========================
+       إضافة موظف جديد
+       ========================= */
+
+    const {data,error} =
+      await supabaseClient
+        .from("employees")
+        .insert(payload)
+        .select()
+        .single();
+
+    if(error){
+      alert(error.message);
+      return;
+    }
+
+    /* إشغال السرير */
+
+    if(bedId){
+
+      await supabaseClient
+        .from("beds")
+        .update({status:"occupied"})
+        .eq("id",bedId);
+    }
+
+    showToast("تم إضافة الموظف");
+
   }
 
-  if(bedId){
+  /* =========================
+     تحديث البيانات
+     ========================= */
 
-    await supabaseClient
-      .from("beds")
-      .update({status:"occupied"})
-      .eq("id",bedId);
-  }
+  document.getElementById("employeeId").value = "";
+
+  document.getElementById("employeeModalTitle").textContent =
+    "إضافة موظف";
+
+  document.getElementById("employeeSaveButton").textContent =
+    "حفظ";
 
   closeModal("employeeModal");
-
-  showToast("تم إضافة الموظف");
 
   await loadEmployees();
   await loadBeds();
 
   updateDashboard();
 }
-
 
 async function deleteEmployee(id){
 
