@@ -1275,11 +1275,12 @@ async function startApplication(){
   document.getElementById("userEmail").textContent =
     currentUser.email || "";
 
-  document.getElementById("userRole").textContent =
+document.getElementById("userRole").textContent =
     profile.role === "manager"
       ? "مدير السكن"
-      : "مشرف السكن";
-
+      : profile.role === "hr"
+        ? "الموارد البشرية"
+        : "مشرف السكن";
   applyPermissions();
 
   await loadAll();
