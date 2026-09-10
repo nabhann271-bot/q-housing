@@ -1404,13 +1404,15 @@ async function loadAll(){
   ]);
 
   updateDashboard();
-}function applyPermissions(){
+}
+function applyPermissions(){
 
   const usersNavBtn =
     document.getElementById("usersNavBtn");
 
   if(usersNavBtn){
 
+    // المستخدمون والصلاحيات للمدير فقط
     if(isManager()){
       usersNavBtn.style.display = "block";
     }else{
@@ -1419,7 +1421,8 @@ async function loadAll(){
 
   }
 
-  if(!isManager()){
+  // المدير و HR يستطيعان استخدام صلاحيات التشغيل
+  if(!isManager() && !isHR()){
 
     // المشرف يستطيع إضافة الغرف والموظفين
     // ويستطيع استخدام الصيانة والمخالفات والتفتيش
@@ -1434,8 +1437,8 @@ async function loadAll(){
     });
 
   }
-}
 
+}
 /* =========================================================
    BUILDINGS
    ========================================================= */
