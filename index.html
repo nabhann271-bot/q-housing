@@ -1445,26 +1445,28 @@ function applyPermissions(){
 
 async function loadBuildings(){
 
-  let query =
-    supabaseClient
+  const { data, error } =
+    await supabaseClient
       .from("buildings")
       .select("*")
       .order("name");
 
-  const {data,error} = await query;
-
   if(error){
-    showToast(error.message);
+    console.error("خطأ تحميل المباني:", error);
+    showToast("خطأ تحميل المباني: " + error.message);
     return;
   }
+
+  console.log("عدد المباني المحملة:", data?.length);
+  console.log("المباني:", data);
 
   buildings = data || [];
 
   renderBuildings();
   fillBuildingSelects();
+
+  updateDashboard();
 }
-
-
 function renderBuildings(){
 
   const search =
