@@ -1393,17 +1393,43 @@ function isHR(){
 
 async function loadAll(){
 
-  await Promise.all([
-    loadBuildings(),
-    loadRooms(),
-    loadBeds(),
-    loadEmployees(),
-    loadViolations(),
-    loadMaintenance(),
-    loadInspections()
-  ]);
+  try{
 
-  updateDashboard();
+    console.log("بدأ تحميل البيانات...");
+
+    await Promise.all([
+      loadBuildings(),
+      loadRooms(),
+      loadBeds(),
+      loadEmployees(),
+      loadViolations(),
+      loadMaintenance(),
+      loadInspections()
+    ]);
+
+    console.log("تم تحميل جميع البيانات:");
+    console.log("المباني:", buildings.length);
+    console.log("الغرف:", rooms.length);
+    console.log("الأسرة:", beds.length);
+    console.log("الموظفون:", employees.length);
+    console.log("المخالفات:", violations.length);
+    console.log("الصيانة:", maintenance.length);
+    console.log("التفتيش:", inspections.length);
+
+    updateDashboard();
+
+    console.log("تم تحديث لوحة التحكم.");
+
+  }catch(error){
+
+    console.error("خطأ أثناء تحميل البيانات:", error);
+
+    showToast(
+      "حدث خطأ أثناء تحميل البيانات: " +
+      (error.message || error)
+    );
+  }
+
 }
 function applyPermissions(){
 
