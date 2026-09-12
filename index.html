@@ -1422,12 +1422,16 @@ async function loadAll(){
 
   }catch(error){
 
-    console.error("خطأ أثناء تحميل البيانات:", error);
+    console.error(
+      "خطأ أثناء تحميل البيانات:",
+      error
+    );
 
     showToast(
       "حدث خطأ أثناء تحميل البيانات: " +
       (error.message || error)
     );
+
   }
 
 }
