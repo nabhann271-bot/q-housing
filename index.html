@@ -2848,13 +2848,16 @@ function renderMaintenance(){
       buildings.find(b=>b.id===m.building_id);
 
     const priorityMap = {
-
       normal: "عادي",
-
       medium: "متوسط",
-
       urgent: "عاجل"
+    };
 
+    const statusMap = {
+      pending: "قيد الانتظار",
+      in_progress: "قيد التنفيذ",
+      completed: "مكتملة",
+      cancelled: "ملغاة"
     };
 
     const priority =
@@ -2862,17 +2865,25 @@ function renderMaintenance(){
       m.priority ||
       "-";
 
+    const status =
+      statusMap[m.status] ||
+      m.status ||
+      "-";
+
     tbody.innerHTML += `
       <tr>
-        <td>${esc(m.maintenance_date||"-")}</td>
-        <td>${esc(building?.name||"-")}</td>
-        <td>${esc(m.location||"-")}</td>
-        <td>${esc(m.fault||"-")}</td>
+        <td>${esc(m.maintenance_date || "-")}</td>
+        <td>${esc(building?.name || "-")}</td>
+        <td>${esc(m.location || "-")}</td>
+        <td>${esc(m.fault || "-")}</td>
         <td>${esc(priority)}</td>
-        <td>${maintenanceStatus(m.status)}</td>
+        <td>${esc(status)}</td>
         <td>
-          <button class="btn btn-danger"
-            onclick="deleteMaintenance('${m.id}')">حذف</button>
+          <button
+            class="btn btn-danger"
+            onclick="deleteMaintenance('${m.id}')">
+            حذف
+          </button>
         </td>
       </tr>
     `;
