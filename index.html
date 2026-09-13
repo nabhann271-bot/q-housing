@@ -3680,24 +3680,29 @@ function openBuildingDashboard(buildingId){
    REALTIME
    ========================================================= */
 
+let realtimeChannel = null;
+
 function subscribeRealtime(){
 
-  supabaseClient
-    .channel("q-housing-live")
-    .on(
-      "postgres_changes",
-      {
-        event:"*",
-        schema:"public"
-      },
-      async ()=>{
-        await loadAll();
-      }
-    )
-    .subscribe();
+  if(realtimeChannel){
+    return;
+  }
+
+  realtimeChannel =
+    supabaseClient
+      .channel("q-housing-live")
+      .on(
+        "postgres_changes",
+        {
+          event:"*",
+          schema:"public"
+        },
+        async ()=>{
+          await loadAll();
+        }
+      )
+      .subscribe();
 }
-
-
 /* =========================================================
    NAVIGATION
    ========================================================= */
