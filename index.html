@@ -2349,7 +2349,7 @@ function renderEmployees(){
 }
 function openEmployeeModal(){
 
- if(!isManager() && !isSupervisor()) return;
+  if(!isManager() && !isSupervisor() && !isHR()) return;
 
   document.getElementById("employeeId").value="";
   document.getElementById("employeeNo").value="";
