@@ -2493,30 +2493,14 @@ async function saveEmployee(){
     return;
   }
 
-  const buildingId =
+  let buildingId =
     document.getElementById("employeeBuilding").value || null;
 
-  const roomId =
+  let roomId =
     document.getElementById("employeeRoom").value || null;
 
-  const bedId =
+  let bedId =
     document.getElementById("employeeBed").value || null;
-
-  const payload = {
-    employee_no: employeeNo,
-    name,
-    department:
-      document.getElementById("employeeDepartment").value.trim() || null,
-    job:
-      document.getElementById("employeeJob").value.trim() || null,
-    phone:
-      document.getElementById("employeePhone").value.trim() || null,
-    building_id: buildingId,
-    room_id: roomId,
-    bed_id: bedId,
-    status:
-      document.getElementById("employeeStatus").value
-  };
 
   /* =========================
      تعديل موظف موجود
@@ -2527,8 +2511,63 @@ async function saveEmployee(){
     const oldEmployee =
       employees.find(e => e.id === employeeId);
 
+    if(!oldEmployee){
+      alert("تعذر العثور على بيانات الموظف الحالية");
+      return;
+    }
+
+    /*
+      الحفاظ على ترتيب الموظف في السرير:
+      إذا لم يتم اختيار سرير جديد، نحتفظ
+      بالسرير والغرفة والمبنى القديم.
+    */
+
     const oldBedId =
-      oldEmployee?.bed_id || null;
+      oldEmployee.bed_id || null;
+
+    const oldRoomId =
+      oldEmployee.room_id || null;
+
+    const oldBuildingId =
+      oldEmployee.building_id || null;
+
+    /*
+      إذا كانت خانة السرير فارغة أو لم يتم تغييرها
+      نستخدم السرير القديم.
+    */
+
+    if(!bedId){
+      bedId = oldBedId;
+    }
+
+    if(!roomId){
+      roomId = oldRoomId;
+    }
+
+    if(!buildingId){
+      buildingId = oldBuildingId;
+    }
+
+    const payload = {
+      employee_no: employeeNo,
+      name,
+
+      department:
+        document.getElementById("employeeDepartment").value.trim() || null,
+
+      job:
+        document.getElementById("employeeJob").value.trim() || null,
+
+      phone:
+        document.getElementById("employeePhone").value.trim() || null,
+
+      building_id: buildingId,
+      room_id: roomId,
+      bed_id: bedId,
+
+      status:
+        document.getElementById("employeeStatus").value
+    };
 
     const {error} =
       await supabaseClient
@@ -2537,11 +2576,17 @@ async function saveEmployee(){
         .eq("id", employeeId);
 
     if(error){
-      alert("حدث خطأ أثناء تعديل الموظف:\n" + error.message);
+      alert(
+        "حدث خطأ أثناء تعديل الموظف:\n" +
+        error.message
+      );
       return;
     }
 
-    /* تحرير السرير القديم */
+    /*
+      تحرير السرير القديم فقط إذا تم نقل الموظف
+      إلى سرير آخر.
+    */
 
     if(oldBedId && oldBedId !== bedId){
 
@@ -2551,37 +2596,61 @@ async function saveEmployee(){
         .eq("id", oldBedId);
     }
 
-   /* تحديث حالة السرير حسب حالة الموظف */
+    /* تحديث حالة السرير الحالي */
 
-if(bedId){
+    if(bedId){
 
-  const employeeStatusValue =
-    document.getElementById("employeeStatus").value;
+      const employeeStatusValue =
+        document.getElementById("employeeStatus").value;
 
-  if(employeeStatusValue === "left"){
+      await supabaseClient
+        .from("beds")
+        .update({
+          status:
+            employeeStatusValue === "left"
+              ? "free"
+              : "occupied"
+        })
+        .eq("id", bedId);
+    }
 
-    await supabaseClient
-      .from("beds")
-      .update({status:"free"})
-      .eq("id", bedId);
-
-  }else{
-
-    await supabaseClient
-      .from("beds")
-      .update({status:"occupied"})
-      .eq("id", bedId);
-
-  }
-}
-
-    showToast("تم تعديل الموظف بنجاح");
+    showToast("تم تعديل الموظف مع الحفاظ على سريره");
 
   }else{
 
     /* =========================
        إضافة موظف جديد
        ========================= */
+
+    const buildingId =
+      document.getElementById("employeeBuilding").value || null;
+
+    const roomId =
+      document.getElementById("employeeRoom").value || null;
+
+    const bedId =
+      document.getElementById("employeeBed").value || null;
+
+    const payload = {
+      employee_no: employeeNo,
+      name,
+
+      department:
+        document.getElementById("employeeDepartment").value.trim() || null,
+
+      job:
+        document.getElementById("employeeJob").value.trim() || null,
+
+      phone:
+        document.getElementById("employeePhone").value.trim() || null,
+
+      building_id: buildingId,
+      room_id: roomId,
+      bed_id: bedId,
+
+      status:
+        document.getElementById("employeeStatus").value
+    };
 
     const {data,error} =
       await supabaseClient
@@ -2606,7 +2675,6 @@ if(bedId){
     }
 
     showToast("تم إضافة الموظف");
-
   }
 
   /* =========================
@@ -2628,7 +2696,6 @@ if(bedId){
 
   updateDashboard();
 }
-
 async function deleteEmployee(id){
 
 
