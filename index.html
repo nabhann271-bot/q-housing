@@ -2148,10 +2148,29 @@ function generateEmployeeReport(){
 }
 function printEmployeeReport(){
 
-const report =
-document.getElementById("employeeReport");
+const reportTable =
+document.getElementById("employeeReportTable");
 
-if(!report) return;
+if(!reportTable){
+
+alert("لم يتم العثور على جدول التقرير.");
+
+return;
+
+}
+
+const rows =
+Array.from(
+reportTable.querySelectorAll("tr")
+).filter(row => row.cells.length >= 9);
+
+if(!rows.length){
+
+alert("لا توجد بيانات موظفين للطباعة.");
+
+return;
+
+}
 
 // اختيار طريقة الترتيب
 const choice = prompt(
@@ -2162,55 +2181,55 @@ const choice = prompt(
 );
 
 if(choice !== "1" && choice !== "2"){
+
 alert("يرجى اختيار 1 أو 2");
+
 return;
+
 }
 
-const rows =
-Array.from(
-report.querySelectorAll("tbody tr")
-);
+// الاسم = العمود الثالث
+// الغرفة = العمود السابع
 
-if(!rows.length){
-alert("لا توجد بيانات موظفين للطباعة.");
-return;
-}
-
-// ترتيب حسب الغرفة
 if(choice === "1"){
 
 rows.sort((a,b)=>{
 
   const roomA =
-    a.cells[5]?.textContent.trim() || "";
+    a.cells[6]?.textContent.trim() || "";
 
   const roomB =
-    b.cells[5]?.textContent.trim() || "";
+    b.cells[6]?.textContent.trim() || "";
 
   return roomA.localeCompare(
     roomB,
     "ar",
-    {numeric:true}
+    {
+      numeric:true,
+      sensitivity:"base"
+    }
   );
 
 });
 
 }
 
-// ترتيب أبجدي حسب اسم الموظف
 if(choice === "2"){
 
 rows.sort((a,b)=>{
 
   const nameA =
-    a.cells[1]?.textContent.trim() || "";
+    a.cells[2]?.textContent.trim() || "";
 
   const nameB =
-    b.cells[1]?.textContent.trim() || "";
+    b.cells[2]?.textContent.trim() || "";
 
   return nameA.localeCompare(
     nameB,
-    "ar"
+    "ar",
+    {
+      sensitivity:"base"
+    }
   );
 
 });
@@ -2223,28 +2242,69 @@ const roomsData = {};
 rows.forEach(row=>{
 
 const room =
-  row.cells[5]?.textContent.trim() || "بدون غرفة";
+  row.cells[6]?.textContent.trim() ||
+  "بدون غرفة";
 
 if(!roomsData[room]){
+
   roomsData[room] = [];
+
 }
 
 roomsData[room].push(row);
 
 });
 
+// ترتيب الغرف
+const roomNames =
+Object.keys(roomsData).sort((a,b)=>{
+
+  return a.localeCompare(
+    b,
+    "ar",
+    {
+      numeric:true,
+      sensitivity:"base"
+    }
+  );
+
+});
+
 let pages = "";
 
-Object.keys(roomsData).forEach((room, index)=>{
+roomNames.forEach(room=>{
 
 let tableRows = "";
 
-roomsData[room].forEach(row=>{
+roomsData[room].forEach((row,index)=>{
+
+  const cells =
+    Array.from(row.cells);
 
   tableRows += `
+
     <tr>
-      ${row.innerHTML}
+
+      <td>${index + 1}</td>
+
+      <td>${cells[1]?.textContent.trim() || "-"}</td>
+
+      <td>${cells[2]?.textContent.trim() || "-"}</td>
+
+      <td>${cells[3]?.textContent.trim() || "-"}</td>
+
+      <td>${cells[4]?.textContent.trim() || "-"}</td>
+
+      <td>${cells[5]?.textContent.trim() || "-"}</td>
+
+      <td>${cells[6]?.textContent.trim() || "-"}</td>
+
+      <td>${cells[7]?.textContent.trim() || "-"}</td>
+
+      <td>${cells[8]?.textContent.trim() || "-"}</td>
+
     </tr>
+
   `;
 
 });
@@ -2254,31 +2314,54 @@ pages += `
   <section class="room-page">
 
     <div class="company-header">
+
       <h1>شركة كيو</h1>
+
       <h2>تقرير موظفي السكن</h2>
+
     </div>
 
     <div class="room-title">
+
       غرفة رقم: ${room}
+
     </div>
 
     <table>
 
       <thead>
+
         <tr>
-          ${report.querySelector("thead")?.innerHTML || ""}
+
+          <th>م</th>
+          <th>رقم الموظف</th>
+          <th>اسم الموظف</th>
+          <th>القسم</th>
+          <th>الوظيفة</th>
+          <th>الجوال</th>
+          <th>الغرفة</th>
+          <th>السرير</th>
+          <th>الحالة</th>
+
         </tr>
+
       </thead>
 
       <tbody>
+
         ${tableRows}
+
       </tbody>
 
     </table>
 
     <div class="room-total">
+
       عدد الموظفين في الغرفة:
-      <strong>${roomsData[room].length}</strong>
+      <strong>
+        ${roomsData[room].length}
+      </strong>
+
     </div>
 
   </section>
@@ -2290,6 +2373,17 @@ pages += `
 const printWindow =
 window.open("", "_blank");
 
+if(!printWindow){
+
+alert(
+  "تعذر فتح نافذة الطباعة. " +
+  "يرجى السماح بالنوافذ المنبثقة."
+);
+
+return;
+
+}
+
 printWindow.document.write(`
 
 <!DOCTYPE html>
@@ -2300,7 +2394,7 @@ printWindow.document.write(`
 
   <meta charset="UTF-8">
 
-  <title>تقرير موظفي السكن</title>
+  <title>تقرير موظفي السكن - شركة كيو</title>
 
   <style>
 
@@ -2309,99 +2403,155 @@ printWindow.document.write(`
     }
 
     body{
-      font-family:Arial,sans-serif;
+
+      font-family:
+        Arial,
+        Tahoma,
+        sans-serif;
+
       direction:rtl;
+
       margin:0;
+
       padding:0;
+
       color:#000;
+
     }
 
     .room-page{
+
       min-height:100vh;
+
       padding:25px;
+
       page-break-after:always;
+
     }
 
     .room-page:last-child{
+
       page-break-after:auto;
+
     }
 
     .company-header{
+
       text-align:center;
+
       margin-bottom:20px;
+
       border-bottom:2px solid #000;
+
       padding-bottom:15px;
+
     }
 
     .company-header h1{
+
       margin:0 0 8px;
+
       font-size:24px;
+
     }
 
     .company-header h2{
+
       margin:0;
+
       font-size:20px;
+
     }
 
     .room-title{
+
       text-align:center;
+
       font-size:22px;
+
       font-weight:bold;
+
       border:2px solid #000;
+
       padding:12px;
+
       margin-bottom:20px;
+
     }
 
     table{
+
       width:100%;
+
       border-collapse:collapse;
+
       margin-top:10px;
+
     }
 
     th,
     td{
+
       border:1px solid #000;
-      padding:9px;
+
+      padding:8px;
+
       text-align:center;
-      font-size:14px;
+
+      font-size:13px;
+
     }
 
     th{
+
       font-weight:bold;
+
     }
 
     .room-total{
+
       margin-top:20px;
+
       text-align:left;
+
       font-size:16px;
+
       font-weight:bold;
+
     }
 
     @media print{
 
       body{
+
         padding:0;
+
       }
 
       .room-page{
+
         min-height:100vh;
+
         page-break-after:always;
+
       }
 
       .room-page:last-child{
+
         page-break-after:auto;
-      }
 
-      table{
-        page-break-inside:auto;
-      }
-
-      tr{
-        page-break-inside:avoid;
       }
 
       thead{
+
         display:table-header-group;
+
+      }
+
+      tr{
+
+        page-break-inside:avoid;
+
       }
 
     }
