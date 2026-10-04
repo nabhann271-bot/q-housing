@@ -1999,7 +1999,7 @@ async function deleteRoom(id){
   updateDashboard();
 }
 
-
+  
 async function editRoom(id){
 
   if(!isManager()){
@@ -2148,35 +2148,10 @@ function generateEmployeeReport(){
 }
 function printEmployeeReport(){
 
-const reportTable =
-document.getElementById("employeeReportTable");
-
-if(!reportTable){
-
-alert("لم يتم العثور على جدول التقرير.");
-
-return;
-
-}
-
-const rows =
-Array.from(
-reportTable.querySelectorAll("tr")
-).filter(row => row.cells.length >= 9);
-
-if(!rows.length){
-
-alert("لا توجد بيانات موظفين للطباعة.");
-
-return;
-
-}
-
-// اختيار طريقة الترتيب
 const choice = prompt(
 "اختر طريقة ترتيب التقرير:\n\n" +
-"1 - الترتيب حسب الغرف\n" +
-"2 - الترتيب الأبجدي حسب اسم الموظف\n\n" +
+"1 - ترتيب الغرف\n" +
+"2 - ترتيب الموظفين أبجديًا\n\n" +
 "اكتب 1 أو 2"
 );
 
@@ -2188,21 +2163,33 @@ return;
 
 }
 
-// الاسم = العمود الثالث
-// الغرفة = العمود السابع
+if(!Array.isArray(employees) || !employees.length){
 
+alert("لا توجد بيانات موظفين للطباعة.");
+
+return;
+
+}
+
+let reportEmployees = [...employees];
+
+// الترتيب حسب الغرف
 if(choice === "1"){
 
-rows.sort((a,b)=>{
+reportEmployees.sort((a,b)=>{
 
   const roomA =
-    a.cells[6]?.textContent.trim() || "";
+    rooms.find(r => r.id === a.room_id);
 
   const roomB =
-    b.cells[6]?.textContent.trim() || "";
+    rooms.find(r => r.id === b.room_id);
 
-  return roomA.localeCompare(
-    roomB,
+  return String(
+    roomA?.room_number || ""
+  ).localeCompare(
+    String(
+      roomB?.room_number || ""
+    ),
     "ar",
     {
       numeric:true,
@@ -2214,18 +2201,13 @@ rows.sort((a,b)=>{
 
 }
 
+// الترتيب الأبجدي
 if(choice === "2"){
 
-rows.sort((a,b)=>{
+reportEmployees.sort((a,b)=>{
 
-  const nameA =
-    a.cells[2]?.textContent.trim() || "";
-
-  const nameB =
-    b.cells[2]?.textContent.trim() || "";
-
-  return nameA.localeCompare(
-    nameB,
+  return String(a.name || "").localeCompare(
+    String(b.name || ""),
     "ar",
     {
       sensitivity:"base"
@@ -2236,31 +2218,35 @@ rows.sort((a,b)=>{
 
 }
 
-// تجميع الموظفين حسب الغرفة
+// تجميع الموظفين حسب الغرف
 const roomsData = {};
 
-rows.forEach(row=>{
+reportEmployees.forEach(employee=>{
 
 const room =
-  row.cells[6]?.textContent.trim() ||
-  "بدون غرفة";
+  rooms.find(
+    r => r.id === employee.room_id
+  );
 
-if(!roomsData[room]){
+const roomNumber =
+  room?.room_number || "بدون غرفة";
 
-  roomsData[room] = [];
+if(!roomsData[roomNumber]){
+
+  roomsData[roomNumber] = [];
 
 }
 
-roomsData[room].push(row);
+roomsData[roomNumber].push(employee);
 
 });
 
 // ترتيب الغرف
-const roomNames =
+const roomNumbers =
 Object.keys(roomsData).sort((a,b)=>{
 
-  return a.localeCompare(
-    b,
+  return String(a).localeCompare(
+    String(b),
     "ar",
     {
       numeric:true,
@@ -2272,14 +2258,24 @@ Object.keys(roomsData).sort((a,b)=>{
 
 let pages = "";
 
-roomNames.forEach(room=>{
+roomNumbers.forEach(roomNumber=>{
+
+const roomEmployees =
+  roomsData[roomNumber];
 
 let tableRows = "";
 
-roomsData[room].forEach((row,index)=>{
+roomEmployees.forEach((employee,index)=>{
 
-  const cells =
-    Array.from(row.cells);
+  const room =
+    rooms.find(
+      r => r.id === employee.room_id
+    );
+
+  const bed =
+    beds.find(
+      b => b.id === employee.bed_id
+    );
 
   tableRows += `
 
@@ -2287,21 +2283,42 @@ roomsData[room].forEach((row,index)=>{
 
       <td>${index + 1}</td>
 
-      <td>${cells[1]?.textContent.trim() || "-"}</td>
+      <td>${esc(
+        employee.employee_no || "-"
+      )}</td>
 
-      <td>${cells[2]?.textContent.trim() || "-"}</td>
+      <td>${esc(
+        employee.name || "-"
+      )}</td>
 
-      <td>${cells[3]?.textContent.trim() || "-"}</td>
+      <td>${esc(
+        employee.department || "-"
+      )}</td>
 
-      <td>${cells[4]?.textContent.trim() || "-"}</td>
+      <td>${esc(
+        employee.job || "-"
+      )}</td>
 
-      <td>${cells[5]?.textContent.trim() || "-"}</td>
+      <td>${esc(
+        employee.phone ||
+        employee.mobile ||
+        "-"
+      )}</td>
 
-      <td>${cells[6]?.textContent.trim() || "-"}</td>
+      <td>${esc(
+        room?.room_number || "-"
+      )}</td>
 
-      <td>${cells[7]?.textContent.trim() || "-"}</td>
+      <td>${esc(
+        bed?.bed_number ||
+        bed?.number ||
+        employee.bed_number ||
+        "-"
+      )}</td>
 
-      <td>${cells[8]?.textContent.trim() || "-"}</td>
+      <td>${esc(
+        employee.status || "نشط"
+      )}</td>
 
     </tr>
 
@@ -2323,7 +2340,7 @@ pages += `
 
     <div class="room-title">
 
-      غرفة رقم: ${room}
+      غرفة رقم: ${esc(roomNumber)}
 
     </div>
 
@@ -2359,7 +2376,7 @@ pages += `
 
       عدد الموظفين في الغرفة:
       <strong>
-        ${roomsData[room].length}
+        ${roomEmployees.length}
       </strong>
 
     </div>
@@ -2370,215 +2387,222 @@ pages += `
 
 });
 
-const printWindow =
-window.open("", "_blank");
+// إنشاء صفحة طباعة مؤقتة داخل نفس الصفحة
+const originalHTML =
+document.body.innerHTML;
 
-if(!printWindow){
+const printContainer =
+document.createElement("div");
 
-alert(
-  "تعذر فتح نافذة الطباعة. " +
-  "يرجى السماح بالنوافذ المنبثقة."
+printContainer.id =
+"temporaryPrintContainer";
+
+printContainer.innerHTML = pages;
+
+document.body.innerHTML = "";
+
+document.body.appendChild(
+printContainer
 );
 
-return;
+const printStyle =
+document.createElement("style");
+
+printStyle.id =
+"temporaryPrintStyle";
+
+printStyle.innerHTML = `
+
+@page{
+
+  size:A4;
+
+  margin:12mm;
 
 }
 
-printWindow.document.write(`
+*{
 
-<!DOCTYPE html>
+  box-sizing:border-box;
 
-<html lang="ar" dir="rtl">
+}
 
-<head>
+body{
 
-  <meta charset="UTF-8">
+  margin:0;
 
-  <title>تقرير موظفي السكن - شركة كيو</title>
+  padding:0;
 
-  <style>
+  font-family:
+    Arial,
+    Tahoma,
+    sans-serif;
 
-    *{
-      box-sizing:border-box;
-    }
+  direction:rtl;
 
-    body{
+  color:#000;
 
-      font-family:
-        Arial,
-        Tahoma,
-        sans-serif;
+}
 
-      direction:rtl;
+.room-page{
 
-      margin:0;
+  width:100%;
 
-      padding:0;
+  min-height:100vh;
 
-      color:#000;
+  padding:10px;
 
-    }
+  page-break-after:always;
 
-    .room-page{
+  break-after:page;
 
-      min-height:100vh;
+}
 
-      padding:25px;
+.room-page:last-child{
 
-      page-break-after:always;
+  page-break-after:auto;
 
-    }
+  break-after:auto;
 
-    .room-page:last-child{
+}
 
-      page-break-after:auto;
+.company-header{
 
-    }
+  text-align:center;
 
-    .company-header{
+  border-bottom:2px solid #000;
 
-      text-align:center;
+  padding-bottom:12px;
 
-      margin-bottom:20px;
+  margin-bottom:20px;
 
-      border-bottom:2px solid #000;
+}
 
-      padding-bottom:15px;
+.company-header h1{
 
-    }
+  margin:0 0 8px;
 
-    .company-header h1{
+  font-size:24px;
 
-      margin:0 0 8px;
+}
 
-      font-size:24px;
+.company-header h2{
 
-    }
+  margin:0;
 
-    .company-header h2{
+  font-size:20px;
 
-      margin:0;
+}
 
-      font-size:20px;
+.room-title{
 
-    }
+  text-align:center;
 
-    .room-title{
+  font-size:24px;
 
-      text-align:center;
+  font-weight:bold;
 
-      font-size:22px;
+  border:2px solid #000;
 
-      font-weight:bold;
+  padding:12px;
 
-      border:2px solid #000;
+  margin-bottom:20px;
 
-      padding:12px;
+}
 
-      margin-bottom:20px;
+table{
 
-    }
+  width:100%;
 
-    table{
+  border-collapse:collapse;
 
-      width:100%;
+}
 
-      border-collapse:collapse;
+th,
+td{
 
-      margin-top:10px;
+  border:1px solid #000;
 
-    }
+  padding:8px;
 
-    th,
-    td{
+  text-align:center;
 
-      border:1px solid #000;
+  font-size:13px;
 
-      padding:8px;
+}
 
-      text-align:center;
+th{
 
-      font-size:13px;
+  font-weight:bold;
 
-    }
+  background:#f2f2f2;
 
-    th{
+}
 
-      font-weight:bold;
+.room-total{
 
-    }
+  margin-top:20px;
 
-    .room-total{
+  text-align:left;
 
-      margin-top:20px;
+  font-size:16px;
 
-      text-align:left;
+  font-weight:bold;
 
-      font-size:16px;
+}
 
-      font-weight:bold;
+thead{
 
-    }
+  display:table-header-group;
 
-    @media print{
+}
 
-      body{
+tr{
 
-        padding:0;
+  page-break-inside:avoid;
 
-      }
+  break-inside:avoid;
 
-      .room-page{
+}
 
-        min-height:100vh;
+`;
 
-        page-break-after:always;
+document.head.appendChild(
+printStyle
+);
 
-      }
-
-      .room-page:last-child{
-
-        page-break-after:auto;
-
-      }
-
-      thead{
-
-        display:table-header-group;
-
-      }
-
-      tr{
-
-        page-break-inside:avoid;
-
-      }
-
-    }
-
-  </style>
-
-</head>
-
-<body>
-
-  ${pages}
-
-</body>
-
-</html>
-
-`);
-
-printWindow.document.close();
-
-printWindow.focus();
-
+// الطباعة مباشرة
 setTimeout(()=>{
 
-printWindow.print();
+window.print();
 
-},500);
+// إعادة التطبيق بعد انتهاء الطباعة
+setTimeout(()=>{
+
+  document.body.innerHTML =
+    originalHTML;
+
+  const oldStyle =
+    document.getElementById(
+      "temporaryPrintStyle"
+    );
+
+  if(oldStyle){
+
+    oldStyle.remove();
+
+  }
+
+  // إعادة تشغيل الصفحة
+  if(typeof startApplication === "function"){
+
+    startApplication();
+
+  }
+
+},1000);
+
+},300);
 
 }
 function downloadEmployeeReportPDF(){
