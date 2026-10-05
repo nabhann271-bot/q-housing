@@ -2064,6 +2064,289 @@ async function loadEmployees(){
   employees=data||[];
   renderEmployees();
 }
+  function generateEmployeeReport(){
+
+  const select =
+    document.getElementById("employeeReportBuilding");
+
+  const table =
+    document.getElementById("employeeReportTable");
+
+  const buildingName =
+    document.getElementById("employeeReportBuildingName");
+
+  const reportDate =
+    document.getElementById("employeeReportDate");
+
+  const buildingId =
+    String(select?.value || "");
+
+  if(!buildingId){
+
+    table.innerHTML = `
+      <tr>
+        <td colspan="9" style="text-align:center">
+          يرجى اختيار المبنى أولاً
+        </td>
+      </tr>
+    `;
+
+    buildingName.textContent =
+      "لم يتم اختيار مبنى";
+
+    reportDate.textContent = "";
+
+    return;
+  }
+
+  const building =
+    buildings.find(
+      b => String(b.id) === buildingId
+    );
+
+  if(!building){
+
+    alert("لم يتم العثور على المبنى المحدد.");
+
+    return;
+  }
+
+  // الموظفون في المبنى المحدد فقط
+  const buildingEmployees =
+    employees.filter(
+      e => String(e.building_id || "") === buildingId
+    );
+
+  buildingName.textContent =
+    "المبنى: " + (building.name || "");
+
+  reportDate.textContent =
+    "تاريخ التقرير: " +
+    new Date().toLocaleDateString("ar-SA");
+
+  if(!buildingEmployees.length){
+
+    table.innerHTML = `
+      <tr>
+        <td colspan="9" style="text-align:center">
+          لا يوجد موظفون مسجلون في هذا المبنى
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  table.innerHTML =
+    buildingEmployees.map((employee,index)=>{
+
+      const room =
+        rooms.find(
+          r => String(r.id) ===
+               String(employee.room_id)
+        );
+
+      const bed =
+        beds.find(
+          b => String(b.id) ===
+               String(employee.bed_id)
+        );
+
+      const roomNumber =
+        room?.room_number ||
+        room?.room_no ||
+        room?.number ||
+        "-";
+
+      const bedNumber =
+        bed?.bed_number ||
+        bed?.bed_no ||
+        bed?.number ||
+        employee.bed_number ||
+        "-";
+
+      return `
+        <tr>
+
+          <td>${index + 1}</td>
+
+          <td>${esc(
+            employee.employee_no || "-"
+          )}</td>
+
+          <td>${esc(
+            employee.name || "-"
+          )}</td>
+
+          <td>${esc(
+            employee.department || "-"
+          )}</td>
+
+          <td>${esc(
+            employee.job || "-"
+          )}</td>
+
+          <td>${esc(
+            employee.phone ||
+            employee.mobile ||
+            "-"
+          )}</td>
+
+          <td>${esc(roomNumber)}</td>
+
+          <td>${esc(bedNumber)}</td>
+
+          <td>${esc(
+            employee.status || "نشط"
+          )}</td>
+
+        </tr>
+      `;
+
+    }).join("");
+
+}function generateEmployeeReport(){
+
+  const select =
+    document.getElementById("employeeReportBuilding");
+
+  const table =
+    document.getElementById("employeeReportTable");
+
+  const buildingName =
+    document.getElementById("employeeReportBuildingName");
+
+  const reportDate =
+    document.getElementById("employeeReportDate");
+
+  const buildingId =
+    String(select?.value || "");
+
+  if(!buildingId){
+
+    table.innerHTML = `
+      <tr>
+        <td colspan="9" style="text-align:center">
+          يرجى اختيار المبنى أولاً
+        </td>
+      </tr>
+    `;
+
+    buildingName.textContent =
+      "لم يتم اختيار مبنى";
+
+    reportDate.textContent = "";
+
+    return;
+  }
+
+  const building =
+    buildings.find(
+      b => String(b.id) === buildingId
+    );
+
+  if(!building){
+
+    alert("لم يتم العثور على المبنى المحدد.");
+
+    return;
+  }
+
+  // الموظفون في المبنى المحدد فقط
+  const buildingEmployees =
+    employees.filter(
+      e => String(e.building_id || "") === buildingId
+    );
+
+  buildingName.textContent =
+    "المبنى: " + (building.name || "");
+
+  reportDate.textContent =
+    "تاريخ التقرير: " +
+    new Date().toLocaleDateString("ar-SA");
+
+  if(!buildingEmployees.length){
+
+    table.innerHTML = `
+      <tr>
+        <td colspan="9" style="text-align:center">
+          لا يوجد موظفون مسجلون في هذا المبنى
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  table.innerHTML =
+    buildingEmployees.map((employee,index)=>{
+
+      const room =
+        rooms.find(
+          r => String(r.id) ===
+               String(employee.room_id)
+        );
+
+      const bed =
+        beds.find(
+          b => String(b.id) ===
+               String(employee.bed_id)
+        );
+
+      const roomNumber =
+        room?.room_number ||
+        room?.room_no ||
+        room?.number ||
+        "-";
+
+      const bedNumber =
+        bed?.bed_number ||
+        bed?.bed_no ||
+        bed?.number ||
+        employee.bed_number ||
+        "-";
+
+      return `
+        <tr>
+
+          <td>${index + 1}</td>
+
+          <td>${esc(
+            employee.employee_no || "-"
+          )}</td>
+
+          <td>${esc(
+            employee.name || "-"
+          )}</td>
+
+          <td>${esc(
+            employee.department || "-"
+          )}</td>
+
+          <td>${esc(
+            employee.job || "-"
+          )}</td>
+
+          <td>${esc(
+            employee.phone ||
+            employee.mobile ||
+            "-"
+          )}</td>
+
+          <td>${esc(roomNumber)}</td>
+
+          <td>${esc(bedNumber)}</td>
+
+          <td>${esc(
+            employee.status || "نشط"
+          )}</td>
+
+        </tr>
+      `;
+
+    }).join("");
+
+}
 function printEmployeeReport(){
 
   const buildingId =
