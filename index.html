@@ -264,6 +264,7 @@ th{background:#f7f9fb}
   .user-info .email{display:none}
 }
 </style>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 
 <body>
@@ -798,6 +799,10 @@ th{background:#f7f9fb}
               onclick="downloadEmployeeReportPDF()">
         📄 PDF
       </button>
+      <button class="btn btn-secondary"
+        onclick="exportEmployeeReportExcel()">
+  📊 تصدير Excel
+</button>
 
     </div>
 
@@ -3126,6 +3131,97 @@ function downloadEmployeeReportPDF(){
     });
 
 }
+ 
+function exportEmployeeReportExcel(){
+
+  if(typeof XLSX === "undefined"){
+    alert("مكتبة Excel لم تُحمّل. حدّث الصفحة وحاول مجددًا.");
+    return;
+  }
+
+  const select =
+    document.getElementById("employeeReportBuilding");
+
+  const buildingId =
+    String(select?.value || "");
+
+  if(!buildingId){
+    alert("يرجى اختيار المبنى ثم عرض التقرير.");
+    return;
+  }
+
+  const building =
+    buildings.find(b => String(b.id) === buildingId);
+
+  if(!building){
+    alert("لم يتم العثور على المبنى المحدد.");
+    return;
+  }
+
+  const buildingEmployees =
+    employees.filter(
+      e => String(e.building_id || "") === buildingId
+    );
+
+  if(!buildingEmployees.length){
+    alert("لا يوجد موظفون مسجلون في هذا المبنى.");
+    return;
+  }
+
+  const data = [[
+    "م",
+    "رقم الموظف",
+    "اسم الموظف",
+    "القسم",
+    "الوظيفة",
+    "الجوال",
+    "الغرفة",
+    "السرير",
+    "الحالة"
+  ]];
+
+  buildingEmployees.forEach((employee, index) => {
+
+    const room = rooms.find(
+      r => String(r.id) === String(employee.room_id)
+    );
+
+    const bed = beds.find(
+      b => String(b.id) === String(employee.bed_id)
+    );
+
+    data.push([
+      index + 1,
+      employee.employee_no || "-",
+      employee.name || "-",
+      employee.department || "-",
+      employee.job || "-",
+      employee.phone || employee.mobile || "-",
+      room?.room_number || room?.room_no || room?.number || "-",
+      bed?.bed_number || bed?.bed_no || bed?.number || employee.bed_number || "-",
+      employee.status || "نشط"
+    ]);
+  });
+
+  const worksheet = XLSX.utils.aoa_to_sheet(data);
+  worksheet["!cols"] = [
+    {wch:6}, {wch:16}, {wch:28},
+    {wch:18}, {wch:20}, {wch:18},
+    {wch:12}, {wch:12}, {wch:14}
+  ];
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "موظفو السكن");
+
+  const safeName = String(building.name || "المبنى")
+    .replace(/[\\/:*?"<>|]/g, "_");
+
+  XLSX.writeFile(
+    workbook,
+    "تقرير_موظفي_السكن_" + safeName + ".xlsx"
+  );
+}
+ 
 function renderEmployees(){
 
   const search =
