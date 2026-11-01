@@ -649,7 +649,9 @@ th{background:#f7f9fb}
         </div>
 
         <div class="panel">
-          <input id="employeeSearch" placeholder="🔎 البحث بالاسم أو الرقم..." oninput="renderEmployees()">
+        <input id="employeeSearch"
+       placeholder="🔎 البحث بالاسم أو الرقم..."
+       oninput="scheduleEmployeeSearch()">
         </div>
 
         <div class="panel">
@@ -3221,7 +3223,17 @@ function exportEmployeeReportExcel(){
     "تقرير_موظفي_السكن_" + safeName + ".xlsx"
   );
 }
- 
+let employeeSearchTimer = null;
+
+function scheduleEmployeeSearch(){
+
+  clearTimeout(employeeSearchTimer);
+
+  employeeSearchTimer = setTimeout(() => {
+    renderEmployees();
+  }, 350);
+
+} 
 function renderEmployees(){
 
   const search =
