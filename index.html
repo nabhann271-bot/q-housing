@@ -3226,55 +3226,108 @@ function renderEmployees(){
 
   const search =
     (document.getElementById("employeeSearch")?.value || "")
-    .toLowerCase();
+      .trim()
+      .toLowerCase();
 
-  const rows =
-    employees.filter(e =>
-      (e.name||"").toLowerCase().includes(search) ||
-      (e.employee_no||"").toLowerCase().includes(search)
+  const tbody =
+    document.getElementById("employeesTable");
+
+  if(!tbody) return;
+
+  // تجهيز خرائط سريعة بدل البحث داخل buildings و rooms لكل موظف
+  const buildingMap = new Map(
+    (buildings || []).map(b => [
+      String(b.id),
+      b.name || "-"
+    ])
+  );
+
+  const roomMap = new Map(
+    (rooms || []).map(r => [
+      String(r.id),
+      r.room_number || r.room_no || r.number || "-"
+    ])
+  );
+
+  // البحث محليًا بدون الاتصال بقاعدة البيانات
+  const rows = (employees || []).filter(e => {
+
+    if(!search) return true;
+
+    const name =
+      String(e.name || "").toLowerCase();
+
+    const employeeNo =
+      String(e.employee_no || "").toLowerCase();
+
+    return (
+      name.includes(search) ||
+      employeeNo.includes(search)
     );
+  });
 
-  const tbody=document.getElementById("employeesTable");
+  // بناء HTML مرة واحدة فقط
+  let html = "";
 
-  tbody.innerHTML="";
+  rows.forEach(e => {
 
-  rows.forEach(e=>{
+    const buildingName =
+      buildingMap.get(String(e.building_id)) || "-";
 
-    const building =
-      buildings.find(b=>b.id===e.building_id);
+    const roomNumber =
+      roomMap.get(String(e.room_id)) || "-";
 
-    const room =
-      rooms.find(r=>r.id===e.room_id);
-
-    tbody.innerHTML += `
+    html += `
       <tr>
-        <td>${esc(e.employee_no)}</td>
-        <td><strong>${esc(e.name)}</strong></td>
-        <td>${esc(e.department||"-")}</td>
-        <td>${esc(e.job||"-")}</td>
-        <td>${esc(building?.name||"-")}</td>
-        <td>${esc(room?.room_number||"-")}</td>
+        <td>${esc(e.employee_no || "-")}</td>
+
+        <td>
+          <strong>${esc(e.name || "-")}</strong>
+        </td>
+
+        <td>${esc(e.department || "-")}</td>
+
+        <td>${esc(e.job || "-")}</td>
+
+        <td>${esc(buildingName)}</td>
+
+        <td>${esc(roomNumber)}</td>
+
         <td>${employeeStatus(e.status)}</td>
 
         <td>
-          ${isManager() || isSupervisor() || isHR() ? `
-          
-          <button class="btn"
-            onclick="editEmployee('${e.id}')">
-            ✏️ تعديل
-          </button>
+          ${
+            isManager() ||
+            isSupervisor() ||
+            isHR()
+            ? `
+              <button class="btn"
+                onclick="editEmployee('${e.id}')">
+                ✏️ تعديل
+              </button>
 
-        <button class="btn btn-danger"
-  onclick="deleteEmployee('${e.id}')">
-  حذف
-</button>
-
-          ` : "عرض فقط"}
+              <button class="btn btn-danger"
+                onclick="deleteEmployee('${e.id}')">
+                حذف
+              </button>
+            `
+            : "عرض فقط"
+          }
         </td>
-
       </tr>
     `;
   });
+
+  tbody.innerHTML =
+    html ||
+    `
+      <tr>
+        <td colspan="8"
+            style="text-align:center;padding:20px">
+          لا توجد نتائج
+        </td>
+      </tr>
+    `;
 }
 function openEmployeeModal(){
 
@@ -3627,42 +3680,86 @@ async function saveEmployee(){
 }
 async function deleteEmployee(id){
 
-
   const employee =
-    employees.find(e=>e.id===id);
+    employees.find(e => String(e.id) === String(id));
 
   if(!employee) return;
 
-  if(!confirm("هل تريد حذف الموظف؟")) return;
+  if(!confirm(
+    "هل تريد حذف الموظف:\n\n" +
+    (employee.name || "") +
+    "\n\nسيتم تحرير السرير المرتبط به."
+  )) return;
 
-  if(employee.bed_id){
+  try {
 
-    await supabaseClient
-      .from("beds")
-      .update({status:"free"})
-      .eq("id",employee.bed_id);
+    // 1 — تحرير السرير أولاً
+    if(employee.bed_id){
+
+      const { error: bedError } =
+        await supabaseClient
+          .from("beds")
+          .update({ status: "free" })
+          .eq("id", employee.bed_id);
+
+      if(bedError){
+        throw bedError;
+      }
+    }
+
+    // 2 — حذف الموظف
+    const { error } =
+      await supabaseClient
+        .from("employees")
+        .delete()
+        .eq("id", id);
+
+    if(error){
+      throw error;
+    }
+
+    // 3 — تحديث البيانات المحلية فوراً
+    employees =
+      employees.filter(
+        e => String(e.id) !== String(id)
+      );
+
+    // 4 — تحديث الجدول مباشرة بدون إعادة تحميل Supabase
+    renderEmployees();
+
+    // 5 — تحديث السرير محلياً
+    if(employee.bed_id){
+
+      const bed =
+        beds.find(
+          b => String(b.id) === String(employee.bed_id)
+        );
+
+      if(bed){
+        bed.status = "free";
+      }
+    }
+
+    // 6 — إعادة رسم الأسرة فقط
+    if(typeof renderBeds === "function"){
+      renderBeds();
+    }
+
+    // 7 — تحديث أرقام لوحة التحكم
+    updateDashboard();
+
+    showToast("تم حذف الموظف وتحرير السرير");
+
+  } catch(error){
+
+    console.error("deleteEmployee error:", error);
+
+    alert(
+      "تعذر حذف الموظف:\n" +
+      (error?.message || "حدث خطأ غير معروف")
+    );
   }
-
-  const {error} =
-    await supabaseClient
-      .from("employees")
-      .delete()
-      .eq("id",id);
-
-  if(error){
-    alert(error.message);
-    return;
-  }
-
-  showToast("تم حذف الموظف");
-
-  await loadEmployees();
-  await loadBeds();
-
-  updateDashboard();
 }
-
-
 /* =========================================================
    VIOLATIONS
    ========================================================= */
