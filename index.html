@@ -438,7 +438,7 @@ th{background:#f7f9fb}
 
       <!-- BUILDINGS -->
       <!-- USERS & PERMISSIONS -->
- <section id="usersPage" class="page">
+<section id="usersPage" class="page" 
   <div class="card">
     <h2>👥 المستخدمون والصلاحيات</h2>
     <p>إدارة المشرفين وربط كل مشرف بالمبنى المسؤول عنه.</p>
@@ -835,25 +835,24 @@ th{background:#f7f9fb}
 
           <thead>
 
-        <tr>
-  <th>م</th>
-  <th>رقم الموظف</th>
-  <th>اسم الموظف</th>
-  <th>القسم</th>
-  <th>الوظيفة</th>
-  <th>الجوال</th>
-  <th>الشفت</th>
-  <th>الغرفة</th>
-  <th>السرير</th>
-  <th>الحالة</th>
-</tr>   
+            <tr>
+              <th>م</th>
+              <th>رقم الموظف</th>
+              <th>اسم الموظف</th>
+              <th>القسم</th>
+              <th>الوظيفة</th>
+              <th>الجوال</th>
+              <th>الغرفة</th>
+              <th>السرير</th>
+              <th>الحالة</th>
+            </tr>
 
           </thead>
 
           <tbody id="employeeReportTable">
 
             <tr>
-              <td colspan="10"
+              <td colspan="9"
                   style="text-align:center">
                 اختر المبنى ثم اضغط عرض التقرير
               </td>
@@ -1032,13 +1031,7 @@ th{background:#f7f9fb}
         <label>السرير</label>
         <select id="employeeBed"></select>
       </div>
-<div>
-  <label>الشفت</label>
-  <select id="employeeShift">
-    <option value="morning">صباح</option>
-    <option value="night">مساء</option>
-  </select>
-</div>
+
       <div>
         <label>الحالة</label>
        <select id="employeeStatus">
@@ -2179,20 +2172,42 @@ async function loadEmployees(){
         employee.bed_number ||
         "-";
 
-   return `
-  <tr>
-    <td>${index + 1}</td>
-    <td>${esc(employee.employee_no || "-")}</td>
-    <td>${esc(employee.name || "-")}</td>
-    <td>${esc(employee.department || "-")}</td>
-    <td>${esc(employee.job || "-")}</td>
-    <td>${esc(employee.phone || employee.mobile || "-")}</td>
-    <td>${employee.shift === "night" ? "ليلي" : "صباحي"}</td>
-    <td>${esc(roomNumber)}</td>
-    <td>${esc(bedNumber)}</td>
-    <td>${esc(employee.status || "نشط")}</td>
-  </tr>
-`;
+      return `
+        <tr>
+
+          <td>${index + 1}</td>
+
+          <td>${esc(
+            employee.employee_no || "-"
+          )}</td>
+
+          <td>${esc(
+            employee.name || "-"
+          )}</td>
+
+          <td>${esc(
+            employee.department || "-"
+          )}</td>
+
+          <td>${esc(
+            employee.job || "-"
+          )}</td>
+
+          <td>${esc(
+            employee.phone ||
+            employee.mobile ||
+            "-"
+          )}</td>
+
+          <td>${esc(roomNumber)}</td>
+
+          <td>${esc(bedNumber)}</td>
+
+          <td>${esc(
+            employee.status || "نشط"
+          )}</td>
+
+        </tr>
       `;
 
     }).join("");
@@ -2298,20 +2313,42 @@ async function loadEmployees(){
         employee.bed_number ||
         "-";
 
-    return `
-  <tr>
-    <td>${index + 1}</td>
-    <td>${esc(employee.employee_no || "-")}</td>
-    <td>${esc(employee.name || "-")}</td>
-    <td>${esc(employee.department || "-")}</td>
-    <td>${esc(employee.job || "-")}</td>
-    <td>${esc(employee.phone || employee.mobile || "-")}</td>
-    <td>${employee.shift === "night" ? "ليلي" : "صباحي"}</td>
-    <td>${esc(roomNumber)}</td>
-    <td>${esc(bedNumber)}</td>
-    <td>${esc(employee.status || "نشط")}</td>
-  </tr>
-`;
+      return `
+        <tr>
+
+          <td>${index + 1}</td>
+
+          <td>${esc(
+            employee.employee_no || "-"
+          )}</td>
+
+          <td>${esc(
+            employee.name || "-"
+          )}</td>
+
+          <td>${esc(
+            employee.department || "-"
+          )}</td>
+
+          <td>${esc(
+            employee.job || "-"
+          )}</td>
+
+          <td>${esc(
+            employee.phone ||
+            employee.mobile ||
+            "-"
+          )}</td>
+
+          <td>${esc(roomNumber)}</td>
+
+          <td>${esc(bedNumber)}</td>
+
+          <td>${esc(
+            employee.status || "نشط"
+          )}</td>
+
+        </tr>
       `;
 
     }).join("");
@@ -2686,9 +2723,7 @@ function printEmployeeReport(){
               employee.mobile ||
               "-"
             )}</td>
-<td>${
-  employee.shift === "night" ? "ليلي" : "صباحي"
-}</td>
+
             <td>${esc(
               roomNumberReal
             )}</td>
@@ -3099,7 +3134,6 @@ function downloadEmployeeReportPDF(){
 
 }
  
-
 function exportEmployeeReportExcel(){
 
   if(typeof XLSX === "undefined"){
@@ -3143,7 +3177,6 @@ function exportEmployeeReportExcel(){
     "القسم",
     "الوظيفة",
     "الجوال",
-    "الشفت",
     "الغرفة",
     "السرير",
     "الحالة"
@@ -3159,22 +3192,6 @@ function exportEmployeeReportExcel(){
       b => String(b.id) === String(employee.bed_id)
     );
 
-    const shiftName =
-      employee.shift === "night" ? "مسائي" : "صباحي";
-
-    const roomNumber =
-      room?.room_number ||
-      room?.room_no ||
-      room?.number ||
-      "-";
-
-    const bedNumber =
-      bed?.bed_number ||
-      bed?.bed_no ||
-      bed?.number ||
-      employee.bed_number ||
-      "-";
-
     data.push([
       index + 1,
       employee.employee_no || "-",
@@ -3182,28 +3199,21 @@ function exportEmployeeReportExcel(){
       employee.department || "-",
       employee.job || "-",
       employee.phone || employee.mobile || "-",
-      shiftName,
-      roomNumber,
-      bedNumber,
+      room?.room_number || room?.room_no || room?.number || "-",
+      bed?.bed_number || bed?.bed_no || bed?.number || employee.bed_number || "-",
       employee.status || "نشط"
     ]);
   });
 
   const worksheet = XLSX.utils.aoa_to_sheet(data);
-
   worksheet["!cols"] = [
     {wch:6}, {wch:16}, {wch:28},
     {wch:18}, {wch:20}, {wch:18},
-    {wch:12}, {wch:12}, {wch:12}, {wch:14}
+    {wch:12}, {wch:12}, {wch:14}
   ];
 
   const workbook = XLSX.utils.book_new();
-
-  XLSX.utils.book_append_sheet(
-    workbook,
-    worksheet,
-    "موظفو السكن"
-  );
+  XLSX.utils.book_append_sheet(workbook, worksheet, "موظفو السكن");
 
   const safeName = String(building.name || "المبنى")
     .replace(/[\\/:*?"<>|]/g, "_");
@@ -3213,8 +3223,17 @@ function exportEmployeeReportExcel(){
     "تقرير_موظفي_السكن_" + safeName + ".xlsx"
   );
 }
+let employeeSearchTimer = null;
 
+function scheduleEmployeeSearch(){
 
+  clearTimeout(employeeSearchTimer);
+
+  employeeSearchTimer = setTimeout(() => {
+    renderEmployees();
+  }, 350);
+
+} 
 function renderEmployees(){
 
   const search =
@@ -3401,9 +3420,6 @@ async function editEmployee(id){
   document.getElementById("employeePhone").value =
     employee.phone || "";
 
-  document.getElementById("employeeShift").value =
-    employee.shift || "morning";
-  
   document.getElementById("employeeStatus").value =
     employee.status || "active";
 
@@ -3542,8 +3558,7 @@ async function saveEmployee(){
       building_id: buildingId,
       room_id: roomId,
       bed_id: bedId,
-shift:
-  document.getElementById("employeeShift").value,
+
       status:
         document.getElementById("employeeStatus").value
     };
@@ -3626,8 +3641,7 @@ shift:
       building_id: buildingId,
       room_id: roomId,
       bed_id: bedId,
-shift:
-  document.getElementById("employeeShift").value,
+
       status:
         document.getElementById("employeeStatus").value
     };
