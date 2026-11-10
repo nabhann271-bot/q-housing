@@ -2179,44 +2179,20 @@ async function loadEmployees(){
         employee.bed_number ||
         "-";
 
-      return `
-        <tr>
-
-          <td>${index + 1}</td>
-
-          <td>${esc(
-            employee.employee_no || "-"
-          )}</td>
-
-          <td>${esc(
-            employee.name || "-"
-          )}</td>
-
-          <td>${esc(
-            employee.department || "-"
-          )}</td>
-
-          <td>${esc(
-            employee.job || "-"
-          )}</td>
-
-          <td>${esc(
-            employee.phone ||
-            employee.mobile ||
-            "-"
-          )}</td>
-<td>${
-  employee.shift === "night" ? "ليلي" : "صباحي"
-}</td>
-          <td>${esc(roomNumber)}</td>
-
-          <td>${esc(bedNumber)}</td>
-
-          <td>${esc(
-            employee.status || "نشط"
-          )}</td>
-
-        </tr>
+   return `
+  <tr>
+    <td>${index + 1}</td>
+    <td>${esc(employee.employee_no || "-")}</td>
+    <td>${esc(employee.name || "-")}</td>
+    <td>${esc(employee.department || "-")}</td>
+    <td>${esc(employee.job || "-")}</td>
+    <td>${esc(employee.phone || employee.mobile || "-")}</td>
+    <td>${employee.shift === "night" ? "ليلي" : "صباحي"}</td>
+    <td>${esc(roomNumber)}</td>
+    <td>${esc(bedNumber)}</td>
+    <td>${esc(employee.status || "نشط")}</td>
+  </tr>
+`;
       `;
 
     }).join("");
@@ -2322,42 +2298,20 @@ async function loadEmployees(){
         employee.bed_number ||
         "-";
 
-      return `
-        <tr>
-
-          <td>${index + 1}</td>
-
-          <td>${esc(
-            employee.employee_no || "-"
-          )}</td>
-
-          <td>${esc(
-            employee.name || "-"
-          )}</td>
-
-          <td>${esc(
-            employee.department || "-"
-          )}</td>
-
-          <td>${esc(
-            employee.job || "-"
-          )}</td>
-
-          <td>${esc(
-            employee.phone ||
-            employee.mobile ||
-            "-"
-          )}</td>
-
-          <td>${esc(roomNumber)}</td>
-
-          <td>${esc(bedNumber)}</td>
-
-          <td>${esc(
-            employee.status || "نشط"
-          )}</td>
-
-        </tr>
+    return `
+  <tr>
+    <td>${index + 1}</td>
+    <td>${esc(employee.employee_no || "-")}</td>
+    <td>${esc(employee.name || "-")}</td>
+    <td>${esc(employee.department || "-")}</td>
+    <td>${esc(employee.job || "-")}</td>
+    <td>${esc(employee.phone || employee.mobile || "-")}</td>
+    <td>${employee.shift === "night" ? "ليلي" : "صباحي"}</td>
+    <td>${esc(roomNumber)}</td>
+    <td>${esc(bedNumber)}</td>
+    <td>${esc(employee.status || "نشط")}</td>
+  </tr>
+`;
       `;
 
     }).join("");
