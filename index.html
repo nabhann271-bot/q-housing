@@ -2205,11 +2205,6 @@ async function loadEmployees(){
   employee.job || "-"
 )}</td>
 
-<td>${esc(
-  employee.shift === "morning" ? "صباحي" :
-  employee.shift === "evening" || employee.shift === "night" ? "مسائي" :
-  employee.shift === "flexible" ? "مرن" : "-"
-)}</td>
 
           <td>${esc(
             employee.phone ||
@@ -2224,7 +2219,11 @@ async function loadEmployees(){
           <td>${esc(
             employee.status || "نشط"
           )}</td>
-
+<td>${esc(
+  employee.shift === "morning" ? "صباحي" :
+  employee.shift === "evening" || employee.shift === "night" ? "مسائي" :
+  employee.shift === "flexible" ? "مرن" : "-"
+)}</td>
         </tr>
       `;
 
