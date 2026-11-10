@@ -835,24 +835,25 @@ th{background:#f7f9fb}
 
           <thead>
 
-            <tr>
-              <th>م</th>
-              <th>رقم الموظف</th>
-              <th>اسم الموظف</th>
-              <th>القسم</th>
-              <th>الوظيفة</th>
-              <th>الجوال</th>
-              <th>الغرفة</th>
-              <th>السرير</th>
-              <th>الحالة</th>
-            </tr>
+        <tr>
+  <th>م</th>
+  <th>رقم الموظف</th>
+  <th>اسم الموظف</th>
+  <th>القسم</th>
+  <th>الوظيفة</th>
+  <th>الجوال</th>
+  <th>الشفت</th>
+  <th>الغرفة</th>
+  <th>السرير</th>
+  <th>الحالة</th>
+</tr>   
 
           </thead>
 
           <tbody id="employeeReportTable">
 
             <tr>
-              <td colspan="9"
+              <td colspan="10"
                   style="text-align:center">
                 اختر المبنى ثم اضغط عرض التقرير
               </td>
@@ -2204,7 +2205,9 @@ async function loadEmployees(){
             employee.mobile ||
             "-"
           )}</td>
-
+<td>${
+  employee.shift === "night" ? "ليلي" : "صباحي"
+}</td>
           <td>${esc(roomNumber)}</td>
 
           <td>${esc(bedNumber)}</td>
@@ -2505,7 +2508,9 @@ function printEmployeeReport(){
               employee.mobile ||
               "-"
             )}</td>
-
+<td>${
+  employee.shift === "night" ? "ليلي" : "صباحي"
+}</td>
             <td>${esc(
               roomNumber
             )}</td>
@@ -2729,7 +2734,9 @@ function printEmployeeReport(){
               employee.mobile ||
               "-"
             )}</td>
-
+<td>${
+  employee.shift === "night" ? "ليلي" : "صباحي"
+}</td>
             <td>${esc(
               roomNumberReal
             )}</td>
