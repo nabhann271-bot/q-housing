@@ -1031,7 +1031,13 @@ th{background:#f7f9fb}
         <label>السرير</label>
         <select id="employeeBed"></select>
       </div>
-
+<div>
+  <label>الشفت</label>
+  <select id="employeeShift">
+    <option value="morning">صباحي</option>
+    <option value="night">ليلي</option>
+  </select>
+</div>
       <div>
         <label>الحالة</label>
        <select id="employeeStatus">
@@ -3558,7 +3564,8 @@ async function saveEmployee(){
       building_id: buildingId,
       room_id: roomId,
       bed_id: bedId,
-
+shift:
+  document.getElementById("employeeShift").value,
       status:
         document.getElementById("employeeStatus").value
     };
@@ -3641,7 +3648,8 @@ async function saveEmployee(){
       building_id: buildingId,
       room_id: roomId,
       bed_id: bedId,
-
+shift:
+  document.getElementById("employeeShift").value,
       status:
         document.getElementById("employeeStatus").value
     };
