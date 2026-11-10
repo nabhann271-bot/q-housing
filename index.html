@@ -2200,9 +2200,15 @@ async function loadEmployees(){
             employee.department || "-"
           )}</td>
 
-          <td>${esc(
-            employee.job || "-"
-          )}</td>
+      <td>${esc(
+  employee.job || "-"
+)}</td>
+
+<td>${esc(
+  employee.shift === "morning" ? "صباحي" :
+  employee.shift === "evening" || employee.shift === "night" ? "مسائي" :
+  employee.shift === "flexible" ? "مرن" : "-"
+)}</td>
 
           <td>${esc(
             employee.phone ||
