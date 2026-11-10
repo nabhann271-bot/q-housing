@@ -656,16 +656,19 @@ th{background:#f7f9fb}
           <div class="table-wrap">
             <table>
               <thead>
-                <tr>
-                  <th>الرقم</th>
-                  <th>الاسم</th>
-                  <th>القسم</th>
-                  <th>الوظيفة</th>
-                  <th>المبنى</th>
-                  <th>الغرفة</th>
-                  <th>الحالة</th>
-                  <th>الإجراءات</th>
-                </tr>
+              
+<tr>
+  <th>الرقم</th>
+  <th>الاسم</th>
+  <th>القسم</th>
+  <th>الوظيفة</th>
+  <th>الشفت</th>
+  <th>المبنى</th>
+  <th>الغرفة</th>
+  <th>الحالة</th>
+  <th>الإجراءات</th>
+</tr>
+
               </thead>
               <tbody id="employeesTable"></tbody>
             </table>
@@ -978,11 +981,12 @@ th{background:#f7f9fb}
   </div>
 </div>
 
+
 <!-- EMPLOYEE MODAL -->
 <div id="employeeModal" class="modal">
   <div class="modal-box">
     <div class="modal-head">
-    <h3 id="employeeModalTitle">إضافة موظف</h3>
+      <h3 id="employeeModalTitle">إضافة موظف</h3>
       <button class="close" onclick="closeModal('employeeModal')">×</button>
     </div>
 
@@ -1016,6 +1020,15 @@ th{background:#f7f9fb}
       </div>
 
       <div>
+        <label>الشفت</label>
+        <select id="employeeShift">
+          <option value="morning">صباحي</option>
+          <option value="evening">مسائي</option>
+          <option value="flexible">مرن</option>
+        </select>
+      </div>
+
+      <div>
         <label>المبنى</label>
         <select id="employeeBuilding" onchange="loadEmployeeRooms()"></select>
       </div>
@@ -1032,20 +1045,20 @@ th{background:#f7f9fb}
 
       <div>
         <label>الحالة</label>
-       <select id="employeeStatus">
-  <option value="active">على رأس العمل</option>
-  <option value="mission">في مهمة</option>
-  <option value="vacation">إجازة</option>
-  <option value="temporary_absence">غائب مؤقتًا</option>
-  <option value="temporary_transfer">منقول مؤقتًا</option>
-  <option value="left">ترك العمل</option>
-</select>
+        <select id="employeeStatus">
+          <option value="active">على رأس العمل</option>
+          <option value="mission">في مهمة</option>
+          <option value="vacation">إجازة</option>
+          <option value="temporary_absence">غائب مؤقتًا</option>
+          <option value="temporary_transfer">منقول مؤقتًا</option>
+          <option value="left">ترك العمل</option>
+        </select>
       </div>
 
     </div>
 
     <div class="actions" style="margin-top:20px">
-     <button id="employeeSaveButton" class="btn" onclick="saveEmployee()">حفظ</button>
+      <button id="employeeSaveButton" class="btn" onclick="saveEmployee()">حفظ</button>
       <button class="btn btn-secondary" onclick="closeModal('employeeModal')">إلغاء</button>
     </div>
   </div>
@@ -3222,6 +3235,7 @@ function exportEmployeeReportExcel(){
   );
 }
  
+
 function renderEmployees(){
 
   const search =
@@ -3246,36 +3260,40 @@ function renderEmployees(){
     const room =
       rooms.find(r=>r.id===e.room_id);
 
+    const shiftName =
+      e.shift === "morning" ? "صباحي" :
+      e.shift === "evening" ? "مسائي" :
+      e.shift === "flexible" ? "مرن" : "-";
+
     tbody.innerHTML += `
       <tr>
         <td>${esc(e.employee_no)}</td>
         <td><strong>${esc(e.name)}</strong></td>
         <td>${esc(e.department||"-")}</td>
         <td>${esc(e.job||"-")}</td>
+        <td>${shiftName}</td>
         <td>${esc(building?.name||"-")}</td>
         <td>${esc(room?.room_number||"-")}</td>
         <td>${employeeStatus(e.status)}</td>
 
         <td>
           ${isManager() || isSupervisor() || isHR() ? `
-          
           <button class="btn"
             onclick="editEmployee('${e.id}')">
             ✏️ تعديل
           </button>
 
-        <button class="btn btn-danger"
-  onclick="deleteEmployee('${e.id}')">
-  حذف
-</button>
-
+          <button class="btn btn-danger"
+            onclick="deleteEmployee('${e.id}')">
+            حذف
+          </button>
           ` : "عرض فقط"}
         </td>
-
       </tr>
     `;
   });
 }
+
 function openEmployeeModal(){
 
   if(!isManager() && !isSupervisor() && !isHR()) return;
@@ -3288,6 +3306,9 @@ function openEmployeeModal(){
   document.getElementById("employeePhone").value="";
   document.getElementById("employeeStatus").value="active";
 
+document.getElementById("employeeShift").value="morning";
+
+  
   fillBuildingSelects();
 
   document.getElementById("employeeBuilding").value="";
@@ -3325,6 +3346,7 @@ async function loadEmployeeRooms(){
         </option>`;
     });
 }
+
 async function editEmployee(id){
 
   if(!isManager() && !isSupervisor()) return;
@@ -3355,6 +3377,9 @@ async function editEmployee(id){
   document.getElementById("employeePhone").value =
     employee.phone || "";
 
+  document.getElementById("employeeShift").value =
+    employee.shift || "morning";
+
   document.getElementById("employeeStatus").value =
     employee.status || "active";
 
@@ -3382,6 +3407,7 @@ async function editEmployee(id){
   document.getElementById("employeeModal").classList.add("show");
 }
 
+
 async function loadEmployeeBeds(){
 
   const roomId =
@@ -3406,6 +3432,7 @@ async function loadEmployeeBeds(){
 }
 
 
+
 async function saveEmployee(){
 
   const employeeId =
@@ -3416,6 +3443,9 @@ async function saveEmployee(){
 
   const name =
     document.getElementById("employeeName").value.trim();
+
+  const shift =
+    document.getElementById("employeeShift").value;
 
   if(!employeeNo || !name){
     alert("رقم الموظف والاسم مطلوبان");
@@ -3431,10 +3461,6 @@ async function saveEmployee(){
   let bedId =
     document.getElementById("employeeBed").value || null;
 
-  /* =========================
-     تعديل موظف موجود
-     ========================= */
-
   if(employeeId){
 
     const oldEmployee =
@@ -3445,12 +3471,6 @@ async function saveEmployee(){
       return;
     }
 
-    /*
-      الحفاظ على ترتيب الموظف في السرير:
-      إذا لم يتم اختيار سرير جديد، نحتفظ
-      بالسرير والغرفة والمبنى القديم.
-    */
-
     const oldBedId =
       oldEmployee.bed_id || null;
 
@@ -3460,40 +3480,23 @@ async function saveEmployee(){
     const oldBuildingId =
       oldEmployee.building_id || null;
 
-    /*
-      إذا كانت خانة السرير فارغة أو لم يتم تغييرها
-      نستخدم السرير القديم.
-    */
-
-    if(!bedId){
-      bedId = oldBedId;
-    }
-
-    if(!roomId){
-      roomId = oldRoomId;
-    }
-
-    if(!buildingId){
-      buildingId = oldBuildingId;
-    }
+    if(!bedId) bedId = oldBedId;
+    if(!roomId) roomId = oldRoomId;
+    if(!buildingId) buildingId = oldBuildingId;
 
     const payload = {
       employee_no: employeeNo,
       name,
-
       department:
         document.getElementById("employeeDepartment").value.trim() || null,
-
       job:
         document.getElementById("employeeJob").value.trim() || null,
-
       phone:
         document.getElementById("employeePhone").value.trim() || null,
-
+      shift: shift,
       building_id: buildingId,
       room_id: roomId,
       bed_id: bedId,
-
       status:
         document.getElementById("employeeStatus").value
     };
@@ -3505,30 +3508,18 @@ async function saveEmployee(){
         .eq("id", employeeId);
 
     if(error){
-      alert(
-        "حدث خطأ أثناء تعديل الموظف:\n" +
-        error.message
-      );
+      alert("حدث خطأ أثناء تعديل الموظف:\n" + error.message);
       return;
     }
 
-    /*
-      تحرير السرير القديم فقط إذا تم نقل الموظف
-      إلى سرير آخر.
-    */
-
     if(oldBedId && oldBedId !== bedId){
-
       await supabaseClient
         .from("beds")
         .update({status:"free"})
         .eq("id", oldBedId);
     }
 
-    /* تحديث حالة السرير الحالي */
-
     if(bedId){
-
       const employeeStatusValue =
         document.getElementById("employeeStatus").value;
 
@@ -3547,36 +3538,19 @@ async function saveEmployee(){
 
   }else{
 
-    /* =========================
-       إضافة موظف جديد
-       ========================= */
-
-    const buildingId =
-      document.getElementById("employeeBuilding").value || null;
-
-    const roomId =
-      document.getElementById("employeeRoom").value || null;
-
-    const bedId =
-      document.getElementById("employeeBed").value || null;
-
     const payload = {
       employee_no: employeeNo,
       name,
-
       department:
         document.getElementById("employeeDepartment").value.trim() || null,
-
       job:
         document.getElementById("employeeJob").value.trim() || null,
-
       phone:
         document.getElementById("employeePhone").value.trim() || null,
-
+      shift: shift,
       building_id: buildingId,
       room_id: roomId,
       bed_id: bedId,
-
       status:
         document.getElementById("employeeStatus").value
     };
@@ -3593,10 +3567,7 @@ async function saveEmployee(){
       return;
     }
 
-    /* إشغال السرير */
-
     if(bedId){
-
       await supabaseClient
         .from("beds")
         .update({status:"occupied"})
@@ -3605,10 +3576,6 @@ async function saveEmployee(){
 
     showToast("تم إضافة الموظف");
   }
-
-  /* =========================
-     تحديث البيانات
-     ========================= */
 
   document.getElementById("employeeId").value = "";
 
@@ -3625,6 +3592,7 @@ async function saveEmployee(){
 
   updateDashboard();
 }
+
 async function deleteEmployee(id){
 
 
