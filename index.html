@@ -3426,6 +3426,9 @@ async function editEmployee(id){
   document.getElementById("employeePhone").value =
     employee.phone || "";
 
+  document.getElementById("employeeShift").value =
+    employee.shift || "morning";
+  
   document.getElementById("employeeStatus").value =
     employee.status || "active";
 
