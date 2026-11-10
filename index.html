@@ -3099,6 +3099,7 @@ function downloadEmployeeReportPDF(){
 
 }
  
+
 function exportEmployeeReportExcel(){
 
   if(typeof XLSX === "undefined"){
@@ -3142,6 +3143,7 @@ function exportEmployeeReportExcel(){
     "القسم",
     "الوظيفة",
     "الجوال",
+    "الشفت",
     "الغرفة",
     "السرير",
     "الحالة"
@@ -3157,6 +3159,22 @@ function exportEmployeeReportExcel(){
       b => String(b.id) === String(employee.bed_id)
     );
 
+    const shiftName =
+      employee.shift === "night" ? "مسائي" : "صباحي";
+
+    const roomNumber =
+      room?.room_number ||
+      room?.room_no ||
+      room?.number ||
+      "-";
+
+    const bedNumber =
+      bed?.bed_number ||
+      bed?.bed_no ||
+      bed?.number ||
+      employee.bed_number ||
+      "-";
+
     data.push([
       index + 1,
       employee.employee_no || "-",
@@ -3164,21 +3182,28 @@ function exportEmployeeReportExcel(){
       employee.department || "-",
       employee.job || "-",
       employee.phone || employee.mobile || "-",
-      room?.room_number || room?.room_no || room?.number || "-",
-      bed?.bed_number || bed?.bed_no || bed?.number || employee.bed_number || "-",
+      shiftName,
+      roomNumber,
+      bedNumber,
       employee.status || "نشط"
     ]);
   });
 
   const worksheet = XLSX.utils.aoa_to_sheet(data);
+
   worksheet["!cols"] = [
     {wch:6}, {wch:16}, {wch:28},
     {wch:18}, {wch:20}, {wch:18},
-    {wch:12}, {wch:12}, {wch:14}
+    {wch:12}, {wch:12}, {wch:12}, {wch:14}
   ];
 
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "موظفو السكن");
+
+  XLSX.utils.book_append_sheet(
+    workbook,
+    worksheet,
+    "موظفو السكن"
+  );
 
   const safeName = String(building.name || "المبنى")
     .replace(/[\\/:*?"<>|]/g, "_");
@@ -3188,6 +3213,7 @@ function exportEmployeeReportExcel(){
     "تقرير_موظفي_السكن_" + safeName + ".xlsx"
   );
 }
+
 let employeeSearchTimer = null;
 
 function scheduleEmployeeSearch(){
