@@ -649,26 +649,25 @@ th{background:#f7f9fb}
         </div>
 
         <div class="panel">
-          <input id="employeeSearch" placeholder="🔎 البحث بالاسم أو الرقم..." oninput="renderEmployees()">
+        <input id="employeeSearch"
+       placeholder="🔎 البحث بالاسم أو الرقم..."
+       oninput="scheduleEmployeeSearch()">
         </div>
 
         <div class="panel">
           <div class="table-wrap">
             <table>
               <thead>
-              
-<tr>
-  <th>الرقم</th>
-  <th>الاسم</th>
-  <th>القسم</th>
-  <th>الوظيفة</th>
-  <th>الشفت</th>
-  <th>المبنى</th>
-  <th>الغرفة</th>
-  <th>الحالة</th>
-  <th>الإجراءات</th>
-</tr>
-
+                <tr>
+                  <th>الرقم</th>
+                  <th>الاسم</th>
+                  <th>القسم</th>
+                  <th>الوظيفة</th>
+                  <th>المبنى</th>
+                  <th>الغرفة</th>
+                  <th>الحالة</th>
+                  <th>الإجراءات</th>
+                </tr>
               </thead>
               <tbody id="employeesTable"></tbody>
             </table>
@@ -842,7 +841,6 @@ th{background:#f7f9fb}
               <th>اسم الموظف</th>
               <th>القسم</th>
               <th>الوظيفة</th>
-               <th>الشفت</th>
               <th>الجوال</th>
               <th>الغرفة</th>
               <th>السرير</th>
@@ -854,7 +852,7 @@ th{background:#f7f9fb}
           <tbody id="employeeReportTable">
 
             <tr>
-              <td colspan="10"
+              <td colspan="9"
                   style="text-align:center">
                 اختر المبنى ثم اضغط عرض التقرير
               </td>
@@ -982,12 +980,11 @@ th{background:#f7f9fb}
   </div>
 </div>
 
-
 <!-- EMPLOYEE MODAL -->
 <div id="employeeModal" class="modal">
   <div class="modal-box">
     <div class="modal-head">
-      <h3 id="employeeModalTitle">إضافة موظف</h3>
+    <h3 id="employeeModalTitle">إضافة موظف</h3>
       <button class="close" onclick="closeModal('employeeModal')">×</button>
     </div>
 
@@ -1021,15 +1018,6 @@ th{background:#f7f9fb}
       </div>
 
       <div>
-        <label>الشفت</label>
-        <select id="employeeShift">
-          <option value="morning">صباحي</option>
-          <option value="evening">مسائي</option>
-          <option value="flexible">مرن</option>
-        </select>
-      </div>
-
-      <div>
         <label>المبنى</label>
         <select id="employeeBuilding" onchange="loadEmployeeRooms()"></select>
       </div>
@@ -1046,20 +1034,20 @@ th{background:#f7f9fb}
 
       <div>
         <label>الحالة</label>
-        <select id="employeeStatus">
-          <option value="active">على رأس العمل</option>
-          <option value="mission">في مهمة</option>
-          <option value="vacation">إجازة</option>
-          <option value="temporary_absence">غائب مؤقتًا</option>
-          <option value="temporary_transfer">منقول مؤقتًا</option>
-          <option value="left">ترك العمل</option>
-        </select>
+       <select id="employeeStatus">
+  <option value="active">على رأس العمل</option>
+  <option value="mission">في مهمة</option>
+  <option value="vacation">إجازة</option>
+  <option value="temporary_absence">غائب مؤقتًا</option>
+  <option value="temporary_transfer">منقول مؤقتًا</option>
+  <option value="left">ترك العمل</option>
+</select>
       </div>
 
     </div>
 
     <div class="actions" style="margin-top:20px">
-      <button id="employeeSaveButton" class="btn" onclick="saveEmployee()">حفظ</button>
+     <button id="employeeSaveButton" class="btn" onclick="saveEmployee()">حفظ</button>
       <button class="btn btn-secondary" onclick="closeModal('employeeModal')">إلغاء</button>
     </div>
   </div>
@@ -2201,10 +2189,9 @@ async function loadEmployees(){
             employee.department || "-"
           )}</td>
 
-      <td>${esc(
-  employee.job || "-"
-)}</td>
-
+          <td>${esc(
+            employee.job || "-"
+          )}</td>
 
           <td>${esc(
             employee.phone ||
@@ -2219,11 +2206,7 @@ async function loadEmployees(){
           <td>${esc(
             employee.status || "نشط"
           )}</td>
-<td>${esc(
-  employee.shift === "morning" ? "صباحي" :
-  employee.shift === "evening" || employee.shift === "night" ? "مسائي" :
-  employee.shift === "flexible" ? "مرن" : "-"
-)}</td>
+
         </tr>
       `;
 
@@ -2568,7 +2551,6 @@ function printEmployeeReport(){
               <th>اسم الموظف</th>
               <th>القسم</th>
               <th>الوظيفة</th>
-                <th>الشفت</th>
               <th>الجوال</th>
               <th>الغرفة</th>
               <th>السرير</th>
@@ -2796,7 +2778,6 @@ function printEmployeeReport(){
               <th>اسم الموظف</th>
               <th>القسم</th>
               <th>الوظيفة</th>
-                <th>الشفت</th>
               <th>الجوال</th>
               <th>الغرفة</th>
               <th>السرير</th>
@@ -3153,8 +3134,6 @@ function downloadEmployeeReportPDF(){
 
 }
  
-
-
 function exportEmployeeReportExcel(){
 
   if(typeof XLSX === "undefined"){
@@ -3197,7 +3176,6 @@ function exportEmployeeReportExcel(){
     "اسم الموظف",
     "القسم",
     "الوظيفة",
-    "الشفت",
     "الجوال",
     "الغرفة",
     "السرير",
@@ -3214,18 +3192,12 @@ function exportEmployeeReportExcel(){
       b => String(b.id) === String(employee.bed_id)
     );
 
-    const shiftName =
-      employee.shift === "morning" ? "صباحي" :
-      employee.shift === "evening" || employee.shift === "night" ? "مسائي" :
-      employee.shift === "flexible" ? "مرن" : "-";
-
     data.push([
       index + 1,
       employee.employee_no || "-",
       employee.name || "-",
       employee.department || "-",
       employee.job || "-",
-      shiftName,
       employee.phone || employee.mobile || "-",
       room?.room_number || room?.room_no || room?.number || "-",
       bed?.bed_number || bed?.bed_no || bed?.number || employee.bed_number || "-",
@@ -3234,12 +3206,10 @@ function exportEmployeeReportExcel(){
   });
 
   const worksheet = XLSX.utils.aoa_to_sheet(data);
-
   worksheet["!cols"] = [
     {wch:6}, {wch:16}, {wch:28},
-    {wch:18}, {wch:20}, {wch:14},
-    {wch:18}, {wch:12}, {wch:12},
-    {wch:14}
+    {wch:18}, {wch:20}, {wch:18},
+    {wch:12}, {wch:12}, {wch:14}
   ];
 
   const workbook = XLSX.utils.book_new();
@@ -3253,65 +3223,124 @@ function exportEmployeeReportExcel(){
     "تقرير_موظفي_السكن_" + safeName + ".xlsx"
   );
 }
+let employeeSearchTimer = null;
 
+function scheduleEmployeeSearch(){
+
+  clearTimeout(employeeSearchTimer);
+
+  employeeSearchTimer = setTimeout(() => {
+    renderEmployees();
+  }, 350);
+
+} 
 function renderEmployees(){
 
   const search =
     (document.getElementById("employeeSearch")?.value || "")
-    .toLowerCase();
+      .trim()
+      .toLowerCase();
 
-  const rows =
-    employees.filter(e =>
-      (e.name||"").toLowerCase().includes(search) ||
-      (e.employee_no||"").toLowerCase().includes(search)
+  const tbody =
+    document.getElementById("employeesTable");
+
+  if(!tbody) return;
+
+  // تجهيز خرائط سريعة بدل البحث داخل buildings و rooms لكل موظف
+  const buildingMap = new Map(
+    (buildings || []).map(b => [
+      String(b.id),
+      b.name || "-"
+    ])
+  );
+
+  const roomMap = new Map(
+    (rooms || []).map(r => [
+      String(r.id),
+      r.room_number || r.room_no || r.number || "-"
+    ])
+  );
+
+  // البحث محليًا بدون الاتصال بقاعدة البيانات
+  const rows = (employees || []).filter(e => {
+
+    if(!search) return true;
+
+    const name =
+      String(e.name || "").toLowerCase();
+
+    const employeeNo =
+      String(e.employee_no || "").toLowerCase();
+
+    return (
+      name.includes(search) ||
+      employeeNo.includes(search)
     );
+  });
 
-  const tbody=document.getElementById("employeesTable");
+  // بناء HTML مرة واحدة فقط
+  let html = "";
 
-  tbody.innerHTML="";
+  rows.forEach(e => {
 
-  rows.forEach(e=>{
+    const buildingName =
+      buildingMap.get(String(e.building_id)) || "-";
 
-    const building =
-      buildings.find(b=>b.id===e.building_id);
+    const roomNumber =
+      roomMap.get(String(e.room_id)) || "-";
 
-    const room =
-      rooms.find(r=>r.id===e.room_id);
-
-    const shiftName =
-      e.shift === "morning" ? "صباحي" :
-      e.shift === "evening" ? "مسائي" :
-      e.shift === "flexible" ? "مرن" : "-";
-
-    tbody.innerHTML += `
+    html += `
       <tr>
-        <td>${esc(e.employee_no)}</td>
-        <td><strong>${esc(e.name)}</strong></td>
-        <td>${esc(e.department||"-")}</td>
-        <td>${esc(e.job||"-")}</td>
-        <td>${shiftName}</td>
-        <td>${esc(building?.name||"-")}</td>
-        <td>${esc(room?.room_number||"-")}</td>
+        <td>${esc(e.employee_no || "-")}</td>
+
+        <td>
+          <strong>${esc(e.name || "-")}</strong>
+        </td>
+
+        <td>${esc(e.department || "-")}</td>
+
+        <td>${esc(e.job || "-")}</td>
+
+        <td>${esc(buildingName)}</td>
+
+        <td>${esc(roomNumber)}</td>
+
         <td>${employeeStatus(e.status)}</td>
 
         <td>
-          ${isManager() || isSupervisor() || isHR() ? `
-          <button class="btn"
-            onclick="editEmployee('${e.id}')">
-            ✏️ تعديل
-          </button>
+          ${
+            isManager() ||
+            isSupervisor() ||
+            isHR()
+            ? `
+              <button class="btn"
+                onclick="editEmployee('${e.id}')">
+                ✏️ تعديل
+              </button>
 
-          <button class="btn btn-danger"
-            onclick="deleteEmployee('${e.id}')">
-            حذف
-          </button>
-          ` : "عرض فقط"}
+              <button class="btn btn-danger"
+                onclick="deleteEmployee('${e.id}')">
+                حذف
+              </button>
+            `
+            : "عرض فقط"
+          }
         </td>
       </tr>
     `;
   });
-}
 
+  tbody.innerHTML =
+    html ||
+    `
+      <tr>
+        <td colspan="8"
+            style="text-align:center;padding:20px">
+          لا توجد نتائج
+        </td>
+      </tr>
+    `;
+}
 function openEmployeeModal(){
 
   if(!isManager() && !isSupervisor() && !isHR()) return;
@@ -3324,9 +3353,6 @@ function openEmployeeModal(){
   document.getElementById("employeePhone").value="";
   document.getElementById("employeeStatus").value="active";
 
-document.getElementById("employeeShift").value="morning";
-
-  
   fillBuildingSelects();
 
   document.getElementById("employeeBuilding").value="";
@@ -3364,7 +3390,6 @@ async function loadEmployeeRooms(){
         </option>`;
     });
 }
-
 async function editEmployee(id){
 
   if(!isManager() && !isSupervisor()) return;
@@ -3395,9 +3420,6 @@ async function editEmployee(id){
   document.getElementById("employeePhone").value =
     employee.phone || "";
 
-  document.getElementById("employeeShift").value =
-    employee.shift || "morning";
-
   document.getElementById("employeeStatus").value =
     employee.status || "active";
 
@@ -3425,7 +3447,6 @@ async function editEmployee(id){
   document.getElementById("employeeModal").classList.add("show");
 }
 
-
 async function loadEmployeeBeds(){
 
   const roomId =
@@ -3450,7 +3471,6 @@ async function loadEmployeeBeds(){
 }
 
 
-
 async function saveEmployee(){
 
   const employeeId =
@@ -3461,9 +3481,6 @@ async function saveEmployee(){
 
   const name =
     document.getElementById("employeeName").value.trim();
-
-  const shift =
-    document.getElementById("employeeShift").value;
 
   if(!employeeNo || !name){
     alert("رقم الموظف والاسم مطلوبان");
@@ -3479,6 +3496,10 @@ async function saveEmployee(){
   let bedId =
     document.getElementById("employeeBed").value || null;
 
+  /* =========================
+     تعديل موظف موجود
+     ========================= */
+
   if(employeeId){
 
     const oldEmployee =
@@ -3489,6 +3510,12 @@ async function saveEmployee(){
       return;
     }
 
+    /*
+      الحفاظ على ترتيب الموظف في السرير:
+      إذا لم يتم اختيار سرير جديد، نحتفظ
+      بالسرير والغرفة والمبنى القديم.
+    */
+
     const oldBedId =
       oldEmployee.bed_id || null;
 
@@ -3498,23 +3525,40 @@ async function saveEmployee(){
     const oldBuildingId =
       oldEmployee.building_id || null;
 
-    if(!bedId) bedId = oldBedId;
-    if(!roomId) roomId = oldRoomId;
-    if(!buildingId) buildingId = oldBuildingId;
+    /*
+      إذا كانت خانة السرير فارغة أو لم يتم تغييرها
+      نستخدم السرير القديم.
+    */
+
+    if(!bedId){
+      bedId = oldBedId;
+    }
+
+    if(!roomId){
+      roomId = oldRoomId;
+    }
+
+    if(!buildingId){
+      buildingId = oldBuildingId;
+    }
 
     const payload = {
       employee_no: employeeNo,
       name,
+
       department:
         document.getElementById("employeeDepartment").value.trim() || null,
+
       job:
         document.getElementById("employeeJob").value.trim() || null,
+
       phone:
         document.getElementById("employeePhone").value.trim() || null,
-      shift: shift,
+
       building_id: buildingId,
       room_id: roomId,
       bed_id: bedId,
+
       status:
         document.getElementById("employeeStatus").value
     };
@@ -3526,18 +3570,30 @@ async function saveEmployee(){
         .eq("id", employeeId);
 
     if(error){
-      alert("حدث خطأ أثناء تعديل الموظف:\n" + error.message);
+      alert(
+        "حدث خطأ أثناء تعديل الموظف:\n" +
+        error.message
+      );
       return;
     }
 
+    /*
+      تحرير السرير القديم فقط إذا تم نقل الموظف
+      إلى سرير آخر.
+    */
+
     if(oldBedId && oldBedId !== bedId){
+
       await supabaseClient
         .from("beds")
         .update({status:"free"})
         .eq("id", oldBedId);
     }
 
+    /* تحديث حالة السرير الحالي */
+
     if(bedId){
+
       const employeeStatusValue =
         document.getElementById("employeeStatus").value;
 
@@ -3556,19 +3612,36 @@ async function saveEmployee(){
 
   }else{
 
+    /* =========================
+       إضافة موظف جديد
+       ========================= */
+
+    const buildingId =
+      document.getElementById("employeeBuilding").value || null;
+
+    const roomId =
+      document.getElementById("employeeRoom").value || null;
+
+    const bedId =
+      document.getElementById("employeeBed").value || null;
+
     const payload = {
       employee_no: employeeNo,
       name,
+
       department:
         document.getElementById("employeeDepartment").value.trim() || null,
+
       job:
         document.getElementById("employeeJob").value.trim() || null,
+
       phone:
         document.getElementById("employeePhone").value.trim() || null,
-      shift: shift,
+
       building_id: buildingId,
       room_id: roomId,
       bed_id: bedId,
+
       status:
         document.getElementById("employeeStatus").value
     };
@@ -3585,7 +3658,10 @@ async function saveEmployee(){
       return;
     }
 
+    /* إشغال السرير */
+
     if(bedId){
+
       await supabaseClient
         .from("beds")
         .update({status:"occupied"})
@@ -3594,6 +3670,10 @@ async function saveEmployee(){
 
     showToast("تم إضافة الموظف");
   }
+
+  /* =========================
+     تحديث البيانات
+     ========================= */
 
   document.getElementById("employeeId").value = "";
 
@@ -3610,45 +3690,88 @@ async function saveEmployee(){
 
   updateDashboard();
 }
-
 async function deleteEmployee(id){
 
-
   const employee =
-    employees.find(e=>e.id===id);
+    employees.find(e => String(e.id) === String(id));
 
   if(!employee) return;
 
-  if(!confirm("هل تريد حذف الموظف؟")) return;
+  if(!confirm(
+    "هل تريد حذف الموظف:\n\n" +
+    (employee.name || "") +
+    "\n\nسيتم تحرير السرير المرتبط به."
+  )) return;
 
-  if(employee.bed_id){
+  try {
 
-    await supabaseClient
-      .from("beds")
-      .update({status:"free"})
-      .eq("id",employee.bed_id);
+    // 1 — تحرير السرير أولاً
+    if(employee.bed_id){
+
+      const { error: bedError } =
+        await supabaseClient
+          .from("beds")
+          .update({ status: "free" })
+          .eq("id", employee.bed_id);
+
+      if(bedError){
+        throw bedError;
+      }
+    }
+
+    // 2 — حذف الموظف
+    const { error } =
+      await supabaseClient
+        .from("employees")
+        .delete()
+        .eq("id", id);
+
+    if(error){
+      throw error;
+    }
+
+    // 3 — تحديث البيانات المحلية فوراً
+    employees =
+      employees.filter(
+        e => String(e.id) !== String(id)
+      );
+
+    // 4 — تحديث الجدول مباشرة بدون إعادة تحميل Supabase
+    renderEmployees();
+
+    // 5 — تحديث السرير محلياً
+    if(employee.bed_id){
+
+      const bed =
+        beds.find(
+          b => String(b.id) === String(employee.bed_id)
+        );
+
+      if(bed){
+        bed.status = "free";
+      }
+    }
+
+    // 6 — إعادة رسم الأسرة فقط
+    if(typeof renderBeds === "function"){
+      renderBeds();
+    }
+
+    // 7 — تحديث أرقام لوحة التحكم
+    updateDashboard();
+
+    showToast("تم حذف الموظف وتحرير السرير");
+
+  } catch(error){
+
+    console.error("deleteEmployee error:", error);
+
+    alert(
+      "تعذر حذف الموظف:\n" +
+      (error?.message || "حدث خطأ غير معروف")
+    );
   }
-
-  const {error} =
-    await supabaseClient
-      .from("employees")
-      .delete()
-      .eq("id",id);
-
-  if(error){
-    alert(error.message);
-    return;
-  }
-
-  showToast("تم حذف الموظف");
-
-  await loadEmployees();
-  await loadBeds();
-
-  updateDashboard();
 }
-
-
 /* =========================================================
    VIOLATIONS
    ========================================================= */
