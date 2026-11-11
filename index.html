@@ -2101,7 +2101,7 @@ async function loadEmployees(){
 
     table.innerHTML = `
       <tr>
-        <td colspan="9" style="text-align:center">
+        <td colspan="10" style="text-align:center">
           يرجى اختيار المبنى أولاً
         </td>
       </tr>
@@ -2144,7 +2144,7 @@ async function loadEmployees(){
 
     table.innerHTML = `
       <tr>
-        <td colspan="9" style="text-align:center">
+        <td colspan="10" style="text-align:center">
           لا يوجد موظفون مسجلون في هذا المبنى
         </td>
       </tr>
@@ -2203,6 +2203,10 @@ async function loadEmployees(){
           )}</td>
 
           <td>${esc(
+  employee.shift || "-"
+)}</td>
+
+          <td>${esc(
             employee.phone ||
             employee.mobile ||
             "-"
@@ -2242,7 +2246,7 @@ async function loadEmployees(){
 
     table.innerHTML = `
       <tr>
-        <td colspan="9" style="text-align:center">
+        <td colspan="10" style="text-align:center">
           يرجى اختيار المبنى أولاً
         </td>
       </tr>
@@ -2285,7 +2289,7 @@ async function loadEmployees(){
 
     table.innerHTML = `
       <tr>
-        <td colspan="9" style="text-align:center">
+        <td colspan="10" style="text-align:center">
           لا يوجد موظفون مسجلون في هذا المبنى
         </td>
       </tr>
@@ -3358,7 +3362,7 @@ function renderEmployees(){
     html ||
     `
       <tr>
-        <td colspan="9"
+        <td colspan="10"
             style="text-align:center;padding:20px">
           لا توجد نتائج
         </td>
