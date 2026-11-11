@@ -2198,9 +2198,15 @@ async function loadEmployees(){
             employee.department || "-"
           )}</td>
 
-          <td>${esc(
-            employee.job || "-"
-          )}</td>
+        <td>${esc(
+  ({
+    morning: "صباحي",
+    evening: "مسائي",
+    flexible: "مرن"
+  }[String(employee.shift || "").trim().toLowerCase()]
+  || employee.shift
+  || "-")
+)}</td>
 
           <td>${esc(
   employee.shift || "-"
@@ -2343,15 +2349,25 @@ async function loadEmployees(){
             employee.department || "-"
           )}</td>
 
-          <td>${esc(
-            employee.job || "-"
-          )}</td>
+        <td>${esc(
+  employee.job || "-"
+)}</td>
 
-          <td>${esc(
-            employee.phone ||
-            employee.mobile ||
-            "-"
-          )}</td>
+<td>${esc(
+  ({
+    morning: "صباحي",
+    evening: "مسائي",
+    flexible: "مرن"
+  }[String(employee.shift || "").trim().toLowerCase()]
+  || employee.shift
+  || "-")
+)}</td>
+
+<td>${esc(
+  employee.phone ||
+  employee.mobile ||
+  "-"
+)}</td>
 
           <td>${esc(roomNumber)}</td>
 
