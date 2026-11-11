@@ -2508,7 +2508,13 @@ function printEmployeeReport(){
             )}</td>
 
             <td>${esc(
-  employee.shift || "-"
+  ({
+    morning: "صباحي",
+    evening: "مسائي",
+    flexible: "مرن"
+  }[String(employee.shift || "").trim().toLowerCase()]
+  || employee.shift
+  || "-")
 )}</td>
 
             <td>${esc(
@@ -3222,7 +3228,15 @@ function exportEmployeeReportExcel(){
       employee.name || "-",
       employee.department || "-",
       employee.job || "-",
-      employee.shift || "-",
+    (
+  {
+    morning: "صباحي",
+    evening: "مسائي",
+    flexible: "مرن"
+  }[String(employee.shift || "").trim().toLowerCase()]
+  || employee.shift
+  || "-"
+),
       employee.phone || employee.mobile || "-",
       room?.room_number || room?.room_no || room?.number || "-",
       bed?.bed_number || bed?.bed_no || bed?.number || employee.bed_number || "-",
