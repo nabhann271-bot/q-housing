@@ -663,6 +663,7 @@ th{background:#f7f9fb}
                   <th>الاسم</th>
                   <th>القسم</th>
                   <th>الوظيفة</th>
+                  <th>الشفت</th>
                   <th>المبنى</th>
                   <th>الغرفة</th>
                   <th>الحالة</th>
@@ -841,6 +842,7 @@ th{background:#f7f9fb}
               <th>اسم الموظف</th>
               <th>القسم</th>
               <th>الوظيفة</th>
+              <th>الشفت</th>
               <th>الجوال</th>
               <th>الغرفة</th>
               <th>السرير</th>
@@ -1016,7 +1018,14 @@ th{background:#f7f9fb}
         <label>رقم الجوال</label>
         <input id="employeePhone">
       </div>
-
+<div>
+  <label>الشفت</label>
+  <select id="employeeShift">
+    <option value="صباحي">صباحي</option>
+    <option value="مسائي">مسائي</option>
+    <option value="مرن">مرن</option>
+  </select>
+</div>
       <div>
         <label>المبنى</label>
         <select id="employeeBuilding" onchange="loadEmployeeRooms()"></select>
@@ -2495,6 +2504,10 @@ function printEmployeeReport(){
             )}</td>
 
             <td>${esc(
+  employee.shift || "-"
+)}</td>
+
+            <td>${esc(
               employee.phone ||
               employee.mobile ||
               "-"
@@ -2551,6 +2564,7 @@ function printEmployeeReport(){
               <th>اسم الموظف</th>
               <th>القسم</th>
               <th>الوظيفة</th>
+              <th>الشفت</th>
               <th>الجوال</th>
               <th>الغرفة</th>
               <th>السرير</th>
@@ -2719,6 +2733,10 @@ function printEmployeeReport(){
             )}</td>
 
             <td>${esc(
+  employee.shift || "-"
+)}</td>
+
+            <td>${esc(
               employee.phone ||
               employee.mobile ||
               "-"
@@ -2778,6 +2796,7 @@ function printEmployeeReport(){
               <th>اسم الموظف</th>
               <th>القسم</th>
               <th>الوظيفة</th>
+              <th>الشفت</th>
               <th>الجوال</th>
               <th>الغرفة</th>
               <th>السرير</th>
@@ -3176,6 +3195,7 @@ function exportEmployeeReportExcel(){
     "اسم الموظف",
     "القسم",
     "الوظيفة",
+    "الشفت",
     "الجوال",
     "الغرفة",
     "السرير",
@@ -3198,6 +3218,7 @@ function exportEmployeeReportExcel(){
       employee.name || "-",
       employee.department || "-",
       employee.job || "-",
+      employee.shift || "-",
       employee.phone || employee.mobile || "-",
       room?.room_number || room?.room_no || room?.number || "-",
       bed?.bed_number || bed?.bed_no || bed?.number || employee.bed_number || "-",
@@ -3206,11 +3227,12 @@ function exportEmployeeReportExcel(){
   });
 
   const worksheet = XLSX.utils.aoa_to_sheet(data);
-  worksheet["!cols"] = [
-    {wch:6}, {wch:16}, {wch:28},
-    {wch:18}, {wch:20}, {wch:18},
-    {wch:12}, {wch:12}, {wch:14}
-  ];
+ worksheet["!cols"] = [
+  {wch:6}, {wch:16}, {wch:28},
+  {wch:18}, {wch:20}, {wch:14},
+  {wch:18}, {wch:12}, {wch:12},
+  {wch:14}
+];
 
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "موظفو السكن");
@@ -3300,6 +3322,8 @@ function renderEmployees(){
         <td>${esc(e.department || "-")}</td>
 
         <td>${esc(e.job || "-")}</td>
+        
+<td>${esc(e.shift || "-")}</td>
 
         <td>${esc(buildingName)}</td>
 
@@ -3334,7 +3358,7 @@ function renderEmployees(){
     html ||
     `
       <tr>
-        <td colspan="8"
+        <td colspan="9"
             style="text-align:center;padding:20px">
           لا توجد نتائج
         </td>
@@ -3352,6 +3376,7 @@ function openEmployeeModal(){
   document.getElementById("employeeJob").value="";
   document.getElementById("employeePhone").value="";
   document.getElementById("employeeStatus").value="active";
+  document.getElementById("employeeShift").value="صباحي";
 
   fillBuildingSelects();
 
@@ -3419,6 +3444,9 @@ async function editEmployee(id){
 
   document.getElementById("employeePhone").value =
     employee.phone || "";
+
+  document.getElementById("employeeShift").value =
+    employee.shift || "صباحي";
 
   document.getElementById("employeeStatus").value =
     employee.status || "active";
@@ -3552,10 +3580,14 @@ async function saveEmployee(){
       job:
         document.getElementById("employeeJob").value.trim() || null,
 
-      phone:
-        document.getElementById("employeePhone").value.trim() || null,
+     phone:
+  document.getElementById("employeePhone").value.trim() || null,
 
-      building_id: buildingId,
+shift:
+  document.getElementById("employeeShift").value,
+
+building_id: buildingId,
+     
       room_id: roomId,
       bed_id: bedId,
 
@@ -3634,11 +3666,14 @@ async function saveEmployee(){
 
       job:
         document.getElementById("employeeJob").value.trim() || null,
+phone:
+  document.getElementById("employeePhone").value.trim() || null,
 
-      phone:
-        document.getElementById("employeePhone").value.trim() || null,
+shift:
+  document.getElementById("employeeShift").value,
 
-      building_id: buildingId,
+building_id: buildingId,
+    
       room_id: roomId,
       bed_id: bedId,
 
