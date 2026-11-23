@@ -575,37 +575,77 @@ th{background:#f7f9fb}
 </div>
   </div>
 </section>
-      <section id="buildings" class="page">
-        <div class="page-title">
-          <h2>إدارة المباني</h2>
-          <button id="addBuildingBtn" class="btn" onclick="openBuildingModal()">
-            + إضافة مبنى
-          </button>
-        </div>
+    <section id="buildings" class="page">
 
-        <div class="panel">
-          <input id="buildingSearch" placeholder="🔎 البحث عن مبنى..." oninput="renderBuildings()">
-        </div>
+  <div class="page-title">
+    <h2>إدارة المباني</h2>
+  </div>
 
-        <div class="panel">
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>اسم المبنى</th>
-                  <th>الكود</th>
-                  <th>العنوان</th>
-                  <th>الأدوار</th>
-                  <th>الحالة</th>
-                  <th>الإجراءات</th>
-                </tr>
-              </thead>
-              <tbody id="buildingsTable"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
+  <!-- نموذج المبنى الثابت -->
+  <div class="panel">
 
+    <h3 id="buildingModalTitle">إضافة مبنى</h3>
+
+    <input type="hidden" id="buildingId">
+
+    <div class="form-grid">
+
+      <div>
+        <label>اسم المبنى *</label>
+        <input id="buildingName" placeholder="مثال: مبنى العمال 1">
+      </div>
+
+      <div>
+        <label>كود المبنى</label>
+        <input id="buildingCode" placeholder="مثال: B01">
+      </div>
+
+      <div>
+        <label>العنوان</label>
+        <input id="buildingAddress">
+      </div>
+
+      <div>
+        <label>عدد الأدوار</label>
+        <input id="buildingFloors" type="number" min="1" value="1">
+      </div>
+
+    </div>
+
+    <div class="actions" style="margin-top:20px">
+      <button class="btn" onclick="saveBuilding()">حفظ</button>
+      <button class="btn btn-secondary" onclick="closeModal('buildingModal')">إلغاء</button>
+    </div>
+
+  </div>
+
+  <!-- البحث -->
+  <div class="panel">
+    <input id="buildingSearch"
+      placeholder="🔎 البحث عن مبنى..."
+      oninput="renderBuildings()">
+  </div>
+
+  <!-- جدول المباني -->
+  <div class="panel">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>اسم المبنى</th>
+            <th>الكود</th>
+            <th>العنوان</th>
+            <th>الأدوار</th>
+            <th>الحالة</th>
+            <th>الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody id="buildingsTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+</section> 
       <!-- ROOMS -->
       <section id="rooms" class="page">
         <div class="page-title">
@@ -905,44 +945,6 @@ th{background:#f7f9fb}
   </div>
 
 </section>
-<!-- BUILDING MODAL -->
-<div id="buildingModal" class="modal">
-  <div class="modal-box">
-    <div class="modal-head">
-      <h3 id="buildingModalTitle">إضافة مبنى</h3>
-      <button class="close" onclick="closeModal('buildingModal')">×</button>
-    </div>
-
-    <input type="hidden" id="buildingId">
-
-    <div class="form-grid">
-      <div>
-        <label>اسم المبنى *</label>
-        <input id="buildingName" placeholder="مثال: مبنى العمال 1">
-      </div>
-
-      <div>
-        <label>كود المبنى</label>
-        <input id="buildingCode" placeholder="مثال: B01">
-      </div>
-
-      <div>
-        <label>العنوان</label>
-        <input id="buildingAddress">
-      </div>
-
-      <div>
-        <label>عدد الأدوار</label>
-        <input id="buildingFloors" type="number" min="1" value="1">
-      </div>
-    </div>
-
-    <div class="actions" style="margin-top:20px">
-      <button class="btn" onclick="saveBuilding()">حفظ</button>
-      <button class="btn btn-secondary" onclick="closeModal('buildingModal')">إلغاء</button>
-    </div>
-  </div>
-</div>
 
 <!-- ROOM MODAL -->
 <div id="roomModal" class="modal">
@@ -1587,8 +1589,6 @@ function openBuildingModal(id=null){
     document.getElementById("buildingFloors").value=1;
   }
 
-  document.getElementById("buildingModal").classList.add("show");
-}
 
 
 function editBuilding(id){
@@ -4922,9 +4922,21 @@ function toggleSidebar(){
    ========================================================= */
 
 function closeModal(id){
+
+  if(id === "buildingModal"){
+
+    document.getElementById("buildingId").value = "";
+    document.getElementById("buildingModalTitle").textContent = "إضافة مبنى";
+    document.getElementById("buildingName").value = "";
+    document.getElementById("buildingCode").value = "";
+    document.getElementById("buildingAddress").value = "";
+    document.getElementById("buildingFloors").value = 1;
+
+    return;
+  }
+
   document.getElementById(id).classList.remove("show");
 }
-
 
 /* =========================================================
    HELPERS
