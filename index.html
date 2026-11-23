@@ -646,39 +646,81 @@ th{background:#f7f9fb}
   </div>
 
 </section> 
-      <!-- ROOMS -->
-      <section id="rooms" class="page">
-        <div class="page-title">
-          <h2>الغرف والأسرة</h2>
-          <button id="addRoomBtn" class="btn" onclick="openRoomModal()">
-            + إضافة غرفة
-          </button>
-        </div>
 
-        <div class="panel">
-          <input id="roomSearch" placeholder="🔎 البحث عن غرفة..." oninput="renderRooms()">
-        </div>
+<!-- ROOMS -->
+<section id="rooms" class="page">
 
-        <div class="panel">
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>المبنى</th>
-                  <th>الدور</th>
-                  <th>الغرفة</th>
-                  <th>عدد الأسرة</th>
-                  <th>مشغولة</th>
-                  <th>شاغرة</th>
-                  <th>الإجراءات</th>
-                </tr>
-              </thead>
-              <tbody id="roomsTable"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
+  <div class="page-title">
+    <h2>الغرف والأسرة</h2>
+  </div>
 
+  <!-- نموذج الغرفة الثابت -->
+  <div class="panel">
+
+    <h3 id="roomModalTitle">إضافة غرفة</h3>
+
+    <input type="hidden" id="editRoomId">
+
+    <div class="form-grid">
+
+      <div>
+        <label>المبنى *</label>
+        <select id="roomBuilding"></select>
+      </div>
+
+      <div>
+        <label>الدور</label>
+        <input id="roomFloor" placeholder="مثال: الأول">
+      </div>
+
+      <div>
+        <label>رقم الغرفة *</label>
+        <input id="roomNumber" placeholder="مثال: 101">
+      </div>
+
+      <div>
+        <label>عدد الأسرة *</label>
+        <input id="roomBeds" type="number" min="1" value="4">
+      </div>
+
+    </div>
+
+    <div class="actions" style="margin-top:20px">
+      <button id="roomSaveButton" class="btn" onclick="saveRoom()">حفظ</button>
+      <button class="btn btn-secondary" onclick="closeModal('roomModal')">إلغاء</button>
+    </div>
+
+  </div>
+
+  <!-- البحث -->
+  <div class="panel">
+    <input id="roomSearch"
+      placeholder="🔎 البحث عن غرفة..."
+      oninput="renderRooms()">
+  </div>
+
+  <!-- جدول الغرف -->
+  <div class="panel">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>المبنى</th>
+            <th>الدور</th>
+            <th>الغرفة</th>
+            <th>عدد الأسرة</th>
+            <th>مشغولة</th>
+            <th>شاغرة</th>
+            <th>الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody id="roomsTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+</section>
+     
       <!-- EMPLOYEES -->
       <section id="employees" class="page">
         <div class="page-title">
@@ -946,43 +988,6 @@ th{background:#f7f9fb}
 
 </section>
 
-<!-- ROOM MODAL -->
-<div id="roomModal" class="modal">
-  <input type="hidden" id="editRoomId">
-  <div class="modal-box">
-    <div class="modal-head">
-     <h3 id="roomModalTitle">إضافة غرفة</h3>
-      <button class="close" onclick="closeModal('roomModal')">×</button>
-    </div>
-
-    <div class="form-grid">
-      <div>
-        <label>المبنى *</label>
-        <select id="roomBuilding"></select>
-      </div>
-
-      <div>
-        <label>الدور</label>
-        <input id="roomFloor" placeholder="مثال: الأول">
-      </div>
-
-      <div>
-        <label>رقم الغرفة *</label>
-        <input id="roomNumber" placeholder="مثال: 101">
-      </div>
-
-      <div>
-        <label>عدد الأسرة *</label>
-        <input id="roomBeds" type="number" min="1" value="4">
-      </div>
-    </div>
-
-    <div class="actions" style="margin-top:20px">
-    <button id="roomSaveButton" class="btn" onclick="saveRoom()">حفظ</button>
-      <button class="btn btn-secondary" onclick="closeModal('roomModal')">إلغاء</button>
-    </div>
-  </div>
-</div>
 
 <!-- EMPLOYEE MODAL -->
 <div id="employeeModal" class="modal">
@@ -1775,7 +1780,6 @@ function openRoomModal(){
   document.getElementById("roomNumber").value="";
   document.getElementById("roomBeds").value=4;
 
-  document.getElementById("roomModal").classList.add("show");
 }
 
 
@@ -1977,10 +1981,6 @@ if(bedCount < currentCount){
      تحديث البيانات
      ========================= */
 
-  document.getElementById("editRoomId").value = "";
-
-  document.getElementById("roomModalTitle").textContent =
-    "إضافة غرفة";
 
   closeModal("roomModal");
 
@@ -2054,7 +2054,6 @@ async function editRoom(id){
     beds.filter(b => b.room_id === room.id).length ||
     1;
 
-  document.getElementById("roomModal").classList.add("show");
 }
 
 /* =========================================================
@@ -4922,6 +4921,7 @@ function toggleSidebar(){
    MODALS
    ========================================================= */
 
+
 function closeModal(id){
 
   if(id === "buildingModal"){
@@ -4933,7 +4933,20 @@ function closeModal(id){
     document.getElementById("buildingAddress").value = "";
     document.getElementById("buildingFloors").value = 1;
 
-      return;
+    return;
+  }
+
+  if(id === "roomModal"){
+
+    document.getElementById("editRoomId").value = "";
+    document.getElementById("roomModalTitle").textContent = "إضافة غرفة";
+    document.getElementById("roomSaveButton").textContent = "حفظ";
+    document.getElementById("roomBuilding").value = "";
+    document.getElementById("roomFloor").value = "";
+    document.getElementById("roomNumber").value = "";
+    document.getElementById("roomBeds").value = 4;
+
+    return;
   }
 
   document.getElementById(id).classList.remove("show");
