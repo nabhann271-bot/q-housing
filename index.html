@@ -3513,6 +3513,50 @@ async function loadEmployeeBeds(){
 }
 
 
+async function editEmployee(id){
+
+  if(!isManager() && !isSupervisor() && !isHR()) return;
+
+  const employee = employees.find(
+    e => String(e.id) === String(id)
+  );
+
+  if(!employee){
+    alert("لم يتم العثور على الموظف");
+    return;
+  }
+
+  document.getElementById("employeeId").value = employee.id;
+  document.getElementById("employeeNo").value = employee.employee_no || "";
+  document.getElementById("employeeName").value = employee.name || "";
+  document.getElementById("employeeDepartment").value = employee.department || "";
+  document.getElementById("employeeJob").value = employee.job || "";
+  document.getElementById("employeePhone").value = employee.phone || "";
+  document.getElementById("employeeShift").value = employee.shift || "صباحي";
+  document.getElementById("employeeStatus").value = employee.status || "active";
+
+  fillBuildingSelects();
+
+  document.getElementById("employeeBuilding").value =
+    employee.building_id || "";
+
+  await loadEmployeeRooms();
+
+  document.getElementById("employeeRoom").value =
+    employee.room_id || "";
+
+  await loadEmployeeBeds();
+
+  document.getElementById("employeeBed").value =
+    employee.bed_id || "";
+
+  document.getElementById("employeeModalTitle").textContent =
+    "تعديل الموظف";
+
+  document.getElementById("employeeSaveButton").textContent =
+    "تعديل";
+}
+
 async function saveEmployee(){
 
   const employeeId =
