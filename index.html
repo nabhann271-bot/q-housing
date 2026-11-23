@@ -730,42 +730,121 @@ th{background:#f7f9fb}
 
 </section>
      
-      <!-- EMPLOYEES -->
-      <section id="employees" class="page">
-        <div class="page-title">
-          <h2>الموظفون</h2>
-          <button id="addEmployeeBtn" class="btn" onclick="openEmployeeModal()">
-            + إضافة موظف
-          </button>
-        </div>
+    
+<!-- EMPLOYEES -->
+<section id="employees" class="page">
 
-        <div class="panel">
-        <input id="employeeSearch"
-       placeholder="🔎 البحث بالاسم أو الرقم..."
-       oninput="scheduleEmployeeSearch()">
-        </div>
+  <div class="page-title">
+    <h2>الموظفون</h2>
+  </div>
 
-        <div class="panel">
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>الرقم</th>
-                  <th>الاسم</th>
-                  <th>القسم</th>
-                  <th>الوظيفة</th>
-                  <th>الشفت</th>
-                  <th>المبنى</th>
-                  <th>الغرفة</th>
-                  <th>الحالة</th>
-                  <th>الإجراءات</th>
-                </tr>
-              </thead>
-              <tbody id="employeesTable"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
+  <!-- نموذج الموظف الثابت -->
+  <div class="panel">
+
+    <h3 id="employeeModalTitle">إضافة موظف</h3>
+
+    <input type="hidden" id="employeeId">
+
+    <div class="form-grid">
+
+      <div>
+        <label>رقم الموظف *</label>
+        <input id="employeeNo">
+      </div>
+
+      <div>
+        <label>اسم الموظف *</label>
+        <input id="employeeName">
+      </div>
+
+      <div>
+        <label>القسم</label>
+        <input id="employeeDepartment">
+      </div>
+
+      <div>
+        <label>الوظيفة</label>
+        <input id="employeeJob">
+      </div>
+
+      <div>
+        <label>رقم الجوال</label>
+        <input id="employeePhone">
+      </div>
+
+      <div>
+        <label>الشفت</label>
+        <select id="employeeShift">
+          <option value="صباحي">صباحي</option>
+          <option value="مسائي">مسائي</option>
+          <option value="مرن">مرن</option>
+        </select>
+      </div>
+
+      <div>
+        <label>المبنى</label>
+        <select id="employeeBuilding" onchange="loadEmployeeRooms()"></select>
+      </div>
+
+      <div>
+        <label>الغرفة</label>
+        <select id="employeeRoom" onchange="loadEmployeeBeds()"></select>
+      </div>
+
+      <div>
+        <label>السرير</label>
+        <select id="employeeBed"></select>
+      </div>
+
+      <div>
+        <label>الحالة</label>
+        <select id="employeeStatus">
+          <option value="active">على رأس العمل</option>
+          <option value="mission">في مهمة</option>
+          <option value="vacation">إجازة</option>
+          <option value="temporary_absence">غائب مؤقتًا</option>
+          <option value="temporary_transfer">منقول مؤقتًا</option>
+          <option value="left">ترك العمل</option>
+        </select>
+      </div>
+
+    </div>
+
+    <div class="actions" style="margin-top:20px">
+      <button id="employeeSaveButton" class="btn" onclick="saveEmployee()">حفظ</button>
+    </div>
+
+  </div>
+
+  <div class="panel">
+    <input id="employeeSearch"
+      placeholder="🔎 البحث بالاسم أو الرقم..."
+      oninput="scheduleEmployeeSearch()">
+  </div>
+
+  <div class="panel">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>الرقم</th>
+            <th>الاسم</th>
+            <th>القسم</th>
+            <th>الوظيفة</th>
+            <th>الشفت</th>
+            <th>المبنى</th>
+            <th>الغرفة</th>
+            <th>الحالة</th>
+            <th>الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody id="employeesTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+</section>
+
 
       <!-- VIOLATIONS -->
       <section id="violations" class="page">
@@ -998,85 +1077,7 @@ th{background:#f7f9fb}
 </section>
 
 
-<!-- EMPLOYEE MODAL -->
-<div id="employeeModal" class="modal">
-  <div class="modal-box">
-    <div class="modal-head">
-    <h3 id="employeeModalTitle">إضافة موظف</h3>
-      <button class="close" onclick="closeModal('employeeModal')">×</button>
     </div>
-
-    <input type="hidden" id="employeeId">
-
-    <div class="form-grid">
-
-      <div>
-        <label>رقم الموظف *</label>
-        <input id="employeeNo">
-      </div>
-
-      <div>
-        <label>اسم الموظف *</label>
-        <input id="employeeName">
-      </div>
-
-      <div>
-        <label>القسم</label>
-        <input id="employeeDepartment">
-      </div>
-
-      <div>
-        <label>الوظيفة</label>
-        <input id="employeeJob">
-      </div>
-
-      <div>
-        <label>رقم الجوال</label>
-        <input id="employeePhone">
-      </div>
-<div>
-  <label>الشفت</label>
-  <select id="employeeShift">
-    <option value="صباحي">صباحي</option>
-    <option value="مسائي">مسائي</option>
-    <option value="مرن">مرن</option>
-  </select>
-</div>
-      <div>
-        <label>المبنى</label>
-        <select id="employeeBuilding" onchange="loadEmployeeRooms()"></select>
-      </div>
-
-      <div>
-        <label>الغرفة</label>
-        <select id="employeeRoom" onchange="loadEmployeeBeds()"></select>
-      </div>
-
-      <div>
-        <label>السرير</label>
-        <select id="employeeBed"></select>
-      </div>
-
-      <div>
-        <label>الحالة</label>
-       <select id="employeeStatus">
-  <option value="active">على رأس العمل</option>
-  <option value="mission">في مهمة</option>
-  <option value="vacation">إجازة</option>
-  <option value="temporary_absence">غائب مؤقتًا</option>
-  <option value="temporary_transfer">منقول مؤقتًا</option>
-  <option value="left">ترك العمل</option>
-</select>
-      </div>
-
-    </div>
-
-    <div class="actions" style="margin-top:20px">
-     <button id="employeeSaveButton" class="btn" onclick="saveEmployee()">حفظ</button>
-      <button class="btn btn-secondary" onclick="closeModal('employeeModal')">إلغاء</button>
-    </div>
-  </div>
-</div>
 
 <!-- VIOLATION MODAL -->
 <div id="violationModal" class="modal">
@@ -3429,7 +3430,6 @@ function openEmployeeModal(){
   document.getElementById("employeeBed").innerHTML =
     `<option value="">اختر السرير</option>`;
 
-  document.getElementById("employeeModal").classList.add("show");
 }
 
 
@@ -3458,65 +3458,36 @@ async function loadEmployeeRooms(){
         </option>`;
     });
 }
-async function editEmployee(id){
 
-  if(!isManager() && !isSupervisor()) return;
+function openEmployeeModal(){
 
-  const employee =
-    employees.find(e => e.id === id);
+  if(!isManager() && !isSupervisor() && !isHR()) return;
 
-  if(!employee){
-    alert("لم يتم العثور على الموظف");
-    return;
-  }
+  document.getElementById("employeeId").value="";
+  document.getElementById("employeeNo").value="";
+  document.getElementById("employeeName").value="";
+  document.getElementById("employeeDepartment").value="";
+  document.getElementById("employeeJob").value="";
+  document.getElementById("employeePhone").value="";
+  document.getElementById("employeeStatus").value="active";
+  document.getElementById("employeeShift").value="صباحي";
 
-  document.getElementById("employeeId").value =
-    employee.id;
+  document.getElementById("employeeModalTitle").textContent =
+    "إضافة موظف";
 
-  document.getElementById("employeeNo").value =
-    employee.employee_no || "";
-
-  document.getElementById("employeeName").value =
-    employee.name || "";
-
-  document.getElementById("employeeDepartment").value =
-    employee.department || "";
-
-  document.getElementById("employeeJob").value =
-    employee.job || "";
-
-  document.getElementById("employeePhone").value =
-    employee.phone || "";
-
-  document.getElementById("employeeShift").value =
-    employee.shift || "صباحي";
-
-  document.getElementById("employeeStatus").value =
-    employee.status || "active";
+  document.getElementById("employeeSaveButton").textContent =
+    "حفظ";
 
   fillBuildingSelects();
 
-  document.getElementById("employeeBuilding").value =
-    employee.building_id || "";
+  document.getElementById("employeeBuilding").value="";
+  document.getElementById("employeeRoom").innerHTML =
+    `<option value="">اختر الغرفة</option>`;
+  document.getElementById("employeeBed").innerHTML =
+    `<option value="">اختر السرير</option>`;
 
-  await loadEmployeeRooms();
-
-  document.getElementById("employeeRoom").value =
-    employee.room_id || "";
-
-  await loadEmployeeBeds();
-
-  document.getElementById("employeeBed").value =
-    employee.bed_id || "";
-
-  document.getElementById("employeeModalTitle").textContent =
-    "تعديل الموظف";
-
-  document.getElementById("employeeSaveButton").textContent =
-    "تعديل";
-
-  document.getElementById("employeeModal").classList.add("show");
 }
+
 
 async function loadEmployeeBeds(){
 
@@ -4957,7 +4928,29 @@ function closeModal(id){
 
     return;
   }
+  if(id === "employeeModal"){
 
+    document.getElementById("employeeId").value = "";
+    document.getElementById("employeeModalTitle").textContent = "إضافة موظف";
+    document.getElementById("employeeSaveButton").textContent = "حفظ";
+
+    document.getElementById("employeeNo").value = "";
+    document.getElementById("employeeName").value = "";
+    document.getElementById("employeeDepartment").value = "";
+    document.getElementById("employeeJob").value = "";
+    document.getElementById("employeePhone").value = "";
+    document.getElementById("employeeShift").value = "صباحي";
+    document.getElementById("employeeStatus").value = "active";
+    document.getElementById("employeeBuilding").value = "";
+
+    document.getElementById("employeeRoom").innerHTML =
+      `<option value="">اختر الغرفة</option>`;
+
+    document.getElementById("employeeBed").innerHTML =
+      `<option value="">اختر السرير</option>`;
+
+    return;
+  }
   document.getElementById(id).classList.remove("show");
 }
 
