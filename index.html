@@ -4933,8 +4933,11 @@ function closeModal(id){
     document.getElementById("buildingAddress").value = "";
     document.getElementById("buildingFloors").value = 1;
 
-    return;
+      return;
   }
+
+  document.getElementById(id).classList.remove("show");
+}
 
 
 /* =========================================================
